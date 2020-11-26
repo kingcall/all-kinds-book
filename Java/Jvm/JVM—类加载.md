@@ -90,6 +90,16 @@ Java 虚拟机规范并没有要求在链接过程中完成解析。它仅规定
 -  加载阶段是针对单个类的，一般用到的类才会被加载。大部分情况下，不同类的加载阶段是不同的。
 -  在加载阶段就该已经写入了方法区，只是被标记为未链接而暂不能使用。
 
+
+
+### Class.forName和classloader的区别
+
+Java中Class.forName和classloader都可以用来对类进行加载。
+
+Class.forName除了将类的.class文件加载到jvm中之外，还会对类进行解释，执行类中的static块。
+
+而classloader只将.class文件加载到jvm中，不会执行static中的内容，只有在newInstance才会去执行static块。
+
 ## 类加载器
 
 - 虚拟机中通过一个类的全限定名来捕获类的二进制字节流的代码模块就是类加载器，类加载器开放了自己的加载，让程序可以自行决定类的加载
