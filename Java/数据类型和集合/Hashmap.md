@@ -17,12 +17,9 @@
 
 1. 对于 HashMap 中的每个 key，首先通过 hash function 计算出一个 hash 值,这个hash值经过取模运算就代表了在 buckets 里的编号 buckets 实际上是用数组来实现的，所以把这个hash值模上数组的长度得到它在数组的 index，就这样把它放在了数组里。
 2. 如果果不同的元素算出了相同的哈希值，那么这就是**哈希碰撞**，即多个 key 对应了同一个桶。这个时候就是解决hash冲突的时候了，展示真正技术的时候到了。
-
-
+3. **随着插入的元素越来越多，发生碰撞的概率就越大，某个桶中的链表就会越来越长**，直到达到一个阈值，`HashMap`就受不了了，为了提升性能，会将超过阈值的链表转换形态，转换成红黑树的结构，这个阈值是 8 。也就是单个桶内的链表节点数大于 8 ，就会将链表有可能变身为红黑树。
 
 #### 解决Hash冲突的方法
-
-
 
 ##### 开放定址法
 
@@ -62,9 +59,7 @@ Hi=RH1（key） i=1，2，…，k
 
 当我们像数组中插入数据的时候，大多数时候存的都是一个一个 Node 类型的元素，Node 是 `HashMap`中定义的静态内部类
 
-
-
-![image-20201126201530233](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:15:30-image-20201126201530233.png)
+![image-20201127171502527](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/17:15:03-image-20201127171502527.png)
 
 
 
@@ -94,7 +89,7 @@ public class JavaHashMap {
 
 ## HashMap 的关键内部元素
 
-![](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:16:11-image-20201126201610892.png)
+
 
 ### 存储容器 table;
 
@@ -127,9 +122,12 @@ size这个字段其实很好理解，就是HashMap中实际存在的键值对数
      }
 }
 ```
-- Node是HashMap的一个内部类，实现了Map.Entry接口，本质是就是一个映射(键值对),主要包括 hash、key、value 和 next 的属性。比如之后我们使用 put 方法像其中加键值对的时候，就会转换成 Node 类型。
+- Node是HashMap的一个静态内部类。实现了Map.Entry接口，本质是就是一个映射(键值对),主要包括 hash、key、value 和 next 的属性。
+- 我们使用 put 方法像其中加键值对的时候，就会转换成 Node 类型。其实就是`newNode(hash, key, value, null);`
 
 ### TreeNode
+
+当桶内链表到达 8 的时候，会将链表转换成红黑树，就是 `TreeNode`类型，它也是 `HashMap`中定义的静态内部类。
 
 ```
 static final class TreeNode<K,V> extends LinkedHashMap.Entry<K,V> {
@@ -158,7 +156,27 @@ modCount字段主要用来记录HashMap内部结构发生变化的次数，**主
 
 
 
-## debug 源码
+### 阈值 threshold
+
+它是加在因子乘以初始值大小，后续扩容的时候和数组大小一样，2倍进行扩容
+
+```
+threshold = (DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY)
+```
+
+
+
+### 实际存储元素个数 size
+
+size 默认大小是0 ，它指的是数组存储的元素个数，而不是整个hashmap 的元素个数，对于下面这张图就是3 而不是11
+
+```
+transient int size;
+```
+
+![image-20201127171502527](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/17:29:20-17:15:03-image-20201127171502527.png)“
+
+## debug 源码 插入元素的过程
 
 ```
 public class JavaHashMap {
@@ -174,15 +192,15 @@ public class JavaHashMap {
 
 ### 调用 putval()
 
--  Put 方法实际上调用的实  putval() 方法
+Put 方法实际上调用的实  putval() 方法
 
-![image-20201126204454960](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:44:56-image-20201126204454960.png)
+![image-20201126204454960](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:44:56-image-20201126204454960.png)“
 
 可以看出在进入putval() 方法之间，需要借助hash 方法先计算出key 的hash 值，然后将key 的hash值和key同时传入 
 
 #### 调用hash() 方法
 
-![image-20201126204634472](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:46:38-20:46:35-image-20201126204634472.png)
+![image-20201126204634472](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:46:38-20:46:35-image-20201126204634472.png)“
 - 这个key的hashCode()方法得到其hashCode 值（该方法适用于每个Java对象），然后再通过Hash算法的后两步运算（高位运算和取模运算，下文有介绍）来定位该键值对的存储位置，有时两个key会定位到相同的位置，表示发生了Hash碰撞。当然Hash算法计算结果越分散均匀，Hash碰撞的概率就越小，map的存取效率就会越高。
 - 在JDK1.8的实现中，优化了高位运算的算法，通过hashCode()的高16位异或低16位实现的：(h = k.hashCode()) ^ (h >>> 16)，主要是从速度、功效、质量来考虑的，这么做可以在数组table的length比较小的时候，也能保证考虑到高低Bit都参与到Hash的计算中，同时不会有太大的开销。
 
@@ -247,7 +265,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 
 第一次调用，这里table 是null,所以会走resize 方法
 
-![image-20201126205708504](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:57:09-image-20201126205708504.png)
+![image-20201126205708504](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:57:09-image-20201126205708504.png)“
 
 resize 方法本身也是比较复杂的，因为这里是第一次调用，所以这里进行了简化
 
@@ -302,7 +320,7 @@ newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
 ```
 初始化之后，将新创建的数组返回，在返回之前完成了对变量table 的赋值
 
-![image-20201126211551514](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/21:15:52-image-20201126211551514.png)
+![image-20201126211551514](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/21:15:52-image-20201126211551514.png)“
 
 
 
@@ -321,13 +339,15 @@ table = newTab;
 
 ##### 1 没有 直接放入当前位置
 
-![image-20201126212145456](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/21:21:46-image-20201126212145456.png)
+
+
+![image-20201126212145456](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/21:21:46-image-20201126212145456.png)“
 
 ##### 2 有 将当前节点记做p
 
 
 
-![](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/08:50:35-22:05:52-21:35:06-image-20201126213504797.png)
+![](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/08:50:35-22:05:52-21:35:06-image-20201126213504797.png)“
 
 当前节点记做p 然后进入else 循环
 
@@ -375,7 +395,7 @@ else {
 
 如果当前元素是一个 TreeNode 则将当前元素放入红黑树，然后
 
-![image-20201126220247642](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/22:02:48-image-20201126220247642.png)
+![image-20201126220247642](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/22:02:48-image-20201126220247642.png)“
 
 ###### 判断插入链表
 
@@ -389,7 +409,7 @@ else {
 
   
 
-  ![image-20201126220940075](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/22:09:44-22:09:41-image-20201126220940075.png)
+  ![image-20201126220940075](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/22:09:44-22:09:41-image-20201126220940075.png)“
 
   
 
@@ -403,6 +423,8 @@ else {
   ```
 
   1、这段代码也是上图中的第一个if这段代码的意思就是在遍历链表的过程中，一直都没有遇到和待插入key 相同的key(第二个if) 然后当前要插入的元素插入到了链表的尾部(当前if 语句)
+
+  > 第二个if 的意思 如果有发生key冲突则停止 后续这个节点会被相同的key覆盖
 
   2、插入之后判断判断局部变量binCount 时候大于7(TREEIFY_THRESHOLD-1),这里需要注意的是binCount 是从0开始的，所以实际的意思是判断链表的长度**在插入新元素之前**是否大于等于8，如果是的话则进行树化
 
@@ -554,9 +576,9 @@ oldTab 也就是老的数组不为空的时候进行迁移
   }
 ```
 
-- 判断当前元素的next 是否为空，不是则直接放入，其实就是只有一个元素
-- 是的话，判断是不是TreeNode,不是的话则直接遍历链表进行拷贝
-- 是的话则调用 TreeNode.split()  方法
+- 判断当前元素的next 是否为空，是则直接放入，其实就是只有一个元素，说明这是一个最正常的节点，不是桶内链表，也不是红黑树，这样的节点会重新计算索引位置，然后插入。
+- 是的话，判断是不是TreeNode,不是的话则直接遍历链表进行拷贝，保证链表的顺序不变。
+- 是的话则调用 TreeNode.split()  方法，如果是一颗红黑树，则使用 `split`方法处理，原理就是将红黑树拆分成两个 TreeNode 链表，然后判断每个链表的长度是否小于等于 6，如果是就将 TreeNode 转换成桶内链表，否则再转换成红黑树。
 - 完成数据的拷贝，返回新的数组
 
 #### 第三部分 返回新的数组
@@ -614,6 +636,10 @@ final void treeifyBin(Node<K,V>[] tab, int hash) {
 
 
 
+## 获取元素的过程
+
+
+
 ## 总结
 
 ### resize 方法总结
@@ -643,7 +669,41 @@ resize 不是无限的，当到达resize 的上限，也就是2<sup>30</sup> 之
 
 - 树化是发生在元素插入链表之后，并且这里是插入到链表的尾部导致链表的长度发生了变化的情况下(也就是走的for循环里的第一个if 语句)，而不是替换了链表里面的某一元素(也就是走的for循环里的第二个if 语句)
 
-  ![image-20201127114314435](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/11:43:19-image-20201127114314435.png)
+  ![image-20201127114314435](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/11:43:19-image-20201127114314435.png)“
+
+  ```
+  final void treeifyBin(Node<K,V>[] tab, int hash) {
+      int n, index; Node<K,V> e;
+      if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
+          resize();
+      else if ((e = tab[index = (n - 1) & hash]) != null) {
+          TreeNode<K,V> hd = null, tl = null;
+          do {
+              TreeNode<K,V> p = replacementTreeNode(e, null);
+              if (tl == null)
+                  hd = p;
+              else {
+                  p.prev = tl;
+                  tl.next = p;
+              }
+              tl = p;
+          } while ((e = e.next) != null);
+          if ((tab[index] = hd) != null)
+              hd.treeify(tab);
+      }
+  }
+  ```
+
+  其实这代码上面有一段注释的，这里也帖一下,在table 太小的情况下，使用resize 否则替换指的位置链表上的全部Nodes（其实就是替换成红黑树）
+
+  ```
+   /**
+    * Replaces all linked nodes in bin at index for given hash unless
+    * table is too small, in which case resizes instead.
+    */
+  ```
+
+  其实这里有一个隐含的意义，就是数组不大的时候，希望通过resize 的方法降低hash 冲突的概率，从而避免链表过长降低查询时间，但是当数组比较大的时候reszie 成本太高，则通过将链表转化成红黑树来降低查询时间
 
   
 
@@ -703,3 +763,20 @@ JDK 1.8 中，是通过 hashCode() 的高 16 位异或低 16 位实现的：(h =
 发生hash碰撞时，java 1.7 会在链表的头部插入，而java 1.8会在链表的尾部插入
 
 在java 1.8中，Entry被Node替代(换了一个马甲)
+
+### Hashmap 的容量大小为什么要求是2<sup>n</sup>
+
+这里首选要说明一个前提，那就是元素在数组中的位置的计算方式是 tab[i = (n - 1) & hash] 也就是通过对数组大小求模得到的，因为我们知道hash 的计算方式是  hashCode() 的高 16 位异或低 16 位实现的，32 位值只要有一位发生改变，整个 hash() 返回值就会改变，也就是说我们的hash 值发生冲突的概率是比较小的，也就是说hash 值是比较随机的
+
+所以更多的冲突是发生在取模的时候，所以这个时候只要保证了我们的取模运算 (n - 1) & hash，尽量能保证hash 值的特性也就是随机性。因为我们知道与运算的特点是,两位同时为“1”，结果才为“1”，否则为0
+
+所以这个时候我们只要 (n - 1) 让的二进制表示都是一串1，例如"011111" 就可以了，因为安位与1 结果是不变的，也就是可以延续hash 值的散列性
+
+其实到这里就差不多了，然后我们看2<sup>n</sup> 的表示特点，然后就知道为什么要就hashmap 的大小是 2<sup>n</sup>了, 2<sup>n</sup>次方的二进制表示大家肯定都很清楚，2的6次方，就是从右向左 6 个 0，然后第 7 位是 1
+
+![image-20201127184124095](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/18:41:25-image-20201127184124095.png)“
+
+
+
+其实这下我们就知道为什么了，因为只有数组的长度是2的次方了，n-1 才能尽可能多的是 1
+
