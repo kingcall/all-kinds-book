@@ -638,7 +638,43 @@ final void treeifyBin(Node<K,V>[] tab, int hash) {
 
 ## 获取元素的过程
 
+```
+public V get(Object key) {
+    Node<K,V> e;
+    return (e = getNode(hash(key), key)) == null ? null : e.value;
+}
 
+/**
+ * Implements Map.get and related methods.
+ *
+ * @param hash hash for key
+ * @param key the key
+ * @return the node, or null if none
+ */
+final Node<K,V> getNode(int hash, Object key) {
+    Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+    if ((tab = table) != null && (n = tab.length) > 0 &&
+        (first = tab[(n - 1) & hash]) != null) {
+        if (first.hash == hash && // always check first node
+            ((k = first.key) == key || (key != null && key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+            if (first instanceof TreeNode)
+                return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+            do {
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
+}
+```
+
+
+
+![image-20201127190819337](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/19:08:20-image-20201127190819337.png)
 
 ## 总结
 
@@ -776,7 +812,5 @@ JDK 1.8 中，是通过 hashCode() 的高 16 位异或低 16 位实现的：(h =
 
 ![image-20201127184124095](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/27/18:41:25-image-20201127184124095.png)“
 
-
-
-其实这下我们就知道为什么了，因为只有数组的长度是2的次方了，n-1 才能尽可能多的是 1
+其实这下我们就知道为什么了，因为只有数组的长度是2的次方了，n-1 的二进制才能尽可能多的是1
 
