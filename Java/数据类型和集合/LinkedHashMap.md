@@ -12,7 +12,7 @@
 
 一顿操作猛如虎，最后LinkedHashMap 长成这样了，其实我没画出来，这里before 和after  节点应该连接起来的，奈何不会画，下面手动画了一张，将就着看吧，意思明白了就行。
 
-![image-20201128162743670](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/16:27:45-image-20201128162743670.png)
+![image-20201128162743670](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/23:14:05-16:27:45-image-20201128162743670.png)
 
 ![image-20201128163708452](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/16:37:09-image-20201128163708452.png)
 
