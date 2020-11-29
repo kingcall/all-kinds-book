@@ -10,11 +10,9 @@
 
 ### LinkedHashMap 的最终形态
 
-一顿操作猛如虎，最后LinkedHashMap 长成这样了，其实我没画出来，这里before 和after  节点应该连接起来的，奈何不会画，下面手动画了一张，将就着看吧，意思明白了就行。
+一顿操作猛如虎，最后LinkedHashMap 长成这样了，其实我没画出来，这里before 和after  节点应该连接起来的，奈何不会画，下面手动画了一张，将就着看吧，意思明白了就行。这个时候空间想象力就很重要了，代价一起脑补一下吧！
 
-![image-20201128162743670](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/23:14:05-16:27:45-image-20201128162743670.png)
-
-![image-20201128163708452](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/16:37:09-image-20201128163708452.png)
+![image-20201129222921735](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/29/22:29:22-image-20201129222921735.png)
 
 
 
@@ -685,7 +683,7 @@ LinkedHashMap重写了其中的afterNodeRemoval(Node e)，该方法在HashMap中
 
 ### LinkedHashMap 的有序性
 
-LinkedHashMap 指的是遍历的时候的有序性，而有序性是通过双向链表实现的，真实的存储之间是没有顺序的，和Hashmap 一样
+LinkedHashMap 指的是遍历的时候的有序性，而有序性是通过双向链表实现的，真实的存储之间是没有顺序的，和Hashmap 一样，接下来LinkedHashMap 就是实现了很多方法来维护这个有序性
 
 ### 如何实现一个固定大小的LinkedHashMap
 

@@ -9,6 +9,14 @@
 
 ### Hashmap 的继承关系
 
+HashMap 的继承关系
+
+![image-20201129184457031](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/29/18:44:58-image-20201129184457031.png)
+
+
+
+Map 家族的继承关系
+
 ![image-20201126201445602](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/20:14:46-image-20201126201445602.png)
 
 
