@@ -211,3 +211,9 @@ java5后引入的，不常用，调用类方法时会比较简单，但可读性
 ## 七. 总结
 
 static是java中很常用的一个关键字，使用场景也很多，本文主要介绍了它的五种用法，static变量，static方法，static代码块，static内部类，static包内导入，若有不对之处，请批评指正，望共同进步，谢谢！
+
+
+
+
+
+![image-20201130102040162](C:\Users\Wenqliu\AppData\Roaming\Typora\typora-user-images\image-20201130102040162.png)
