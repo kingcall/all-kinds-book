@@ -1,6 +1,6 @@
 StringBuilder与StringBuffer作用就是用来处理字符串，但String类本身也具备很多方法可以用来处理字符串，那么为什么还要引入这两个类呢？
 
-关于String的讲解请看[Java基础(三) String深度解析](https://www.cnblogs.com/LiaHon/p/11068050.html)
+关于String的讲解请看[Java基础(三) String深度解析]()
 
 首先看下面的例子
 
