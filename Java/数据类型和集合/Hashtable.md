@@ -363,7 +363,7 @@ protected void rehash() {
 4. HashTable 的元素是头插法，也就是插入到链表的头部，因为HashTable 是线程安全的，在这个前提下，使用头查法性能更好，否则还有遍历到链表的尾部插入
 5. HashTable 是没有红黑树支持的，就是不论链表的长度有多长，都不会转化成红黑树
 6.  哈希值的计算不同，HashTable直接使用对象的hashCode。而HashMap重新计算hash值(高16位异或低16位)，并且HashMap 支持key 为null 就是在这里的
-7.   Hashtable扩容时，将容量变为原来的2倍加1，而HashMap扩容时，将容量变为原来的2倍。
+7.  Hashtable扩容时，将容量变为原来的2倍加1，而HashMap扩容时，将容量变为原来的2倍。
 
 ###  你觉得LinkedHashMap 还有什么可以改进的地方吗，欢迎讨论
 
@@ -395,5 +395,8 @@ private void addEntry(int hash, K key, V value, int index) {
 }
 ```
 
+当然这只是小问题，它最大的问题在设计上，例如hash值的计算方式就没有HashMap 设计的好，还有就是没有红黑树的支持，还有就是线程安全的实现方式也不高效，所以我们说它好像是遗留类
 
+![image-20201125223544817](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/29/22:43:11-22:03:49-22:02:40-22:35:45-image-20201125223544817.png)
 
+扫码关注我们一起学习，一起成长，更多请访问[github](https://github.com/kingcall/all-kinds-book)或者[官网](http://troubleclear.com/)

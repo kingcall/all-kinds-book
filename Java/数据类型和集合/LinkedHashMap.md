@@ -703,7 +703,7 @@ LinkedHashMap 指的是遍历的时候的有序性，而有序性是通过双向
 
 删除元素之后维护
 
-#### linkNodeLast
+#### linkNodeLast(LinkedHashMap.Entry<K,V> p)
 
 也是插入元素之后维护，但是只用于桶上的第一个节点，后面的节点都是用afterNodeAccess或者afterNodeInsertion
 
