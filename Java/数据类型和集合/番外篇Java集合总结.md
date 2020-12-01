@@ -1,3 +1,5 @@
+[TOC]
+
 关于Vector，它的实现和ArrayList非常类似，就不再单开一个章节来讲了，现在我们来对Java集合做一个归纳总结。
 
 ## 一. List框架图
@@ -79,6 +81,15 @@ private void grow(int minCapacity) {
 
 
 
-## 四. 总结
+## 四  HashMap 、TreeMap 、LinkedHashMap
+
+
+
+一般情况下，使用最多的是 HashMap。
+HashMap：在 Map 中插入、删除和定位元素时；
+TreeMap：在需要按自然顺序或自定义顺序遍历键的情况下；
+LinkedHashMap：在需要输出的顺序和输入的顺序相同的情况下。
+
+## 总结
 
 本文对List集合进行了总结，包括类结构图，ArrayList和Vector对比分析，ArrayList和LinkedList的对比分析，若有不对之处，请批评指正，望共同进步，谢谢！

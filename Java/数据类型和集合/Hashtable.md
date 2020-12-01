@@ -2,9 +2,11 @@
 
 ## 概论
 
-Hashtable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的，任一时间只有一个线程能写Hashtable，并发性不如ConcurrentHashMap，因为ConcurrentHashMap引入了分段锁。
+HashTable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的，任一时间只有一个线程能写Hashtable，并发性不如ConcurrentHashMap，因为ConcurrentHashMap引入了分段锁。
 
 Hashtable**不建议在新代码中使用**，不需要线程安全的场合可以用HashMap替换，需要线程安全的场合可以用ConcurrentHashMap替换。 
+
+
 
 ### 对比HashMap 的初始容量
 
@@ -395,7 +397,7 @@ private void addEntry(int hash, K key, V value, int index) {
 }
 ```
 
-当然这只是小问题，它最大的问题在设计上，例如hash值的计算方式就没有HashMap 设计的好，还有就是没有红黑树的支持，还有就是线程安全的实现方式也不高效，所以我们说它好像是遗留类
+当然这只是小问题，它最大的问题在设计上，例如hash值的计算方式就没有HashMap 设计的好，还有就是没有红黑树的支持，还有就是线程安全的实现方式也不高效，所以我们说它好像是遗留类,HashTable 在Java1.0 时代就存在了，而HashMap才是Java1.2才有的
 
 ![image-20201125223544817](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/29/22:43:11-22:03:49-22:02:40-22:35:45-image-20201125223544817.png)
 

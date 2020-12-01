@@ -41,7 +41,15 @@ try{
 
 
 ![image-20201126162526648](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/26/16:25:27-image-20201126162526648.png)
+
+相比于synchronized，ReentrantLock需要显式的获取锁和释放锁，相对现在基本都是用JDK7和JDK8的版本，ReentrantLock的效率和synchronized区别基本可以持平了。他们的主要区别有以下几点：
+
+1. 等待可中断，当持有锁的线程长时间不释放锁的时候，等待中的线程可以选择放弃等待，转而处理其他的任务。
+2. 公平锁：synchronized和ReentrantLock默认都是非公平锁，但是ReentrantLock可以通过构造函数传参改变。只不过使用公平锁的话会导致性能急剧下降。
+3. 绑定多个条件：ReentrantLock可以同时绑定多个Condition条件对象,ReentrantLock基于AQS(**AbstractQueuedSynchronizer 抽象队列同步器**)实现
+
 ## ReadWriteLock
+
 - ReadWriteLock也是一个接口
 ```
 public interface ReadWriteLock {
