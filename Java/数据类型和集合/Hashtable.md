@@ -14,7 +14,7 @@ Hashtable**不建议在新代码中使用**，不需要线程安全的场合可�
 
 需要注意的是Hashtable的默认初始容量大小是11，而HashMap 是16,但是他们的加载因子都是0.75f
 
-```
+```java
     /**
      * Constructs a new, empty hashtable with a default initial capacity (11)
      * and load factor (0.75).
@@ -24,7 +24,7 @@ Hashtable**不建议在新代码中使用**，不需要线程安全的场合可�
     }
 ```
 
-```
+```java
 /**
  * Constructs an empty <tt>HashMap</tt> with the default initial capacity
  * (16) and the default load factor (0.75).
@@ -60,7 +60,7 @@ public Hashtable(int initialCapacity, float loadFactor) {
 
 但是你看一下HashMap 的初始容量就不那么听话了，默认情况下，当我们设置HashMap的初始化容量时，实际上HashMap会采用第一个大于该数值的2的幂作为初始化容量(0 1 除外)
 
-```
+```java
 public HashMap(int initialCapacity, float loadFactor) {
     if (initialCapacity < 0)
         throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
@@ -81,7 +81,7 @@ public HashMap(int initialCapacity, float loadFactor) {
 
 首先HashMap 是支持null 值做key和value 的，但是HashTable 是不支持的，key 也不支持 value 也不支持
 
-```
+```java
 public synchronized V put(K key, V value) {
     // Make sure the value is not null
     if (value == null) {
@@ -110,7 +110,7 @@ public synchronized V put(K key, V value) {
 
 但是需要注意的实HashMap 对null 值虽然支持，但是可以从hash值的计算方法中看出，<null,value>的键值对，value 会覆盖的。
 
-```
+```java
 static final int hash(Object key) {
     int h;
     return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
@@ -123,7 +123,7 @@ static final int hash(Object key) {
 
 大部分代码都是直接copy 的HashTable，只去掉了value 的空值检测
 
-```
+```java
 public class BuerHashTable<K, V> extends Hashtable<K, V> {
 		// ..... 省略了部分代码，直接copy HashTable 的即可，主要是BuerHashTable.Entry 的定义和构造方法
     public synchronized V put(K key, V value) {
@@ -169,7 +169,7 @@ public class BuerHashTable<K, V> extends Hashtable<K, V> {
 
 接下来，就可以将null 值作为value 存入BuerHashTable 了
 
-```
+```java
 BuerHashTable<String, String> buerHashTable = new BuerHashTable<>();
 buerHashTable.put("a", null);
 ```
@@ -188,7 +188,7 @@ buerHashTable.put("a", null);
 
 这个类是HashTable特有继承的，HashMap 是没有继承的，但是这个抽象类其实是没有多大意义的,因为它的方法都在Map接口中有，其实这个就是个历史问题了，因为Map接口是在Java1.2 中才加进去的，而Dictionary抽象类在Java1.0中就存在了
 
-```
+```java
 public abstract
 class Dictionary<K,V> {
     public Dictionary() {
@@ -222,7 +222,7 @@ NOTE: This class is obsolete.  New implementations should implement the Map inte
 
 其实HashTable 没有那么多要说的，比较重要的一点就是线程安全，但是这个线程安全的实现方式就是所有的操作都加了synchronized关键字，哈哈！ 关于synchronized 我们后面会说
 
-```
+```java
 public synchronized int size() {}
 public synchronized boolean isEmpty() {}
 public synchronized boolean contains(Object value) {}
@@ -242,7 +242,7 @@ Hashtable则保留了contains，containsValue和containsKey三个方法，其中
 
 ### debug 源码 put 方法
 
-```
+```java
 public synchronized V put(K key, V value) {
     // Make sure the value is not null 确保value 不是null
     if (value == null) {
@@ -278,7 +278,7 @@ public synchronized V put(K key, V value) {
 
 ```
 
-```
+```java
 private void addEntry(int hash, K key, V value, int index) {
     modCount++;
     Entry<?,?> tab[] = table;
@@ -301,7 +301,7 @@ private void addEntry(int hash, K key, V value, int index) {
 
 这里我们对比一下HashMap 的添加方法,很明显别人都是添加的链表尾部的，因为HashTable 是线程安全的，在这个前提下，使用头查法性能更好，否则还有遍历到链表的尾部插入
 
-```
+```java
 for (int binCount = 0; ; ++binCount) {
     if ((e = p.next) == null) {
         p.next = newNode(hash, key, value, null);
@@ -318,7 +318,7 @@ for (int binCount = 0; ; ++binCount) {
 
 最后我们再看一下扩容的方法
 
-```
+```java
 @SuppressWarnings("unchecked")
 protected void rehash() {
     int oldCapacity = table.length;
@@ -373,7 +373,7 @@ protected void rehash() {
 
 虽然java 源代码的山很高，如果你想跨越，至少你得有登山的勇气，这里我给出自己的一点点愚见，希望各位不吝指教
 
-```
+```java
 int hash = key.hashCode();
 addEntry(hash, key, value, index);
 private void addEntry(int hash, K key, V value, int index) {
