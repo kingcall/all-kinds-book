@@ -68,7 +68,7 @@
 
 下面是一张 intel 家族产品图，是一个详细的计算机硬件分类，我们在根据图中涉及到硬件进行介绍
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vECeX29jmkrBwQduyAbyGlfNlc41deTzGZ2nn269SgF7X2iagibxibO5OOw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:27:26-640-20201202162725075.png)
 
 - `总线(Buses)`：在整个系统中运行的是称为总线的电气管道的集合，这些总线在组件之间来回传输字节信息。通常总线被设计成传送定长的字节块，也就是 `字(word)`。字中的字节数（字长）是一个基本的系统参数，各个系统中都不尽相同。现在大部分的字都是 4 个字节（32 位）或者 8 个字节（64 位）。
 
@@ -114,7 +114,7 @@
 
 一个进程就是一个正在执行的程序的实例，进程也包括程序计数器、寄存器和变量的当前值。从概念上来说，每个进程都有各自的虚拟 CPU，但是实际情况是 CPU 会在各个进程之间进行来回切换。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEhXRpS2S4AA0l4Yic9jduicFTDpAbp64Pg8pU7DGEVVr6Y9uaXC5Q8UDw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:27:44-640-20201202162743720.png)
 
 如上图所示，这是一个具有 4 个程序的多道处理程序，在进程不断切换的过程中，程序计数器也在不同的变化。
 
@@ -124,7 +124,7 @@
 
 从下图我们可以看到，在观察足够长的一段时间后，所有的进程都运行了，**「但在任何一个给定的瞬间仅有一个进程真正运行」**。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE5by4icspqhssGC2Ocia1aPiaYmibxBmELsjMNQTqxFjLnoVMXTBW0LMueg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:20-640-20201202162920093.png)
 
 因此，当我们说一个 CPU 只能真正一次运行一个进程的时候，即使有 2 个核（或 CPU），**「每一个核也只能一次运行一个线程」**。
 
@@ -174,7 +174,7 @@
 
 尽管每个进程是一个独立的实体，有其自己的程序计数器和内部状态，但是，进程之间仍然需要相互帮助。当一个进程开始运行时，它可能会经历下面这几种状态
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEp2XqcGWibpu66XTt0t2NGYq8m1h2cpa7KGS2ahhoRiawMn0lMKJrhDag/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:26-640-20201202162926174.png)
 
 图中会涉及三种状态
 
@@ -188,7 +188,7 @@
 
 下面展示了一个典型系统中的关键字段
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE5hy8wUWPmpjPCibTuUzv5MNGibXH5ovHRjeMuqng3YCia0we2Ru6vsIIQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:31-640-20201202162931214.png)
 
 典型的进程表表项中的一些字段
 
@@ -227,11 +227,11 @@
 
 下图我们可以看到三个传统的进程，每个进程有自己的地址空间和单个控制线程。每个线程都在不同的地址空间中运行
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEF0ZXHq4TSNSbkkmmbbfQfiaceEYf5PVcnYcoPN1ia05QgnoTMKa099WA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:37-640-20201202162937417.png)
 
 下图中，我们可以看到有一个进程三个线程的情况。每个线程都在相同的地址空间中运行。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE2JwsiacInOZcsicFaMQtpicNhIvYM6dicJNVibu5GeZCS3oG3ZjkEtTeEuQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:42-640-20201202162941936.png)
 
 线程不像是进程那样具备较强的独立性。同一个进程中的所有线程都会有完全一样的地址空间，这意味着它们也共享同样的全局变量。由于每个线程都可以访问进程地址空间内每个内存地址，**「因此一个线程可以读取、写入甚至擦除另一个线程的堆栈」**。线程之间除了共享同一内存空间外，还具有如下不同的内容
 
@@ -243,7 +243,7 @@
 
 每个线程都会有自己的堆栈，如下图所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEYPNxbkoK4hDSFss6q4sIw1libvibGSFOPicvDibPwd3Sz058JEb3tjbn1g/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:46-640-20201202162946343.png)
 
 #### 线程系统调用
 
@@ -257,7 +257,7 @@
 
 `POSIX 线程 通常称为 pthreads`是一种独立于语言而存在的执行模型，以及并行执行模型。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEpzfWHjGSpcQD8UrViaEzAAXWgJR59rS6Exa4ZtO0ozQcg49MeuoKXEw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:51-640-20201202162951347.png)
 
 它允许程序控制时间上重叠的多个不同的工作流程。每个工作流程都称为一个线程，可以通过调用 POSIX Threads API 来实现对这些流程的创建和控制。可以把它理解为线程的标准。
 
@@ -304,7 +304,7 @@
 
 当某个线程希望创建一个新线程或撤销一个已有线程时，它会进行一个系统调用，这个系统调用通过对线程表的更新来完成线程创建或销毁工作。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEArf7aAht7HrmZcusW45hdHsM3E7YlPsOibZxX7FoBIB6fbeJtwQ0bMQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:29:57-640-20201202162957154.png)
 
 在内核中实现多线程
 
@@ -316,7 +316,7 @@
 
 结合用户空间和内核空间的优点，设计人员采用了一种`内核级线程`的方式，然后将用户级线程与某些或者全部内核线程多路复用起来
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE6ZzE6fEns5UaT4q4zKOQE09PtDSy61UkltS2UZnAkXRIJdRnkj2PLg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:02-640-20201202163001642.png)
 
 用户线程与内核线程的多路复用
 
@@ -326,7 +326,7 @@
 
 进程是需要频繁的和其他进程进行交流的。下面我们会一起讨论有关 `进程间通信(Inter Process Communication, IPC)` 的问题。大致来说，进程间的通信机制可以分为 6 种
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEXl0CAI9fVVc0FGbFI2UoaVPnic9ibUdsUDh2R9X0icEaNjoiborAbqtichg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:12-640-20201202163012025.png)
 
 下面我们分别对其进行概述
 
@@ -346,7 +346,7 @@
 
 Linux 系统中的进程可以通过建立管道 pipe 进行通信
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEicp1NHYdCJYjT8XviaUwVb3iaY0Fias9MICFOUk68q7U9KzCJRyAicBrHZQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:20-640-20201202163019835.png)
 
 在两个进程之间，可以建立一个通道，一个进程向这个通道里写入字节流，另一个进程从这个管道中读取字节流。管道是同步的，当进程尝试从空管道读取数据时，该进程会被阻塞，直到有可用数据为止。shell 中的`管线 pipelines` 就是用管道实现的，当 shell 发现输出
 
@@ -366,7 +366,7 @@ sort <f | head
 
 两个进程之间还可以通过共享内存进行进程间通信，其中两个或者多个进程可以访问公共内存空间。两个进程的共享工作是通过共享内存完成的，一个进程所作的修改可以对另一个进程可见(很像线程间的通信)。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE7hxKZBHicN92rp7kYthTHKERol2Cb8HA7RJOMpib3niaPUMY9TW8ze0sw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:25-640-20201202163024641.png)
 
 在使用共享内存前，需要经过一系列的调用流程，流程如下
 
@@ -418,7 +418,7 @@ sort <f | head
 
 最简单的非抢占式调度算法的设计就是 `先来先服务(first-come,first-serverd)`。当第一个任务从外部进入系统时，将会立即启动并允许运行任意长的时间。它不会因为运行时间太长而中断。当其他作业进入时，它们排到就绪队列尾部。当正在运行的进程阻塞，处于等待队列的第一个进程就开始运行。当一个阻塞的进程重新处于就绪态时，它会像一个新到达的任务，会排在队列的末尾，即排在所有进程最后。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEia7iakhbMy8zwzqFwGdXESexQe88fGLIyhDZG9cSy2FgUVCs81VvSkfg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:29-640-20201202163029374.png)
 
 这个算法的强大之处在于易于理解和编程，在这个算法中，一个单链表记录了所有就绪进程。要选取一个进程运行，只要从该队列的头部移走一个进程即可；要添加一个新的作业或者阻塞一个进程，只要把这个作业或进程附加在队列的末尾即可。这是很简单的一种实现。
 
@@ -426,7 +426,7 @@ sort <f | head
 
 批处理中，第二种调度算法是 `最短作业优先(Shortest Job First)`，我们假设运行时间已知。例如，一家保险公司，因为每天要做类似的工作，所以人们可以相当精确地预测处理 1000 个索赔的一批作业需要多长时间。当输入队列中有若干个同等重要的作业被启动时，调度程序应使用最短优先作业算法
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vERcia3COAFdZSGUMSp0cDSVjjV5R1PuGjXGGZuvDmXDkic0nUpoZBG3fQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:35-640-20201202163034916.png)
 
 > ❝
 >
@@ -446,13 +446,13 @@ sort <f | head
 
 一种最古老、最简单、最公平并且最广泛使用的算法就是 `轮询算法(round-robin)`。每个进程都会被分配一个时间段，称为`时间片(quantum)`，在这个时间片内允许进程运行。如果时间片结束时进程还在运行的话，则抢占一个 CPU 并将其分配给另一个进程。如果进程在时间片结束前阻塞或结束，则 CPU 立即进行切换。轮询算法比较容易实现。调度程序所做的就是维护一个可运行进程的列表，就像下图中的 a，当一个进程用完时间片后就被移到队列的末尾，就像下图的 b。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEWA9NWsdwGn9TYibEueTv90MA90gYGtp0aNHMvEwKEUhqp9evxJAU8zA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:41-640-20201202163040544.png)
 
 #### 优先级调度
 
 轮询调度假设了所有的进程是同等重要的。但事实情况可能不是这样。例如，在一所大学中的等级制度，首先是院长，然后是教授、秘书、后勤人员，最后是学生。这种将外部情况考虑在内就实现了`优先级调度(priority scheduling)`
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE0dUWLPvmL09lc0TrYaMhezGpjGRia9anhAu34jlicqXTW7OhCJhlxzzQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:45-640-20201202163045333.png)
 
 它的基本思想很明确，每个进程都被赋予一个优先级，优先级高的进程优先运行。
 
@@ -484,7 +484,7 @@ sort <f | head
 
 为了阻止这种情况的出现，一些系统在调度前会把进程的拥有者考虑在内。在这种模型下，每个用户都会分配一些CPU 时间，而调度程序会选择进程并强制执行。因此如果两个用户每个都会有 50% 的 CPU 时间片保证，那么无论一个用户有多少个进程，都将获得相同的 CPU 份额。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEcf8F1AETmJ8BG7SDeAP0MyGgKX70KM3FTLO0um1cceyRkzuKibE0Mibw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:52-640-20201202163052026.png)
 
 ### 实时系统中的调度
 
@@ -498,7 +498,7 @@ sort <f | head
 
 下面我们来了解一下内存管理，你需要知道的知识点如下
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE2cuJt37ZGic3wGy5n0n39ChVib1REX0WnaviaBicP3ibqEoSkMwErZ7EFFg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:30:57-640-20201202163057339.png)
 
 ## 地址空间
 
@@ -525,11 +525,11 @@ sort <f | head
 
 下面是一个交换过程
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEKyNXZtibsItDMlhqffmccnaMAuLxKHibAssg6bC8a0dgXqhehKgNfQJQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:31:02-640-20201202163102260.png)
 
 刚开始的时候，只有进程 A 在内存中，然后从创建进程 B 和进程 C 或者从磁盘中把它们换入内存，然后在图 d 中，A 被换出内存到磁盘中，最后 A 重新进来。因为图 g 中的进程 A 现在到了不同的位置，所以在装载过程中需要被重新定位，或者在交换程序时通过软件来执行；或者在程序执行期间通过硬件来重定位。基址寄存器和变址寄存器就适用于这种情况。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEzJnuibxYBAmhY2T3R6qnXKq47N43voHdIOTKGFhvAmXbREYaHXbLqDA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:31:06-640-20201202163106284.png)
 
 交换在内存创建了多个 `空闲区(hole)`，内存会把所有的空闲区尽可能向下移动合并成为一个大的空闲区。这项技术称为`内存紧缩(memory compaction)`。但是这项技术通常不会使用，因为这项技术会消耗很多 CPU 时间。
 
@@ -578,7 +578,7 @@ MOV REG,1000
 
 这些程序生成的地址被称为 `虚拟地址(virtual addresses)` 并形成`虚拟地址空间(virtual address space)`，在没有虚拟内存的计算机上，系统直接将虚拟地址送到内存中线上，读写操作都使用同样地址的物理内存。**「在使用虚拟内存时，虚拟地址不会直接发送到内存总线上」**。相反，会使用 `MMU(Memory Management Unit)` 内存管理单元把**「虚拟地址映射为物理内存地址」**，像下图这样
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEew9EJ1vic20UZSWFCqhhbpYHvYbFW3YFvuMLXP0WVDs5vTIVy9VTBlA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:31:14-640-20201202163113952.png)
 
 下面这幅图展示了这种映射是如何工作的
 
@@ -592,7 +592,7 @@ MOV REG,1000
 
 虚拟页号可作为页表的索引用来找到虚拟页中的内容。由页表项可以找到页框号（如果有的话）。然后把页框号拼接到偏移量的高位端，以替换掉虚拟页号，形成物理地址。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEe7dGpdiciblTjK7LZyib7z4InMZjpFnIKGoPMVnXIf5YE9og11jxQSzDQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:31:18-640-20201202163118371.png)
 
 因此，页表的目的是把虚拟页映射到页框中。从数学上说，页表是一个函数，它的参数是虚拟页号，结果是物理页框号。
 
@@ -661,7 +661,7 @@ MOV REG,1000
 
 这种算法叫做 `第二次机会(second chance)`算法，就像下面这样，我们看到页面 A 到 H 保留在链表中，并按到达内存的时间排序。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE9EG2UCAWlQfLDTrXoM4M25cP0IwiaicJ4b2ULRhicCn7Y1rBntJpebbbg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:31:26-640-20201202163125942.png)
 
 a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺页异常中断并且 A 的 R 位已经设置时的页面链表。
 
@@ -673,7 +673,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 一种比较好的方式是把所有的页面都保存在一个类似钟面的环形链表中，一个表针指向最老的页面。如下图所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEF5O2zHbG28F24ybWU1eJxhTMKvBaNEfUJics0VxKkaib6W937TibkgCpA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:32:00-640-20201202163159963.png)
 
 当缺页错误出现时，算法首先检查表针指向的页面，如果它的 R 位是 0 就淘汰该页面，并把新的页面插入到这个位置，然后把表针向前移动一位；如果 R 位是 1 就清除 R 位并把表针前移一个位置。重复这个过程直到找到了一个 R 位为 0 的页面位置。了解这个算法的工作方式，就明白为什么它被称为 `时钟(clokc)`算法了。
 
@@ -694,7 +694,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 修改以后的算法称为 `老化(aging)` 算法，下图解释了老化算法是如何工作的。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEV2sUnNh6nc5Vpcr1XGsrZxBRKmJ6iaN2Fpu7ZcmcicCSu35wV2XypU9Q/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:32:07-640-20201202163206996.png)
 
 我们假设在第一个时钟周期内页面 0 - 5 的 R 位依次是 1，0，1，0，1，1，（也就是页面 0 是 1，页面 1 是 0，页面 2 是 1 这样类推）。也就是说，**「在 0 个时钟周期到 1 个时钟周期之间，0，2，4，5 都被引用了」**，从而把它们的 R 位设置为 1，剩下的设置为 0 。在相关的六个计数器被右移之后 R 位被添加到 `左侧` ，就像上图中的 a。剩下的四列显示了接下来的四个时钟周期内的六个计数器变化。
 
@@ -708,7 +708,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 这个算法与 LRU 算法有两个重要的区别：看一下上图中的 `e`，第三列和第五列
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEicewAiaOHpbGROhNkaPEUr7wicrN9UAKct8TL5Erc3FicVUwKdNwkjzkvg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:32:11-640-20201202163211220.png)
 
 ### 工作集时钟页面置换算法
 
@@ -716,7 +716,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 与时钟算法一样，所需的数据结构是一个以页框为元素的循环列表，就像下面这样
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEjOicLLQvVBfbcJ7HehjXMwBf5giaphPtSkP1oFtaJ3mqhDLpHKoQYaag/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:32:34-640-20201202163234059.png)
 
 工作集时钟页面置换算法的操作：a) 和 b) 给出 R = 1 时所发生的情形；c) 和 d) 给出 R = 0 的例子
 
@@ -768,7 +768,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 下面来聊一聊文件系统，你需要知道下面这些知识点
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEico5PjS1u8MZkU3Yvn2vJGb5ldgRNkcBGBpoBWz6c2ILUCialcC5hpibw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:32:41-640-20201202163241063.png)
 
 ## 文件
 
@@ -780,7 +780,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 某些文件区分大小写字母，而大多数则不区分。`UNIX` 属于第一类；历史悠久的 `MS-DOS` 属于第二类（顺便说一句，尽管 MS-DOS 历史悠久，但 MS-DOS 仍在嵌入式系统中非常广泛地使用，因此它绝不是过时的）；因此，UNIX 系统会有三种不同的命名文件：`maria`、`Maria`、`MARIA` 。在 MS-DOS ，所有这些命名都属于相同的文件。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vENfqns0NoFfaadMKVIVedKqstwsQYTyba9eIyHemoC34rRXRCTA1U1w/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:32:46-640-20201202163245708.png)
 
 许多操作系统支持两部分的文件名，它们之间用 `.` 分隔开，比如文件名 `prog.c`。原点后面的文件称为 `文件扩展名(file extension)` ，文件扩展名通常表示文件的一些信息。一些常用的文件扩展名以及含义如下图所示
 
@@ -857,7 +857,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 目录系统最简单的形式是有一个能够包含所有文件的目录。这种目录被称为`根目录(root directory)`，由于根目录的唯一性，所以其名称并不重要。在最早期的个人计算机中，这种系统很常见，部分原因是因为只有一个用户。下面是一个单层目录系统的例子
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEcpTI0egNMJSXjXWmPYu5gRqGibKVKKXPNqGcU2IkGJ2GEnU7W5icu9Aw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:32:57-640-20201202163256974.png)
 
 该目录中有四个文件。这种设计的优点在于简单，并且能够快速定位文件，毕竟只有一个地方可以检索。这种目录组织形式现在一般用于简单的嵌入式设备（如数码相机和某些便携式音乐播放器）上使用。
 
@@ -865,7 +865,7 @@ a）按照先进先出的方法排列的页面；b）在时刻 20 处发生缺�
 
 对于简单的应用而言，一般都用单层目录方式，但是这种组织形式并不适合于现代计算机，因为现代计算机含有成千上万个文件和文件夹。如果都放在根目录下，查找起来会非常困难。为了解决这一问题，出现了`层次目录系统(Hierarchical Directory Systems)`，也称为`目录树`。通过这种方式，可以用很多目录把文件进行分组。进而，如果多个用户共享同一个文件服务器，比如公司的网络系统，每个用户可以为自己的目录树拥有自己的私人根目录。这种方式的组织结构如下
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEGe67TNzicRtFDcqhAW7yibJ0AzqibHyUFMlokWCyEkmAKr8ibiaMc2HrQXw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:01-640-20201202163301223.png)
 
 根目录含有目录 A、B 和 C ，分别属于不同的用户，其中两个用户个字创建了`子目录`。用户可以创建任意数量的子目录，现代文件系统都是按照这种方式组织的。
 
@@ -902,7 +902,7 @@ MBR 做的第一件事就是`确定活动分区`，读入它的第一个块，�
 
 除了从引导块开始之外，磁盘分区的布局是随着文件系统的不同而变化的。通常文件系统会包含一些属性，如下
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEwB0JSUWT9nSVcojkdPhxaw8VkmFZMhecvtuaFfUr79zsAR51AIoSlg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:10-640-20201202163309699.png)
 
 #### 超级块
 
@@ -923,7 +923,7 @@ MBR 做的第一件事就是`确定活动分区`，读入它的第一个块，�
 
 位图或位向量是一系列位或位的集合，其中每个位对应一个磁盘块，该位可以采用两个值：0和1，0表示已分配该块，而1表示一个空闲块。下图中的磁盘上给定的磁盘块实例（分配了绿色块）可以用16位的位图表示为：0000111000000110。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEHM4UP1GjeAvV2eico7v3zibebnXkss3ye3iaphfgD1DW6HynKqibPgugoQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:17-640-20201202163316772.png)
 
 **「使用链表进行管理」**
 
@@ -941,7 +941,7 @@ MBR 做的第一件事就是`确定活动分区`，读入它的第一个块，�
 
 有一种简单的方法可以找到它们 `ls -lai` 命令。让我们看一下根文件系统：
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEgUjN51C3BhLfg2Sy9LLhAMx6TE3qia5xUSbuwhibWrF9xIQ47sGU1wiaA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:21-640-20201202163321333.png)
 
 inode 节点主要包括了以下信息
 
@@ -985,7 +985,7 @@ inode 节点主要包括了以下信息
 
 不幸的是，连续空间分配也有很明显的不足。随着时间的推移，磁盘会变得很零碎。下图解释了这种现象
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEWXic1WggxKHuSZaZTRibKqnOa13nw3bjHedHV7Fa5ibNzI9kfhupia4wjw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:28-640-20201202163328129.png)
 
 这里有两个文件 D 和 F 被删除了。当删除一个文件时，此文件所占用的块也随之释放，就会在磁盘空间中留下一些空闲块。磁盘并不会在这个位置挤压掉空闲块，因为这会复制空闲块之后的所有文件，可能会有上百万的块，这个量级就太大了。
 
@@ -997,7 +997,7 @@ inode 节点主要包括了以下信息
 
 每个块的第一个字作为指向下一块的指针，块的其他部分存放数据。如果上面这张图你看的不是很清楚的话，可以看看整个的链表分配方案
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEiaD7iccqtHWzwicJwYAebR2qicamcFNGVu4AHwe2YozRPjzskC3mvEJlXQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:37-640-20201202163336674.png)
 
 与连续分配方案不同，这一方法可以充分利用每个磁盘块。除了最后一个磁盘块外，不会因为磁盘碎片而浪费存储空间。同样，在目录项中，只要存储了第一个文件块，那么其他文件块也能够被找到。
 
@@ -1021,7 +1021,7 @@ inode 节点主要包括了以下信息
 
 当多个用户在同一个项目中工作时，他们通常需要共享文件。如果这个共享文件同时出现在多个用户目录下，那么他们协同工作起来就很方便。下面的这张图我们在上面提到过，但是有一个更改的地方，就是 **「C 的一个文件也出现在了 B 的目录下」**。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEZp5GXN1QRkRVIthOp5CmZlo6Oo194RLg7aJS0GvhV6wzoUibVn1TqbA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:44-640-20201202163343502.png)
 
 如果按照如上图的这种组织方式而言，那么 B 的目录与该共享文件的联系称为 `链接(link)`。那么文件系统现在就是一个 `有向无环图(Directed Acyclic Graph, 简称 DAG)`，而不是一棵树了。
 
@@ -1040,7 +1040,7 @@ inode 节点主要包括了以下信息
 
 在这种设计中，inode 甚至具有与 UNIX 中相同的结构，但是现在它们分散在整个日志中，而不是位于磁盘上的固定位置。所以，inode 很定位。为了能够找到 inode ，维护了一个由 inode 索引的 `inode map(inode 映射)`。表项 i 指向磁盘中的第 i 个 inode 。这个映射保存在磁盘中，但是也保存在缓存中，因此，使用最频繁的部分大部分时间都在内存中。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEesnUiaB8RUV5JC5O5cVN7dwKmbkk459IqTJkxEcxG6KWkVU2ibSa3F5A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:48-640-20201202163347789.png)
 
 到目前为止，所有写入最初都缓存在`内存`中，并且追加在`日志末尾`，所有缓存的写入都定期在单个段中写入磁盘。所以，现在打开文件也就意味着用映射定位文件的索引节点。一旦 inode 被定位后，磁盘块的地址就能够被找到。所有这些块本身都将位于日志中某处的分段中。
 
@@ -1062,7 +1062,7 @@ inode 节点主要包括了以下信息
 
 UNIX 操作系统使用一种 `虚拟文件系统(Virtual File System, VFS)` 来尝试将多种文件系统构成一个有序的结构。关键的思想是抽象出所有文件系统都共有的部分，并将这部分代码放在一层，这一层再调用具体文件系统来管理数据。下面是一个 VFS 的系统结构
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEnPAyDNwwrjPWXcb3VZpuz5YKIGoPHoRtw9IWAC2HxicAGqYhRFGldHg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:33:53-640-20201202163352778.png)
 
 还是那句经典的话，在计算机世界中，任何解决不了的问题都可以加个`代理`来解决。所有和文件相关的系统调用在最初的处理上都指向虚拟文件系统。这些来自用户进程的调用，都是标准的 `POSIX 系统调用`，比如 open、read、write 和 seek 等。VFS 对用户进程有一个 `上层` 接口，这个接口就是著名的 POSIX 接口。
 
@@ -1086,7 +1086,7 @@ UNIX 操作系统使用一种 `虚拟文件系统(Virtual File System, VFS)` 来
 
 一旦指定了块大小，下一个问题就是怎样跟踪空闲块。有两种方法被广泛采用，如下图所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE8c2PPIO5NhoXGicWvibbfkrKPOv8gUxk7DHPSBPtyA1OWJ9u4Q6y7dLQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:09-640-20201202163409073.png)
 
 第一种方法是采用`磁盘块链表`，链表的每个块中包含极可能多的空闲磁盘块号。对于 1 KB 的块和 32 位的磁盘块号，空闲表中每个块包含有 255 个空闲的块号。考虑 1 TB 的硬盘，拥有大概十亿个磁盘块。为了存储全部地址块号，如果每块可以保存 255 个块号，则需要将近 400 万个块。通常，空闲块用于保存空闲列表，因此存储基本上是空闲的。
 
@@ -1136,7 +1136,7 @@ Windows 系统有`分页文件(paging files)` 和 `休眠文件(hibernation file
 
 访问磁盘的效率要比内存满的多，是时候又祭出这张图了
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEysYMVz0WTuAcfpEMnvwr8auZpd53GyEhWsic46QRddgf8h5pGrRTdjQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:15-640-20201202163414718.png)
 
 从内存读一个 32 位字大概是 10ns，从硬盘上读的速率大概是 100MB/S，对每个 32 位字来说，效率会慢了四倍，另外，还要加上 5 - 10 ms 的寻道时间等其他损耗，如果只访问一个字，内存要比磁盘快百万数量级。所以磁盘优化是很有必要的，下面我们会讨论几种优化方式
 
@@ -1188,7 +1188,7 @@ Windows 系统有`分页文件(paging files)` 和 `休眠文件(hibernation file
 
 与字符设备相比，块设备通常需要较少的引脚。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEGeUreUJ6x2Q0s40pUDma0IHPibld4by8xyvmfEGYvlp6XWCp3GoXFkA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:20-640-20201202163419704.png)
 
 #### 块设备的缺点
 
@@ -1252,7 +1252,7 @@ DMA 控制器通过在总线上发出一个`读请求`到磁盘控制器而发�
 
 在一台个人计算机体系结构中，中断结构会如下所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEDJtBpuDdy20TeuybU2CdWMPzgFj6PES5o3sVKqoEk9Ycdp22zibACRQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:25-640-20201202163425237.png)
 
 当一个 I/O 设备完成它的工作后，它就会产生一个中断（默认操作系统已经开启中断），它通过在总线上声明已分配的信号来实现此目的。主板上的中断控制器芯片会检测到这个信号，然后执行中断操作。
 
@@ -1275,7 +1275,7 @@ DMA 控制器通过在总线上发出一个`读请求`到磁盘控制器而发�
 
 I/O 软件设计一个很重要的目标就是`设备独立性(device independence)`。这意味着**「我们能够编写访问任何设备的应用程序，而不用事先指定特定的设备」**。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEL7ZyNibzGxrhj1ubYc5J0oR1X20E3FewkYVBeYZeeFEX7tc6EMhSrfQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:30-640-20201202163430282.png)
 
 #### 错误处理
 
@@ -1305,7 +1305,7 @@ I/O 软件引起的最后一个问题就是共享设备和独占设备的问题�
 
 I/O 软件通常组织成四个层次，它们的大致结构如下图所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEfZeBFicYW5ldI3bQwH9ia9pxqcica1EC8TWwNzQoc2wjdUM0QEEM2A9Xw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:36-640-20201202163435845.png)
 
 下面我们具体的来探讨一下上面的层次结构
 
@@ -1338,7 +1338,7 @@ I/O 软件通常组织成四个层次，它们的大致结构如下图所示
 
 I/O 软件有两种，一种是我们上面介绍过的基于特定设备的，还有一种是`设备无关性`的，设备无关性也就是不需要特定的设备。设备驱动程序与设备无关的软件之间的界限取决于具体的系统。下面显示的功能由设备无关的软件实现
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEGc5xqQRyaKokJibmB9Nb9a0mbmYckqh2GmmOxQkM1iaVZSgd4WkAaRgg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:41-640-20201202163441402.png)
 
 与设备无关的软件的基本功能是对所有设备执行公共的 I/O 功能，并且向用户层软件提供一个统一的接口。
 
@@ -1404,7 +1404,7 @@ RAID 有不同的级别
 
 磁盘由一堆铝的、合金或玻璃的盘片组成，磁盘刚被创建出来后，没有任何信息。磁盘在使用前必须经过`低级格式化(low-levvel format)`，下面是一个扇区的格式
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vExPOUZJsYA82SC4BI6DGzL20UqicZtPwWavDbtAT4DHQNsSmRtg7L9EQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:49-640-20201202163448758.png)
 
 前导码相当于是标示扇区的开始位置，通常以位模式开始，前导码还包括`柱面号`、`扇区号`等一些其他信息。紧随前导码后面的是数据区，数据部分的大小由低级格式化程序来确定。大部分磁盘使用 512 字节的扇区。数据区后面是 ECC，ECC 的全称是 **「error correction code」** ，`数据纠错码`，它与普通的错误检测不同，ECC 还可以用于恢复读错误。ECC 阶段的大小由不同的磁盘制造商实现。ECC 大小的设计标准取决于**「设计者愿意牺牲多少磁盘空间来提高可靠性」**，以及程序可以处理的 ECC 的复杂程度。通常情况下 ECC 是 16 位，除此之外，硬盘一般具有一定数量的备用扇区，用于替换制造缺陷的扇区。
 
@@ -1426,7 +1426,7 @@ RAID 有不同的级别
 
 假如我们在对磁道 6 号进行寻址时，同时发生了对 11 , 2 , 4, 14, 8, 15, 3 的请求，如果采用先来先服务的原则，如下图所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEeAZKHFhQn4U01bWKwszuRzc1J8brMNNyrRc8ia2wodOUaJfgWL7J9YA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:54-640-20201202163453593.png)
 
 我们可以计算一下磁盘臂所跨越的磁盘数量为 5 + 9 + 2 + 10 + 6 + 7 + 12 = 51，相当于是跨越了 51 次盘面，如果使用最短路径优先，我们来计算一下跨越的盘面
 
@@ -1442,7 +1442,7 @@ RAID 有不同的级别
 
 我们举个例子来描述一下电梯算法，比如各个柱面得到服务的顺序是 4，7，10，14，9，6，3，1 ，那么它的流程图如下
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEOZibZ2ia6uZJxmFhAJiazj8tlcYdfARnjAQP22WibZ2w7Go8DqGGhUkb5A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:34:59-640-20201202163458602.png)
 
 所以电梯算法需要跨越的盘面数量是 3 + 3 + 4 + 5 + 3 + 3 + 1 = 22
 
@@ -1454,15 +1454,15 @@ RAID 有不同的级别
 
 这两种方法经常替换使用，比如一个具有 30 个数据扇区和两个备用扇区的磁盘，其中扇区 4 是有瑕疵的。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE2ibwbqhCPiceOdYysJJzDLMsh8Q763CQ7kjFibtCD5WGCXtkJTG2k4cwg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:02-640-20201202163501920.png)
 
 控制器能做的事情就是将备用扇区之一重新映射。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vErwfj2JWHXwrGJgDQE3TC8ukDFtf25qHXaDo9Rj4ouice3ib2tIH3pKpg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:06-640-20201202163506125.png)
 
 还有一种处理方式是将所有的扇区都向上移动一个扇区
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEefP66ribq6tPwSgicKJBMNMWLicsVHbVcQ8Ynrk6VT4pycBlZMjvSsw2A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:10-640-20201202163510146.png)
 
 上面这这两种情况下控制器都必须知道哪个扇区，可以通过内部的表来跟踪这一信息，或者通过重写前导码来给出重新映射的扇区号。如果是重写前导码，那么涉及移动的方式必须重写后面所有的前导码，但是最终会提供良好的性能。
 
@@ -1520,7 +1520,7 @@ RAID 有不同的级别
 
 死锁问题也是操作系统非常重要的一类问题
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vE1hvlwUfKEGosxRqbctWvHZqkCjCkMOiczmShMkw595JobA0cOVespPg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:16-640-20201202163516283.png)
 
 ## 资源
 
@@ -1558,17 +1558,17 @@ Holt 在 1972 年提出对死锁进行建模，建模的标准如下：
 
 从资源节点到进程节点表示资源已经被进程占用，如下图所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEIvOW5Ltn1AsVUpVCJjFv1Bafj8aXvB9NFmAQGlfHj5H1q9WicmCJctw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:21-640-20201202163521152.png)
 
 在上图中表示当前资源 R 正在被 A 进程所占用
 
 由进程节点到资源节点的有向图表示当前进程正在请求资源，并且该进程已经被阻塞，处于等待这个资源的状态
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vErK0EhQNoiaUqdiboIUWzmFXqgIISk2wV9ibmW4xLpibGkeVdsR2zRVTicKg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:34-640-20201202163534210.png)
 
 在上图中，表示的含义是进程 B 正在请求资源 S 。Holt 认为，死锁的描述应该如下
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEG6IvlZUCHBjYia3ANAUWRPas1I3E71iaLvAbv9KFcrDdyh5X4thwJTXg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:39-640-20201202163538889.png)
 
 这是一个死锁的过程，进程 C 等待资源 T 的释放，资源 T 却已经被进程 D 占用，进程 D 等待请求占用资源 U ，资源 U 却已经被线程 C 占用，从而形成环。
 
@@ -1595,7 +1595,7 @@ Holt 在 1972 年提出对死锁进行建模，建模的标准如下：
 
 可以通过构造一张资源分配表来检测这种错误，比如我们上面提到的
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEDnyFrVwpU7PuLQFU9I1zWNux10JG7pNBukicK90q5njwYX1RBdib5asA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:45-640-20201202163544928.png)
 
 如果这张图包含了一个或一个以上的环，那么死锁就存在，处于这个环中任意一个进程都是死锁的进程。
 
@@ -1685,11 +1685,11 @@ Holt 在 1972 年提出对死锁进行建模，建模的标准如下：
 
 另一种方式是将所有的资源统一编号，如下图所示
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEKrgetuz0Vxiaxv7CGBicSUM1IX1UounX45NqXBekWiaKqTy0qy6ZmqLZg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:52-640-20201202163551492.png)
 
 进程可以在任何时间提出请求，但是所有的请求都必须按照资源的顺序提出。如果按照此分配规则的话，那么资源分配之间不会出现环。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEeKyRGDFOsj1lbBZiabzAovuibicyynjZd9yZoouRsxo0gqJ0n4NV78uicw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:35:55-640-20201202163555198.png)
 
 尽管通过这种方式来消除死锁，但是编号的顺序不可能让每个进程都会接受。
 
@@ -1719,7 +1719,7 @@ Holt 在 1972 年提出对死锁进行建模，建模的标准如下：
 
 当一个数据包从主机进入路由器时，会被放入一个缓冲区，然后再传输到另外一个路由器，再到另一个，以此类推直到目的地。缓冲区都是资源并且数量有限。如下图所示，每个路由器都有 10 个缓冲区（实际上有很多）。
 
-![img](https://mmbiz.qpic.cn/mmbiz_png/libYRuvULTdXlPc9jU85pV5kdSicQXs4vEAwWHxkawvWr46tMN4NcD4WkblhoYVIzcrASccM2rZHkhTTliacibSu1g/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/02/16:36:00-640-20201202163559820.png)
 
 假如路由器 A 的所有数据需要发送到 B ，B 的所有数据包需要发送到 D，然后 D 的所有数据包需要发送到 A 。没有数据包可以移动，因为在另一端没有缓冲区可用，这就是一个典型的资源死锁。
 
