@@ -8,8 +8,6 @@ ConcurrentHashMap除了加锁，原理上与HashMap无太大区别。另外，Ha
 
 HashTable 使用一把锁（锁住整个链表结构）处理并发问题，多个线程竞争一把锁，容易阻塞，**ConcurrentHashMap** 不论是1.7 还是1.8 都降低了锁的粒度
 
-
-
 ### ConcurrentHashMap 的继承关系
 
 
@@ -93,6 +91,50 @@ jdk 1.8 取消了基于 Segment 的分段锁思想，改用(CAS + synchronized +
 
 ## ConcurrentHashMap 的内部关键元素
 
+
+
+
+
+### 注释
+
+```
+A hash table supporting full concurrency of retrievals and high expected concurrency for updates. 
+一个支持高并发更新和全量并发获取数据的hash table 
+This class obeys the same functional specification as {@link java.util.Hashtable}, and
+includes versions of methods corresponding to each method of {@code Hashtable}.
+这个类和Hashtable中方法的使用一样，并且包含Hashtable中所有方法的变体
+However, even though all operations are thread-safe, retrieval operations do <em>not</em> entail locking,and there is <em>not</em> any support for locking the entire table
+in a way that prevents all access.
+即使在支持全部操作线程安全的前提下，get 操作也不需要加锁，也不支持哪种锁住整个table的操作，因为哪种操作会阻止其他所有操作
+This class is fully interoperable with {@code Hashtable} in programs that rely on its
+thread safety but not on its synchronization details.
+在哪些依赖线程安全而又不想关注同步细节的程序中，这个类可与Hashtable配合使用(在哪些需要线程安全的程序中，这个类可以替代Hashtable)
+```
+
+
+
+```
+Retrieval operations (including {@code get}) generally do not block, so may overlap with update operations (including {@code put} and {@code remove}).
+
+Retrievals reflect the results of the most recently completed update operations holding upon their onset. (More formally, an update operation for a given key bears a happens-before relation with any (non-null) retrieval for that key reporting the updated value) 
+
+For aggregate operations such as {@code putAll} and {@code clear}, concurrent retrievals may
+reflect insertion or removal of only some entries.  Similarly,
+Iterators, Spliterators and Enumerations return elements reflecting the
+state of the hash table at some point at or since the creation of the
+iterator/enumeration.  They do <em>not</em> throw {@link
+java.util.ConcurrentModificationException ConcurrentModificationException}.
+However, iterators are designed to be used by only one thread at a time.
+Bear in mind that the results of aggregate status methods including
+{@code size}, {@code isEmpty}, and {@code containsValue} are typically
+useful only when a map is not undergoing concurrent updates in other threads.
+Otherwise the results of these methods reflect transient states
+that may be adequate for monitoring or estimation purposes, but not
+for program control.
+```
+
+
+
 ①、重要的常量：
 private transient volatile int sizeCtl;
 当为负数时，-1 表示正在初始化，-N 表示 N - 1 个线程正在进行扩容；
@@ -130,9 +172,91 @@ helpTransfer()：调用多个工作线程一起帮助进行扩容，这样的效
 
 
 
+### DEFAULT_CONCURRENCY_LEVEL
+
+(没有用了，为了兼容老版本	)
+
+The default concurrency level for this table. 
+
+Unused but defined for compatibility with previous versions of this class.
 
 
-## debug
+
+### 和HashMap 中一样的一些变量
+
+```
+private static final int MAXIMUM_CAPACITY = 1 << 30;
+// The default initial table capacity.  Must be a power of 2 最少是1 
+private static final int DEFAULT_CAPACITY = 16;
+```
+
+
+
+### Node
+
+这个内部类在HashMap中也有，但是这里我们依然将它贴了出来，因为它和HashMap 中的有不一样之处，关于这一点你从这个类的注都可以看出
+
+```
+ /**
+  * Key-value entry.  This class is never exported out as a
+  * user-mutable Map.Entry (i.e., one supporting setValue; see
+  * MapEntry below), but can be used for read-only traversals used
+  * in bulk tasks.  Subclasses of Node with a negative hash field
+  * are special, and contain null keys and values (but are never
+  * exported).  Otherwise, keys and vals are never null.
+  */
+static class Node<K,V> implements Map.Entry<K,V> {
+     final int hash;
+     final K key;
+     volatile V val;
+     volatile Node<K,V> next;
+
+     Node(int hash, K key, V val, Node<K,V> next) {
+         this.hash = hash;
+         this.key = key;
+         this.val = val;
+         this.next = next;
+     }
+
+     public final K getKey()       { return key; }
+     public final V getValue()     { return val; }
+     public final int hashCode()   { return key.hashCode() ^ val.hashCode(); }
+     public final String toString(){ return key + "=" + val; }
+     public final V setValue(V value) {
+         throw new UnsupportedOperationException();
+     }
+
+     public final boolean equals(Object o) {
+         Object k, v, u; Map.Entry<?,?> e;
+         return ((o instanceof Map.Entry) &&
+                 (k = (e = (Map.Entry<?,?>)o).getKey()) != null &&
+                 (v = e.getValue()) != null &&
+                 (k == key || k.equals(key)) &&
+                 (v == (u = val) || v.equals(u)));
+     }
+
+     /**
+     
+      * Virtualized support for map.get(); overridden in subclasses.
+      */
+     Node<K,V> find(int h, Object k) {
+         Node<K,V> e = this;
+         if (k != null) {
+             do {
+                 K ek;
+                 if (e.hash == h &&
+                     ((ek = e.key) == k || (ek != null && k.equals(ek))))
+                     return e;
+             } while ((e = e.next) != null);
+         }
+         return null;
+     }
+}
+```
+
+
+
+## debug put
 
 1. 首先计算hash，遍历node数组，如果node是空的话，就通过CAS+自旋的方式初始化
 2. 如果当前数组位置是空则直接通过CAS自旋写入数据
@@ -140,4 +264,178 @@ helpTransfer()：调用多个工作线程一起帮助进行扩容，这样的效
 4. 如果都不满足，就使用synchronized写入数据，写入数据同样判断链表、红黑树，链表写入和HashMap的方式一样，key hash一样就覆盖，反之就尾插法，链表长度超过8就转换成红黑树
 
 ![image-20201201082620228](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/01/08:26:20-image-20201201082620228.png)
+
+### 用户调用入口put 方法
+
+从注释我们知道，key-value 都不能是null 和HashTable 一样
+
+```
+/**
+* Maps the specified key to the specified value in this table.
+* Neither the key nor the value can be null.
+* @return the previous value associated with {@code key}, or
+*         {@code null} if there was no mapping for {@code key}
+* @throws NullPointerException if the specified key or value is null
+*/
+public V put(K key, V value) {
+    return putVal(key, value, false);
+}
+```
+
+这里注意一下，HashMap中，在调用putVal方法的时候已经计算了Hash 值,下面是HashMap 的put 方法
+
+```
+public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+```
+
+### 核心方法  putVal
+
+```
+final V putVal(K key, V value, boolean onlyIfAbsent) {
+		// 这里来了一个控制检测，这是HashMap 没有的，但是这里和HashTable 也不一样
+		// 但是也和HashTable不一样， HashTable 只检测了Value ,然后key 的NullPointerException是在调用key.hashCode()的时候抛出来的
+    if (key == null || value == null) throw new NullPointerException();
+    //计算hash 值， (h ^ (h >>> 16)) & HASH_BITS  这里还是一样的(h ^ (h >>> 16))，高16位异或低16位
+    int hash = spread(key.hashCode());
+    int binCount = 0;
+    for (Node<K,V>[] tab = table;;) {
+        Node<K,V> f; int n, i, fh;
+        if (tab == null || (n = tab.length) == 0)
+            tab = initTable();
+        // 判断当前位置(桶)是不是空桶,tabAt 方法获取特定位置((n - 1) & hash)) 的元素
+        else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
+        		 // no lock when adding to empty bin  直接返给当前元素到桶，放入成功则跳出训话
+            if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value, null)))
+                break;                  
+        }
+        else if ((fh = f.hash) == MOVED)
+            tab = helpTransfer(tab, f);
+        // 下面才是正常情况下的放入流程    
+        else {
+            V oldVal = null;
+            // 考点 synchronized 加锁，加的是一个个的节点，也就是Node 
+            synchronized (f) {
+            		// 双重检测，因为测试的f 可能已经被其他线程修改了
+                if (tabAt(tab, i) == f) {
+                    if (fh >= 0) {
+                        binCount = 1;
+                        for (Node<K,V> e = f;; ++binCount) {
+                            K ek;
+                            if (e.hash == hash &&
+                                ((ek = e.key) == key ||
+                                 (ek != null && key.equals(ek)))) {
+                                oldVal = e.val;
+                                if (!onlyIfAbsent)
+                                    e.val = value;
+                                break;
+                            }
+                            Node<K,V> pred = e;
+                            if ((e = e.next) == null) {
+                                pred.next = new Node<K,V>(hash, key,
+                                                          value, null);
+                                break;
+                            }
+                        }
+                    }
+                    else if (f instanceof TreeBin) {
+                        Node<K,V> p;
+                        binCount = 2;
+                        if ((p = ((TreeBin<K,V>)f).putTreeVal(hash, key,
+                                                       value)) != null) {
+                            oldVal = p.val;
+                            if (!onlyIfAbsent)
+                                p.val = value;
+                        }
+                    }
+                }
+            }
+            if (binCount != 0) {
+                if (binCount >= TREEIFY_THRESHOLD)
+                    treeifyBin(tab, i);
+                if (oldVal != null)
+                    return oldVal;
+                break;
+            }
+        }
+    }
+    addCount(1L, binCount);
+    return null;
+}
+```
+
+
+
+```
+static final <K,V> boolean casTabAt(Node<K,V>[] tab, int i,
+                                    Node<K,V> c, Node<K,V> v) {
+    return U.compareAndSwapObject(tab, ((long)i << ASHIFT) + ABASE, c, v);
+}
+```
+
+
+
+```
+static final <K,V> Node<K,V> tabAt(Node<K,V>[] tab, int i) {
+    return (Node<K,V>)U.getObjectVolatile(tab, ((long)i << ASHIFT) + ABASE);
+}
+```
+
+
+
+### 计算Hash值的方法spread
+
+前面我们没有解释这个计算Hash的方法，这里我们看一下它的注释翻译一下，便于大家理解，这种计算hash值的方法，其实在HashMap 那一节我们说了为什么这么设计
+
+```
+/**
+ * Spreads (XORs) higher bits of hash to lower and also forces top bit to 0
+ hash值的高位异或hash值的地位，并且强制要求hash 值的首位是0（hashmap 中是没有的，hashtable 中有），所以这就是为什么要与0x7fffffff
+ Because the table uses power-of-two masking, sets of hashes that vary only in bits above the current mask will always collide.
+ 因为table 使用2的指数作为掩码，其实就是数组大小，如果很多hash值仅当前掩码上的部分位上发生变化将经常导致hash 冲突
+ (Among known examples are sets of Float keys holding consecutive whole numbers in small tables.) 
+ So we apply a transform that spreads the impact of higher bits downward. There is a tradeoff between speed, utility, and
+ * quality of bit-spreading. Because many common sets of hashes
+ * are already reasonably distributed (so don't benefit from
+ * spreading), and because we use trees to handle large sets of
+ * collisions in bins, we just XOR some shifted bits in the
+ * cheapest possible way to reduce systematic lossage, as well as
+ * to incorporate impact of the highest bits that would otherwise
+ * never be used in index calculations because of table bounds.
+ */
+static final int spread(int h) {
+    return (h ^ (h >>> 16)) & HASH_BITS;
+}
+```
+
+### 初始化table initTable
+
+```
+/**
+ * Initializes table, using the size recorded in sizeCtl.
+ */
+private final Node<K,V>[] initTable() {
+    Node<K,V>[] tab; int sc;
+    while ((tab = table) == null || tab.length == 0) {
+        if ((sc = sizeCtl) < 0)
+            Thread.yield(); // lost initialization race; just spin
+        else if (U.compareAndSwapInt(this, SIZECTL, sc, -1)) {
+            try {
+                if ((tab = table) == null || tab.length == 0) {
+                    int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
+                    @SuppressWarnings("unchecked")
+                    Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
+                    table = tab = nt;
+                    sc = n - (n >>> 2);
+                }
+            } finally {
+                sizeCtl = sc;
+            }
+            break;
+        }
+    }
+    return tab;
+}
+```
 

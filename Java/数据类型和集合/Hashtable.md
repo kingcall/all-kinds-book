@@ -397,7 +397,9 @@ private void addEntry(int hash, K key, V value, int index) {
 }
 ```
 
-当然这只是小问题，它最大的问题在设计上，例如hash值的计算方式就没有HashMap 设计的好，还有就是没有红黑树的支持，还有就是线程安全的实现方式也不高效，所以我们说它好像是遗留类,HashTable 在Java1.0 时代就存在了，而HashMap才是Java1.2才有的
+当然这只是小问题，但是也有很多其他小问题，例如求index 时候的计算方式是直接取模，而不是用与运算，它最大的问题在设计上，例如hash值的计算方式就没有HashMap 设计的好，还有就是没有红黑树的支持，还有就是线程安全的实现方式也不高效，所以我们说它好像是遗留类,HashTable 在Java1.0 时代就存在了，而HashMap才是Java1.2才有的
+
+
 
 ![image-20201125223544817](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/29/22:43:11-22:03:49-22:02:40-22:35:45-image-20201125223544817.png)
 
