@@ -367,7 +367,7 @@ protected void rehash() {
 6.  哈希值的计算不同，HashTable直接使用对象的hashCode。而HashMap重新计算hash值(高16位异或低16位)，并且HashMap 支持key 为null 就是在这里的
 7.  Hashtable扩容时，将容量变为原来的2倍加1，而HashMap扩容时，将容量变为原来的2倍。
 
-###  你觉得LinkedHashMap 还有什么可以改进的地方吗，欢迎讨论
+###  你觉得HashTable 还有什么可以改进的地方吗，欢迎讨论
 
 和上一节一样这里我依然给出这个思考题，虽然我们的说法可能不对，可能我们永远也站不到源代码作者当年的高度，但是我们依然积极思考，大胆讨论
 

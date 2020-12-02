@@ -2,13 +2,31 @@
 
 ## 概论
 
-ConcurrentHashMap融合了hashtable和hashmap二者的优势。hashtable是做了同步的，即线程安全，hashmap未考虑同步。所以hashmap在单线程情况下效率较高。hashtable在的多线程情况下，同步操作能保证程序执行的正确性。但是hashtable是阻塞的，每次同步执行的时候都要锁住整个结构导致性能底下，ConcurrentHashMap正是为了解决这个问题而诞生的
+### 为什么还需要ConcurrentHashMap
+
+ConcurrentHashMap融合了hashtable和hashmap二者的优势，或者说它是HashMap的一个线程安全的、支持高效并发的版本
+
+Hashtable是做了同步的，即线程安全，hashmap未考虑同步。所以hashmap在单线程情况下效率较高。hashtable在的多线程情况下，同步操作能保证程序执行的正确性。但是hashtable是阻塞的，每次同步执行的时候都要锁住整个结构导致性能底下，ConcurrentHashMap正是为了解决这个问题而诞生的
 
 ConcurrentHashMap除了加锁，原理上与HashMap无太大区别。另外，HashMap 的键值对允许有null，但是ConCurrentHashMap 都不允许。
 
 HashTable 使用一把锁（锁住整个链表结构）处理并发问题，多个线程竞争一把锁，容易阻塞，**ConcurrentHashMap** 不论是1.7 还是1.8 都降低了锁的粒度
 
+Problem with Hashtable or synchronized Map (**Collections.synchronizedMap()**)is that all its methods are synchronized on a common lock thus only a single thread can access it at any given time, even for read operations. ConcurrentHashMap in Java tries to address these issues.
+
+### ConcurrentHashMap 的性能优势
+
+第一点：加锁的范围，HashTable 是整个table 加锁，而ConcurrentHashMap只加锁某一个桶或者节点，所以二者在并发性上存在很大差异
+
+第二点：设计结构上，ConcurrentHashMap在链表长度过长的时候会转化成红黑树，而HashTable不会，这就导致了做获取数据上的性能差异
+
+第三点：读取数据时不加锁的，而且是并发读取不加锁
+
+第四点：其实就是在上述两点之外的一些细节上的东西了，例如hash 值的计算方式什么的，代码的优化上面的一些问题了，因为HashTable的代码现在不被更新了。
+
 ### ConcurrentHashMap 的继承关系
+
+
 
 
 
@@ -20,7 +38,7 @@ HashTable 使用一把锁（锁住整个链表结构）处理并发问题，多�
 
 ConcurrentMap 只是一个接口，当然实现不了线程安全的操作方式，但是我也将它贴了出来，大家可以看一下它的注释，了解一下
 
-```
+```java
 /**
  * A {@link java.util.Map} providing thread safety and atomicity
  * guarantees.
@@ -45,7 +63,15 @@ public interface ConcurrentMap<K, V> extends Map<K, V> {
 }
 ```
 
+####  ConcurrentHashMap 的构造方法
 
+
+
+- **ConcurrentHashMap()**- 创建一个新的，空的HashMap,初始容量大小是16
+- **ConcurrentHashMap(int initialCapacity)** 创建一个指定容量大小的HashMap
+- **ConcurrentHashMap(int initialCapacity, float loadFactor)**- Creates a new, empty map with an initial table size based on the given number of elements (initialCapacity) and initial table density (loadFactor).
+- **ConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyLevel)**- Creates a new, empty map with an initial table size based on the given number of elements (initialCapacity), table density (loadFactor), and number of concurrently updating threads (concurrencyLevel).
+- **ConcurrentHashMap(Map<? extends K,? extends V> m)**- Creates a new map with the same mappings as the given map.
 
 
 ### 分段锁技术
@@ -97,7 +123,7 @@ jdk 1.8 取消了基于 Segment 的分段锁思想，改用(CAS + synchronized +
 
 ### 注释
 
-```
+```java
 A hash table supporting full concurrency of retrievals and high expected concurrency for updates. 
 一个支持高并发更新和全量并发获取数据的hash table 
 This class obeys the same functional specification as {@link java.util.Hashtable}, and
@@ -115,22 +141,20 @@ thread safety but not on its synchronization details.
 
 ```
 Retrieval operations (including {@code get}) generally do not block, so may overlap with update operations (including {@code put} and {@code remove}).
-
-Retrievals reflect the results of the most recently completed update operations holding upon their onset. (More formally, an update operation for a given key bears a happens-before relation with any (non-null) retrieval for that key reporting the updated value) 
-
+读取操作例如get操作不加锁，因此可能导致和更新操作有所重叠(冲突)
+Retrievals reflect the results of the most recently completed update operations holding upon their onset. 
+(More formally, an update operation for a given key bears a happens-before relation with any (non-null) retrieval for that key reporting the updated value) 
+读取操作通常获取的是最近完成的更新操作的结果，这可能意味着读取操作可能无法获取当前/正在进行的值（这是一个缺点）
 For aggregate operations such as {@code putAll} and {@code clear}, concurrent retrievals may
 reflect insertion or removal of only some entries.  Similarly,
-Iterators, Spliterators and Enumerations return elements reflecting the
-state of the hash table at some point at or since the creation of the
-iterator/enumeration.  They do <em>not</em> throw {@link
-java.util.ConcurrentModificationException ConcurrentModificationException}.
-However, iterators are designed to be used by only one thread at a time.
-Bear in mind that the results of aggregate status methods including
-{@code size}, {@code isEmpty}, and {@code containsValue} are typically
-useful only when a map is not undergoing concurrent updates in other threads.
-Otherwise the results of these methods reflect transient states
-that may be adequate for monitoring or estimation purposes, but not
-for program control.
+同样对于聚合操作（例如putAll和clear）可以在整个地图上运行的情况，并发检索可能只反映了某些条目的插入或删除（单独锁定的另一个缺点）。 因为读取操作没有被阻塞，但是某些写入（位于同一存储桶中）可能仍然被阻塞。
+```
+
+
+
+```
+The table is dynamically expanded when there are too many collisions 
+(i.e., keys that have distinct hash codes but fall into the same slot modulo the table size), with the expected average effect of maintaining roughly two bins per mapping (corresponding to a 0.75 load factor threshold for resizing). There may be much variance around this average as mappings are added and removed, but overall, this maintains a commonly accepted time/space tradeoff for hash tables. However, resizing this or any other kind of hash table may be a relatively slow operation. When possible, it is a good idea to provide a size estimate as an optional initialCapacity constructor argument. An additional optional loadFactor constructor argument provides a further means of customizing initial table capacity by specifying the table density to be used in calculating the amount of space to allocate for the given number of elements. Also, for compatibility with previous versions of this class, constructors may optionally specify an expected concurrencyLevel as an additional hint for internal sizing. Note that using many keys with exactly the same hashCode() is a sure way to slow down performance of any hash table. To ameliorate impact, when keys are Comparable, this class may use comparison order among keys to help break ties.
 ```
 
 
@@ -196,7 +220,7 @@ private static final int DEFAULT_CAPACITY = 16;
 
 这个内部类在HashMap中也有，但是这里我们依然将它贴了出来，因为它和HashMap 中的有不一样之处，关于这一点你从这个类的注都可以看出
 
-```
+```java
  /**
   * Key-value entry.  This class is never exported out as a
   * user-mutable Map.Entry (i.e., one supporting setValue; see
@@ -256,6 +280,51 @@ static class Node<K,V> implements Map.Entry<K,V> {
 
 
 
+#### ForwardingNode
+
+
+
+```java
+/**
+ * A node inserted at head of bins during transfer operations.
+ */
+static final class ForwardingNode<K,V> extends Node<K,V> {
+    final Node<K,V>[] nextTable;
+    ForwardingNode(Node<K,V>[] tab) {
+        super(MOVED, null, null, null);
+        this.nextTable = tab;
+    }
+
+    Node<K,V> find(int h, Object k) {
+        // loop to avoid arbitrarily deep recursion on forwarding nodes
+        outer: for (Node<K,V>[] tab = nextTable;;) {
+            Node<K,V> e; int n;
+            if (k == null || tab == null || (n = tab.length) == 0 ||
+                (e = tabAt(tab, (n - 1) & h)) == null)
+                return null;
+            for (;;) {
+                int eh; K ek;
+                if ((eh = e.hash) == h &&
+                    ((ek = e.key) == k || (ek != null && k.equals(ek))))
+                    return e;
+                if (eh < 0) {
+                    if (e instanceof ForwardingNode) {
+                        tab = ((ForwardingNode<K,V>)e).nextTable;
+                        continue outer;
+                    }
+                    else
+                        return e.find(h, k);
+                }
+                if ((e = e.next) == null)
+                    return null;
+            }
+        }
+    }
+}
+```
+
+
+
 ## debug put
 
 1. 首先计算hash，遍历node数组，如果node是空的话，就通过CAS+自旋的方式初始化
@@ -269,7 +338,7 @@ static class Node<K,V> implements Map.Entry<K,V> {
 
 从注释我们知道，key-value 都不能是null 和HashTable 一样
 
-```
+```java
 /**
 * Maps the specified key to the specified value in this table.
 * Neither the key nor the value can be null.
@@ -284,7 +353,7 @@ public V put(K key, V value) {
 
 这里注意一下，HashMap中，在调用putVal方法的时候已经计算了Hash 值,下面是HashMap 的put 方法
 
-```
+```java
 public V put(K key, V value) {
     return putVal(hash(key), key, value, false, true);
 }
@@ -292,7 +361,7 @@ public V put(K key, V value) {
 
 ### 核心方法  putVal
 
-```
+```java
 final V putVal(K key, V value, boolean onlyIfAbsent) {
 		// 这里来了一个控制检测，这是HashMap 没有的，但是这里和HashTable 也不一样
 		// 但是也和HashTable不一样， HashTable 只检测了Value ,然后key 的NullPointerException是在调用key.hashCode()的时候抛出来的
@@ -306,13 +375,14 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
             tab = initTable();
         // 判断当前位置(桶)是不是空桶,tabAt 方法获取特定位置((n - 1) & hash)) 的元素
         else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
-        		 // no lock when adding to empty bin  直接返给当前元素到桶，放入成功则跳出训话
+        		 //  如果是空桶，利用 CAS 尝试写入，失败则自旋保证成功，最后跳出循环
             if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value, null)))
                 break;                  
         }
+        // 如果不是空桶，则判断当前位置元素的 hashcode == MOVED == -1,如果是则需要进行扩容。
         else if ((fh = f.hash) == MOVED)
             tab = helpTransfer(tab, f);
-        // 下面才是正常情况下的放入流程    
+        // 下面才是正常情况下的放入流程 ,利用 synchronized锁住，然后写入数据。   
         else {
             V oldVal = null;
             // 考点 synchronized 加锁，加的是一个个的节点，也就是Node 
@@ -351,6 +421,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
                     }
                 }
             }
+          // 如果数量大于 TREEIFY_THRESHOLD 则要转换为红黑树
             if (binCount != 0) {
                 if (binCount >= TREEIFY_THRESHOLD)
                     treeifyBin(tab, i);
@@ -367,7 +438,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
 
 
 
-```
+```java
 static final <K,V> boolean casTabAt(Node<K,V>[] tab, int i,
                                     Node<K,V> c, Node<K,V> v) {
     return U.compareAndSwapObject(tab, ((long)i << ASHIFT) + ABASE, c, v);
@@ -376,7 +447,7 @@ static final <K,V> boolean casTabAt(Node<K,V>[] tab, int i,
 
 
 
-```
+```java
 static final <K,V> Node<K,V> tabAt(Node<K,V>[] tab, int i) {
     return (Node<K,V>)U.getObjectVolatile(tab, ((long)i << ASHIFT) + ABASE);
 }
@@ -388,7 +459,7 @@ static final <K,V> Node<K,V> tabAt(Node<K,V>[] tab, int i) {
 
 前面我们没有解释这个计算Hash的方法，这里我们看一下它的注释翻译一下，便于大家理解，这种计算hash值的方法，其实在HashMap 那一节我们说了为什么这么设计
 
-```
+```java
 /**
  * Spreads (XORs) higher bits of hash to lower and also forces top bit to 0
  hash值的高位异或hash值的地位，并且强制要求hash 值的首位是0（hashmap 中是没有的，hashtable 中有），所以这就是为什么要与0x7fffffff
@@ -411,7 +482,7 @@ static final int spread(int h) {
 
 ### 初始化table initTable
 
-```
+```java
 /**
  * Initializes table, using the size recorded in sizeCtl.
  */
@@ -438,4 +509,194 @@ private final Node<K,V>[] initTable() {
     return tab;
 }
 ```
+
+
+
+### 
+
+```java
+/**
+ * Helps transfer if a resize is in progress.
+ */
+final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
+    Node<K,V>[] nextTab; int sc;
+    if (tab != null && (f instanceof ForwardingNode) && (nextTab = ((ForwardingNode<K,V>)f).nextTable) != null) {
+        int rs = resizeStamp(tab.length);
+        while (nextTab == nextTable && table == tab &&
+               (sc = sizeCtl) < 0) {
+            if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
+                sc == rs + MAX_RESIZERS || transferIndex <= 0)
+                break;
+            if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1)) {
+                transfer(tab, nextTab);
+                break;
+            }
+        }
+        return nextTab;
+    }
+    return table;
+}
+```
+
+## 正确使用ConcurrentHashMap
+
+首先看一下这段代码，看上去好像没什么问题，但是当你多运行几次你就会发现每次结果都可能不一样，因为直觉上是多线程，然后你选择了线程安全的ConcurrentHashMap，那这样就万事无忧了吗
+
+```java
+@Test
+public  void correctUse() throws InterruptedException {
+    ConcurrentHashMap<String, Integer> wordMap = new ConcurrentHashMap<>();
+    String word = "a";
+
+    for (int i =0 ; i < 1000; i++) {
+        new Thread(()->{
+            Integer prevValue = wordMap.get(word);
+            Integer newValue = (prevValue == null ? 1 : prevValue + 1);
+            wordMap.put(word, newValue);
+        }).start();
+    }
+    TimeUnit.SECONDS.sleep(3);
+    System.out.println( wordMap.get(word));
+}
+```
+
+虽然神器在手，但是要想说走就走，还是得注意场合，这里的问题就是在于那个加一的地方不是线程安全的，所以正确的做法是下面这样的
+
+```java
+public  void correctUse() throws InterruptedException {
+    ConcurrentHashMap<String, Integer> wordMap = new ConcurrentHashMap<>();
+    String word = "a";
+
+    for (int i =0 ; i < 1000; i++) {
+        new Thread(()->{
+            synchronized (word){
+                Integer prevValue = wordMap.get(word);
+                Integer newValue = (prevValue == null ? 1 : prevValue + 1);
+                wordMap.put(word, newValue);
+            }
+        }).start();
+    }
+    TimeUnit.SECONDS.sleep(3);
+    System.out.println( wordMap.get(word));
+}
+```
+
+看到这里，有没有人出来怼我，哈哈，这样的话我还有ConcurrentHashMap干嘛，我直接HashMap不香吗，你说东方不败练的葵宝典底和岳不群练的辟邪剑谱能一样吗
+
+所以我想表明的是ConcurrentHashMap虽好，还是得注意使用场合，这个场合HashMap也挺香的。所以说，ConcurrentHashMap 只适合在put get 这种原子性操作下的多线程环境使用
+
+所以这里我总结一下，ConcurrentHashMap适用于多线程的原子操作，所以它只能保证它的get put 操作是线程安全的，其次适用于读多于写的场景
+
+### ConcurrentHashMap 提供的原子性操作
+
+我知道上面的操作，不适合你们这群追求完美的人，毕竟你们练习的都是葵花宝典这种没有缺陷的武功啊，下面看看这种操作,就很符合你们的风格了
+
+```java
+ @Test
+ public  void correctUse() throws InterruptedException {
+     ConcurrentHashMap<String, Integer> wordMap = new ConcurrentHashMap<>();
+     String word = "a";
+
+     for (int i =0 ; i < 1000; i++) {
+         new Thread(()->{
+             wordMap.compute(word, (k,v)-> v == null ? 1 : v + 1);
+         }).start();
+     }
+     TimeUnit.SECONDS.sleep(3);
+     System.out.println( wordMap.get(word));
+ }
+```
+
+但是需要注意的是，这个方法其实是锁了整个Table 的，所以其实本质上和上面的那种synchronized锁效果是一样的，当然这样的操作，还有 **computeIfAbsent**, **computeIfPresent**, **merge**, **putIfAbsent**
+
+
+
+### 安全失败的遍历操作
+
+其实以前我们看到过的是快速失败的设计，意思是说在你遍历的过程中，如果原始结构改变，遍历就会提前失败
+
+```java
+@Test
+public void safeItrator(){
+    // Creating ConcurrentHashMap
+    Map<String, String> cityTemperatureMap = new HashMap<String, String>();
+
+    // Storing elements
+    cityTemperatureMap.put("Delhi", "24");
+    cityTemperatureMap.put("Mumbai", "32");
+    cityTemperatureMap.put("Chennai", "35");
+    cityTemperatureMap.put("Bangalore", "22" );
+
+    Iterator<String> iterator = cityTemperatureMap.keySet().iterator();
+    while (iterator.hasNext()){
+        System.out.println(cityTemperatureMap.get(iterator.next()));
+        // adding new value, it won't throw error
+        cityTemperatureMap.put("Kolkata", "34");
+    }
+}
+//运行结果如下
+24
+
+java.util.ConcurrentModificationException
+	at java.util.HashMap$HashIterator.nextNode(HashMap.java:1445)
+
+```
+
+可以看出，在运行在第一次输出之后，改变了HashMap，然后第二次输出之前就失败了
+
+接下来，我们看一下安全失败，其实就是说只有在失败操作是安全的情况下才会失败，否则不会抛出异常，因为ConcurrentHashMap是在多线程环境下运行的，所以一个线程抛出异常，会对其他线程有影响，所以这里不会抛出异常，也就是不会失败
+
+```java
+@Test
+public void safeItrator(){
+    // Creating ConcurrentHashMap
+    Map<String, String> cityTemperatureMap = new ConcurrentHashMap<String, String>();
+    // Storing elements
+    cityTemperatureMap.put("Delhi", "24");
+    cityTemperatureMap.put("Mumbai", "32");
+    cityTemperatureMap.put("Chennai", "35");
+    cityTemperatureMap.put("Bangalore", "22" );
+
+    Iterator<String> iterator = cityTemperatureMap.keySet().iterator();
+    while (iterator.hasNext()){
+        System.out.println(cityTemperatureMap.get(iterator.next()));
+        // adding new value, it won't throw error
+        cityTemperatureMap.put("Kolkata", "34");
+    }
+}
+//运行结果如下
+24
+35
+34
+32
+22
+```
+
+更多关于快速失败和安全失败可以看[Fail-Fast Vs Fail-Safe Iterator in Java]()
+
+
+
+## 总结
+
+到现在，要是再说HashTable 是因为synchronized 这个比较重的锁导致性能不好的话，就说不过去了，因为ConcurrentHashMap 也使用的是synchronized，所以现在二者最主要的区别在两点
+
+ConcurrentHashMap和HashMap 一样也是基于Hash 的键值对类型数据结构
+
+ConcurrentHashMap的高性能主要是基于桶的加锁方式和无锁的获取方式
+
+ConcurrentHashMap 不允许null 作为key 和value
+
+
+
+
+
+
+
+
+
+> separate locks for separate buckets. So the default concurrency level is 16
+>
+> the first node in the bucket is locked by using synchronized keyword
+
+
 
