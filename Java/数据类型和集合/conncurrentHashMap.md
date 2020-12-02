@@ -93,6 +93,12 @@ jdk 1.8 取消了基于 Segment 的分段锁思想，改用(CAS + synchronized +
 
 ## ConcurrentHashMap 的内部关键元素
 
+### 类注释
+
+这里为什么要把类注释重点提一下呢，因为它是这个类的说明书(instructions),主要是ConcurrentHashMap 实现比较复杂，所以这里我们详细解释一下，有利于大家的理解
+
+
+
 ①、重要的常量：
 private transient volatile int sizeCtl;
 当为负数时，-1 表示正在初始化，-N 表示 N - 1 个线程正在进行扩容；
