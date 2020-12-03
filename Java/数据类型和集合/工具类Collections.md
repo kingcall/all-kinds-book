@@ -2,29 +2,27 @@
 
 ## Collections
 
-在一些需要对集合进行特殊操作的时候，我们可以尝试使用这个工具类
+在一些需要对集合进行特殊操作的时候，但是集合本身并么有为我们提供这样的操作的时候,我们可以尝试使用这个工具类
+
+本文主要介绍Collections的常用方法，例如 Collections.sort()、Collections.shuffle()、Collections.reverse()、Collections.addAll()、Collections.copy()、Collections.binarySearch()、Collections.synchronizedXXX()
+
+还有就是针对Collections.copy() 的方式源码进行讲解，从而避免`IndexOutOfBoundsException: Source does not fit in dest`
 
 ### 排序 sort
 
 ```java
-import java.util.ArrayList;
-import java.util.Collections;
-
-class Main {
-    public static void main(String[] args) {
-        // Creating an array list
-        ArrayList<Integer> numbers = new ArrayList<>();
-
-        // Add elements
-        numbers.add(4);
-        numbers.add(2);
-        numbers.add(3);
-        System.out.println("Unsorted ArrayList: " + numbers);
-
-        // Using the sort() method
-        Collections.sort(numbers);
-        System.out.println("Sorted ArrayList: " + numbers);
-    }
+@Test
+public void sort(){
+    // Creating an array list
+    ArrayList<Integer> numbers = new ArrayList<>();
+    // Add elements
+    numbers.add(4);
+    numbers.add(2);
+    numbers.add(3);
+    System.out.println("Unsorted ArrayList: " + numbers);
+    // Using the sort() method
+    Collections.sort(numbers);
+    System.out.println("Sorted ArrayList: " + numbers);
 }
 // 输出结果
 Unsorted ArrayList: [4, 2, 3]
@@ -47,7 +45,6 @@ public  void shuffle() {
     numbers.add(2);
     numbers.add(3);
     System.out.println("Sorted ArrayList: " + numbers);
-
     // Using the shuffle() method
     Collections.shuffle(numbers);
     System.out.println("ArrayList using shuffle: " + numbers);
@@ -95,7 +92,6 @@ public void fill() {
     numbers.add(1);
     numbers.add(2);
     System.out.println("ArrayList1: " + numbers);
-    
     // Using fill()
     Collections.fill(numbers, 0);
     System.out.println("ArrayList1 using fill(): " + numbers);
@@ -133,7 +129,6 @@ public void addAll() {
     numbers.add(1);
     numbers.add(2);
     System.out.println("ArrayList1: " + numbers);
-    
     ArrayList<Integer> newNumbers = new ArrayList<>();
     // Using addAll
   Collections.
@@ -177,7 +172,6 @@ public void copy() {
     numbers.add(2);
     System.out.println("ArrayList1: " + numbers);
     ArrayList<Integer> newNumbers = new ArrayList<>();
-
     // Using copy()
     Collections.copy(newNumbers, numbers);
     System.out.println("ArrayList2 using copy(): " + newNumbers);
@@ -517,6 +511,134 @@ Maximum Element: 3
 
 ![image-20201203124428196](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/03/12:44:29-image-20201203124428196.png)
 
+
+
+#### 例一 插入操作
+
+```java
+// 定义了一个线程类
+class SynchroProblem implements Runnable {
+    private List<Integer> numList;
+
+    //Constructor
+    public SynchroProblem(List<Integer> numList) {
+        this.numList = numList;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("in run method");
+        for (int i = 0; i < 10; i++) {
+            numList.add(i);
+            try {
+                // introducing some delay
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+@Test
+public void test() throws Exception {
+    List<Integer> numList = new ArrayList<Integer>();
+    // Creating three threads
+    Thread t1 = new Thread(new SynchroProblem(numList));
+    Thread t2 = new Thread(new SynchroProblem(numList));
+    Thread t3 = new Thread(new SynchroProblem(numList));
+    t1.start();
+    t2.start();
+    t3.start();
+    try {
+        t1.join();
+        t2.join();
+        t3.join();
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    // 在这里我们的预期输出是30
+    System.out.println("Size of list is " + numList.size());
+    //这里是0-9 每个数字输出3次
+    for(Integer i : numList){
+        System.out.println("num - " + i);
+    }
+}
+```
+
+接下来我们看一下运行结果,size 大小并不是30，而且6 只输出了两次，当你多次运行之后，你会发现每次运行结果可能还不一样，典型的线程安全问题
+
+```
+in run method
+in run method
+in run method
+Size of list is 29
+num - 0
+num - 0
+num - 0
+num - 1
+num - 1
+num - 1
+num - 2
+num - 2
+num - 2
+num - 3
+num - 3
+num - 3
+num - 4
+num - 4
+num - 4
+num - 5
+num - 5
+num - 6
+num - 6
+num - 6
+num - 7
+num - 7
+num - 7
+num - 8
+num - 8
+num - 8
+num - 9
+num - 9
+num - 9
+```
+
+如何修正呢，使用我们今天介绍的方法即可
+
+```java
+@Test
+public void test() throws Exception {
+  	// 当然你也可以使用 Vector   
+    //List<Integer> numList = new Vector<Integer>();
+    List<Integer> numList = Collections.synchronizedList(new ArrayList<Integer>());
+    // Creating three threads
+    Thread t1 = new Thread(new SynchroProblem(numList));
+    Thread t2 = new Thread(new SynchroProblem(numList));
+    Thread t3 = new Thread(new SynchroProblem(numList));
+    t1.start();
+    t2.start();
+    t3.start();
+    try {
+        t1.join();
+        t2.join();
+        t3.join();
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    System.out.println("Size of list is " + numList.size());
+    for(Integer i : numList){
+        System.out.println("num - " + i);
+    }
+}
+// 输出结果
+Size of list is 30
+```
+
+
+
+
+
 ```java
 @Test
 public void safe() {
@@ -551,7 +673,7 @@ public void safe() {
 29
 ```
 
-现在我们对这个代码稍做修改
+现在我们对这个代码稍做修改,然后就可以正确运行了
 
 ```java
 @Test
@@ -585,5 +707,70 @@ public void safe() {
 
     System.out.println(list.size());
 }
+```
+
+
+
+#### 例三 遍历操作
+
+因为我们知道，在集合遍历过程中，如果集合被修改了，遍历则将失败，这个Fail-Fast 导致的，但是在多线程的环境中，会导致其他其他线程数据问题，所以我们希望是Fai-Safe,也就是说在遍历过程中，集合被修改了，也可以继续遍历，而不是打断遍历，抛出异常
+
+```java
+@Test
+public void traverseSafe() {
+    List<Integer> numList = new ArrayList<>();
+    numList.add(1);
+    numList.add(2);
+    numList.add(3);
+    numList.forEach(ele -> {
+        if (ele==2){
+            new Thread(()->numList.remove(1)).start();
+        }
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(ele);
+    });
+}
+```
+
+运行结果,我么可以看到运行失败了
+
+```java
+1
+2
+java.util.ConcurrentModificationException
+	at java.util.ArrayList.forEach(ArrayList.java:1260)
+	at datastructure.java数据类型.hash.CollectionsUtil.traverseSafe(CollectionsUtil.java:260)
+```
+
+接下来，我们看一下我们今天介绍的解决方案
+
+```java
+@Test
+public void traverseSafe() {
+  	// 当然这里你乙二胺可以使用Vector
+    List<Integer> numList = Collections.synchronizedList(new ArrayList<Integer>());
+    numList.add(1);
+    numList.add(2);
+    numList.add(3);
+    numList.forEach(ele -> {
+        if (ele==2){
+            new Thread(()->numList.remove(1)).start();
+        }
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(ele);
+    });
+}
+// 运行结果
+1
+2
+3
 ```
 

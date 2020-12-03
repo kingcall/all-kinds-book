@@ -2,6 +2,8 @@
 
 LinkedList和ArrayList一样是集合List的实现类，虽然较之ArrayList，其使用场景并不多，但同样有用到的时候，那么接下来，我们来认识一下它。
 
+![image-20201203162552545](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/03/16:25:53-image-20201203162552545.png)
+
 ## 一. 定义一个LinkedList
 
 ```java
