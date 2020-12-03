@@ -4,6 +4,8 @@
 
 ### 为什么还需要ConcurrentHashMap
 
+
+
 ConcurrentHashMap融合了hashtable和hashmap二者的优势，或者说它是HashMap的一个线程安全的、支持高效并发的版本
 
 Hashtable是做了同步的，即线程安全，hashmap未考虑同步。所以hashmap在单线程情况下效率较高。hashtable在的多线程情况下，同步操作能保证程序执行的正确性。但是hashtable是阻塞的，每次同步执行的时候都要锁住整个结构导致性能底下，ConcurrentHashMap正是为了解决这个问题而诞生的
@@ -20,13 +22,11 @@ Problem with Hashtable or synchronized Map (**Collections.synchronizedMap()**)is
 
 第二点：设计结构上，ConcurrentHashMap在链表长度过长的时候会转化成红黑树，而HashTable不会，这就导致了做获取数据上的性能差异
 
-第三点：读取数据时不加锁的，而且是并发读取不加锁
+第三点：读取数据时不加锁的，而且是并发读取不加锁，这个导致和HashTable在读取性能上的巨大差异
 
 第四点：其实就是在上述两点之外的一些细节上的东西了，例如hash 值的计算方式什么的，代码的优化上面的一些问题了，因为HashTable的代码现在不被更新了。
 
 ### ConcurrentHashMap 的继承关系
-
-
 
 
 
@@ -512,7 +512,9 @@ private final Node<K,V>[] initTable() {
 
 
 
-### 
+### 扩容 helpTransfer
+
+
 
 ```java
 /**
@@ -674,6 +676,54 @@ public void safeItrator(){
 
 更多关于快速失败和安全失败可以看[Fail-Fast Vs Fail-Safe Iterator in Java]()
 
+### 高效的遍历Map 集合
+
+其实这里不止是ConcurrentHashMap而是任何Map类型的数据结构，例如HashMap等，但是这个问题在ConcurrentHashMap中就显得格外的讽刺，整个ConcurrentHashMap都在为了性能不断优化升级，可是你却写出下面的代码，简直是葵花宝典使出辟邪剑谱的感觉
+
+```java
+@Test
+public void traverse() {
+    ConcurrentHashMap<Integer, String> chmap
+            = new ConcurrentHashMap<Integer, String>();
+
+    // Add elements using put()
+    chmap.put(8, "Third");
+    chmap.put(6, "Second");
+    chmap.put(3, "First");
+    chmap.put(11, "Fourth");
+    Iterator<Integer>
+            itr = chmap.keySet().iterator();
+    while (itr.hasNext()) {
+        Integer key = itr.next();
+        System.out.println("Key = " + key + ", Value = " + chmap.get(key));
+    }
+}
+```
+
+其实当你同时要key 和 value 的时候，你就不要像上面那样写了，每次还得重新去get 一下
+
+```java
+@Test
+public void traverse() {
+    ConcurrentHashMap<Integer, String> chmap
+            = new ConcurrentHashMap<Integer, String>();
+
+    // Add elements using put()
+    chmap.put(8, "Third");
+    chmap.put(6, "Second");
+    chmap.put(3, "First");
+    chmap.put(11, "Fourth");
+
+    Iterator<ConcurrentHashMap.Entry<Integer, String> >
+            itr = chmap.entrySet().iterator();
+
+    while (itr.hasNext()) {
+        ConcurrentHashMap.Entry<Integer, String> entry = itr.next();
+        System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+    }
+}
+```
+
 
 
 ## 总结
@@ -685,8 +735,6 @@ ConcurrentHashMap和HashMap 一样也是基于Hash 的键值对类型数据结�
 ConcurrentHashMap的高性能主要是基于桶的加锁方式和无锁的获取方式
 
 ConcurrentHashMap 不允许null 作为key 和value
-
-
 
 
 
