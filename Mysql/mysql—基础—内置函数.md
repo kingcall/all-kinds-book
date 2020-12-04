@@ -21,3 +21,11 @@
 ## 计算函数
 - rollup
 - repeat
+
+
+
+
+
+```
+update document set url= REGEXP_REPLACE(url,'\\?.*','')
+```
