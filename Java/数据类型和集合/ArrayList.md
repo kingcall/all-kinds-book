@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 ## ArrayList
 
 ArrayList是集合的一种实现，实现了接口List，List接口继承了Collection接口。
@@ -6,9 +10,9 @@ Collection是所有集合类的父类。ArrayList使用非常广泛，不论是�
 
 ArrayList is one of the most used Collections and why shouldn't it be? It's easy to use, has many implemented methods to provide all the important functionality and it is fast. But that **fast performance comes at a cost**, [ArrayList](https://www.netjstech.com/2015/09/arraylist-in-java.html) is **not synchronized**. What does that mean? *That means sharing an instance of ArrayList among many threads where those [threads](https://www.netjstech.com/2015/06/can-we-start-same-thread-twice-in-java.html) are modifying (by adding or removing the values) the collection may result in unpredictable behavior.*
 
+### ArrayList 的构造方法
 
 
-## 一. 定义一个ArrayList
 
 ```java
 //默认创建一个ArrayList集合
@@ -19,12 +23,49 @@ List<String> initlist = new ArrayList<>(100);
 List<String> setList = new ArrayList<>(new HashSet());
 ```
 
-我们读一下源码，看看定义ArrayList的过程到底做了什么？
+我们读一下源码，看看定义ArrayList的的构造方法和核心属性，当然我们还是习惯性的读一下类注释，让我们先有一个大概的认识，最后我们再通过例子，对它有一个精准的认识
 
 ```java
+/**
+ * Resizable-array implementation of the <tt>List</tt> interface.  Implements all optional list operations, and permits all elements, including <tt>null</tt>.  
+ * 可变化的数组实现了list 接口，实现了list 的所有操作，并且允许插入所有的元素，包括null 
+ * In addition to implementing the <tt>List</tt> interface, this class provides methods to manipulate the size of the array that is used internally to store the list. 
+ * 除了实现了list 接口之外，还提供了在内部使用的，操作存储了list元素数组的大小的方法
+ * (This class is roughly equivalent to <tt>Vector</tt>, except that it is unsynchronized.)
+ * 这个类大致上和Vector 类似，除了这个类不是同步的
+ * <p>The <tt>size</tt>, <tt>isEmpty</tt>, <tt>get</tt>, <tt>set</tt>, <tt>iterator</tt>, and <tt>listIterator</tt> operations run in constant time. 
+ * 上面这些方法的时间复杂度都是常数，其实就是O(1)
+ * The <tt>add</tt> operation runs in <i>amortized constant time</i>,that is, adding n elements requires O(n) time. 
+ * add 方法 均摊时间复杂度是O(1),添加n 个元素的时间复杂度就是O(n)
+ * All of the other operations run in linear time (roughly speaking).  The constant factor is low compared to that for the <tt>LinkedList</tt> implementation.
+ * 所有其他的方法的时间复杂度都是线性的，
+ * <p>Each <tt>ArrayList</tt> instance has a <i>capacity</i>.  The capacity is the size of the array used to store the elements in the list.  It is always
+ * at least as large as the list size. 
+ * 每一个ArrayList的实例都有一个容量，这个容量就是list 里面用来存储元素的数组的大小，它是和list 的大小是一样大的
+ * As elements are added to an ArrayList,its capacity grows automatically. 
+ * 随着元素的添加，ArrayList 的大小在自动变化
+ * The details of the growth policy are not specified beyond the fact that adding an element has constant amortized time cost.
+ * 除了增加一个元素具有固定的均摊时间复杂度这一事实外，增长策略的细节没有被指定。
+ * <p>An application can increase the capacity of an <tt>ArrayList</tt> instance before adding a large number of elements using the <tt>ensureCapacity</tt>
+ * operation.  This may reduce the amount of incremental reallocation.
+ * 应用程序可以在添加大量元素之前通过该指定ensureCapacity的操作来增加ArrayList的容量（其实就是通过构造方法），这样可以减少重新分配的次数(扩容的次数)
+ * <p><strong>Note that this implementation is not synchronized.</strong> 
+ * 重点注意这个实现不是线程安全的
+ * The list should be "wrapped" using the  {@link Collections#synchronizedList Collections.synchronizedList} method.  This is best done at creation time, to prevent accidental
+ * unsynchronized access to the list:<pre> List list = Collections.synchronizedList(new ArrayList(...));</pre>
+ * 如果需要线程安全的对象，可以使用Collections.synchronizedList对其进行包装，最好在创建时执行此操作，以防止意外的对列表的非同步访问，List list = Collections.synchronizedList(new ArrayList(...))
+ * <p><a name="fail-fast"> The iterators returned by this class's {@link #iterator() iterator} and {@link #listIterator(int) listIterator} methods are <em>fail-fast</em>:</a>
+ * 这个类的iterator() 和 listIterator() 方法返回的迭代器都是fail-fast 的
+ * if the list is structurally modified at any time after the iterator is created, in any way except through the iterator's own {@link ListIterator#remove() remove} or {@link ListIterator#add(Object) add} methods, the   iterator will throw a {@link ConcurrentModificationException}. 
+ * 除了ListIterator#remove()和ListIterator#add(Object) 这两个方法之外的任何情况下，这个类对象的iterator在创建之后的任何时间，发生了结构上的修改则会抛出ConcurrentModificationException 的异常
+ * @author  Josh Bloch
+ * @author  Neal Gafter
+ * @since   1.2
+ */
+
 public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
     /**
-     * Default initial capacity.
+     * Default initial capacity.  默认的初始容量
      */
     private static final int DEFAULT_CAPACITY = 10;
 

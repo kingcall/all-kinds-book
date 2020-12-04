@@ -19,7 +19,7 @@ Eight wrapper classes used to wrap primitive data types are as given below-
 
 Note that 6 of these are numeric and numeric wrapper classes are subclasses of the [abstract class](https://www.netjstech.com/2015/04/abstract-class-in-java.html) Number class in Java:
 
-[![Wrapper classes in Java](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/03/19:43:09-type%252Bwrapper.png)](https://4.bp.blogspot.com/-S0WErMpNaUo/WNZju5s9b0I/AAAAAAAAAW0/hxKGA49up5Q9OqOf-1_goatGI0baknWeQCLcB/s1600/type%2Bwrapper.png)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/04/09:54:21-20201204095421.png)
 
 ### When do we need wrapper classes in Java
 
