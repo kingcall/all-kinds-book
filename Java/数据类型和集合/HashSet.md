@@ -163,7 +163,7 @@ public HashSet(int initialCapacity, float loadFactor) {
 
 **dummy**
 
-关于这个我们后面在LinkedHashMap中详细讲解
+关于这个我们后面在LinkedHashSet中详细讲解，其实就是在LinkedHashSet中会给这个参数一个True,那么这个时候map 就是LinkedHashMap的引用了，而不是HashMap
 
 ```java
 /**
@@ -454,6 +454,12 @@ public void iterator() {
 ## 三. 总结
 
 HashSet 其实就是一个在某种场景下，催化出来的一个数据结构，几乎没有自己的实现，都是借助HashMap 来实现了种种功能，文章中我们也给出了一些思考题，就是关于HashSet add 方法为什么不先判断一下是否存在，而是直接走了HashMap put 方法，然后在根据put 的返回值进行判断结果
+
+
+
+### HashSet 性能
+
+需要注意的是，容量是对HashSet 的迭代性能是有影响的，因为迭代要考虑实际存储元素个数和容量大小的
 
 ### 你觉得HashSet 还有什么可以改进的地方吗，欢迎讨论
 

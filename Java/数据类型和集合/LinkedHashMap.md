@@ -2,18 +2,6 @@
 
 [TOC]
 
-## 概论
-
-- LinkedHashMap 通过特有底层双向链表的支持，使得LinkedHashMap可以保存元素之间的顺序，例如插入顺序或者访问顺序，而HashMap因为没有双向链表的支持，所以就不能保持这种顺序，所以它的访问就是随机的了
-- 和HashMap一样，还是通过数组存储元素的
-- 这里的顺序指的是遍历的顺序，定义了头结点head，当我们调用迭代器进行遍历时，通过head开始遍历，通过after属性可以不断找到下一个，直到tail尾结点，从而实现顺序性。在同一个hash（其实更准确的说是同一个下标，数组index ,在上图中表现了同一列）链表内部next和HashMap.Node.next 的效果是一样的。不同点在于before和after可以连接不同hash之间的链表，也就是说双向链表是可以跨任何index 连接的，也就是说将LinkedHashMap里面的所有元素按照特定的顺序连接起来的
-
-### LinkedHashMap 的最终形态
-
-一顿操作猛如虎，最后LinkedHashMap 长成这样了，其实我没画出来，这里before 和after  节点应该连接起来的，奈何不会画，下面手动画了一张，将就着看吧，意思明白了就行。这个时候空间想象力就很重要了，代价一起脑补一下吧！
-
-![image-20201129222921735](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/29/22:29:22-image-20201129222921735.png)
-
 
 
 ## 初识LinkedHashMap
@@ -26,7 +14,7 @@
 
 我们在后台将数据构造完成
 
-```
+```java
  HashMap<String, Integer> map = new HashMap<>();
  map.put("星期一", 40);
  map.put("星期二", 43);
@@ -54,7 +42,7 @@
 
 那么如何保证预期展示结果如我们所想呢，这个时候就需要用到LinkedHashMap实体，首先我们把上述代码用LinkedHashMap进行重构
 
-```
+```java
 LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
 map.put("星期一", 40);
 map.put("星期二", 43);
@@ -80,11 +68,19 @@ key: 星期六, value: 35
 key: 星期日, value: 30
 ```
 
+### LinkedHashMap 实现原理
 
+- LinkedHashMap 通过特有底层双向链表的支持，使得LinkedHashMap可以保存元素之间的顺序，例如插入顺序或者访问顺序，而HashMap因为没有双向链表的支持，所以就不能保持这种顺序，所以它的访问就是随机的了
+- 和HashMap一样，还是通过数组存储元素的
+- 这里的顺序指的是遍历的顺序，定义了头结点head，当我们调用迭代器进行遍历时，通过head开始遍历，通过after属性可以不断找到下一个，直到tail尾结点，从而实现顺序性。在同一个hash（其实更准确的说是同一个下标，数组index ,在上图中表现了同一列）链表内部next和HashMap.Node.next 的效果是一样的。不同点在于before和after可以连接不同hash之间的链表，也就是说双向链表是可以跨任何index 连接的，也就是说将LinkedHashMap里面的所有元素按照特定的顺序连接起来的
 
-## LinkedHashMap 的继承关系
+### LinkedHashMap 的最终形态
 
-### 继承关系图
+一顿操作猛如虎，最后LinkedHashMap 长成这样了，其实我没画出来，这里before 和after  节点应该连接起来的，奈何不会画，下面手动画了一张，将就着看吧，意思明白了就行。这个时候空间想象力就很重要了，代价一起脑补一下吧！
+
+![image-20201129222921735](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/29/22:29:22-image-20201129222921735.png)
+
+### LinkedHashMap 的继承关系
 
 LinkedHashMap继承了HashMap类，是HashMap的子类，LinkedHashMap的大多数方法的实现直接使用了父类HashMap的方法,LinkedHashMap可以说是HashMap和LinkedList的集合体，既使用了HashMap的数据结构，**又借用了LinkedList双向链表的结构保存了记录的插入顺序，在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先插入的，也可以在构造时带参数，按照访问次序排序**。
 
@@ -94,9 +90,9 @@ LinkedHashMap继承了HashMap类，是HashMap的子类，LinkedHashMap的大多�
 
 
 
-### 构造方法
+### LinkedHashMap的 构造方法
 
-```
+```java
 // 构造方法1，构造一个指定初始容量和负载因子的、按照插入顺序的LinkedList
 public LinkedHashMap(int initialCapacity, float loadFactor) {
     super(initialCapacity, loadFactor);
@@ -126,7 +122,7 @@ public LinkedHashMap(int initialCapacity, float loadFactor, boolean accessOrder)
 
 我们发现除了多了一个变量accessOrder之外，并无不同，此变量到底起了什么作用？
 
-```
+```java
 /**
  * The iteration ordering method for this linked hash map: <tt>true</tt>
  * for access-order, <tt>false</tt> for insertion-order.
@@ -177,23 +173,23 @@ final boolean accessOrder;
 
 为了方便操作，加上有是双向链表所有这里定义了两个特殊的节点，头结点和尾部节点
 
-```
-   /**
-     * The head (eldest) of the doubly linked list.
-     */
-    transient LinkedHashMap.Entry<K,V> head;
+```java
+/**
+  * The head (eldest) of the doubly linked list.
+  */
+ transient LinkedHashMap.Entry<K,V> head;
 
-    /**
-     * The tail (youngest) of the doubly linked list.
-     */
-    transient LinkedHashMap.Entry<K,V> tail;
+ /**
+  * The tail (youngest) of the doubly linked list.
+  */
+ transient LinkedHashMap.Entry<K,V> tail;
 ```
 
 ### newNode方法
 
 LinkedHashMap重写了newNode()方法，**通过此方法保证了插入的顺序性**，在此之前我们先看一下HashMap 的newNode()方法
 
-```
+```java
 // Create a regular (non-tree) node
 Node<K,V> newNode(int hash, K key, V value, Node<K,V> next) {
     return new Node<>(hash, key, value, next);
@@ -202,7 +198,7 @@ Node<K,V> newNode(int hash, K key, V value, Node<K,V> next) {
 
 然后我们再看一下LinkedHashMap的newNode()方法
 
-```
+```java
 Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
     LinkedHashMap.Entry<K,V> p =
         new LinkedHashMap.Entry<K,V>(hash, key, value, e);
@@ -213,7 +209,7 @@ Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
 
 这里调用了一个方法 linkNodeLast(),我们看一下这个方法，但是这和方法不止完成了串联后置，也完成了串联前置，所以插入的顺序性是通过这个方法保证的。
 
-```
+```java
 // link at the end of list 将链表的尾节点和当前节点串起来
 private void linkNodeLast(LinkedHashMap.Entry<K,V> p) {
 		// 将tail 的原始值记做last,因为下面要对 tail 赋值
@@ -247,7 +243,7 @@ void afterNodeRemoval(Node<K,V> p) { }
 
 关于afterNodeAccess()方法，在HashMap中没给具体实现，而在LinkedHashMap重写了，目的是**保证操作过的Node节点永远在最后**，从而保证读取的顺序性，在调用put方法和get方法时都会用到
 
-```
+```java
 // move node to last 将节点移动到最后(其实从这个注释我们就可以知道，这个方法是干什么的了)
 void afterNodeAccess(Node<K,V> e) { 
     LinkedHashMap.Entry<K,V> last;
@@ -292,7 +288,7 @@ void afterNodeAccess(Node<K,V> e) {
 
 如果对应的hash位置上有元素，进行元素值的覆盖时，就会调用afterNodeAccess()，将原本可能不是最后的node节点移动到了最后,下面给出了删减之后的代码逻辑
 
-```
+```java
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,boolean evict) {
     if ((p = tab[i = (n - 1) & hash]) == null)
     		// 调用linkNodeLast方法将新元素放到最后
@@ -319,7 +315,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,boolean evict) {
 
 下面给出一个例子
 
-```
+```java
  @Test
  public void test1() {
      // 这里是按照访问顺序排序的
@@ -357,7 +353,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,boolean evict) {
 
 LinkedHashMap中还重写了afterNodeInsertion(boolean evict)方法，它的目的是移除链表中最老的节点对象，也就是当前在头部的节点对象，但实际上在JDK8中不会执行，因为removeEldestEntry方法始终返回false
 
-```
+```java
  void afterNodeInsertion(boolean evict) { 
 		// possibly remove eldest
     LinkedHashMap.Entry<K,V> first;
@@ -384,7 +380,7 @@ afterNodeInsertion方法的evict参数如果为false，表示哈希表处于创�
 
 下面给出了单独put 的情况
 
-```
+```java
  public V put(K key, V value) {
      return putVal(hash(key), key, value, false, true);
  }
@@ -397,7 +393,7 @@ afterNodeInsertion方法的evict参数如果为false，表示哈希表处于创�
 
 这里是使用Map集合作为构造器参数创建的时的情况
 
-```
+```java
 public HashMap(Map<? extends K, ? extends V> m) {
     this.loadFactor = DEFAULT_LOAD_FACTOR;
     putMapEntries(m, false);
@@ -442,7 +438,7 @@ void afterNodeRemoval(Node<K,V> p) { }
 
 很明显这三个方法，都在LinkedHashMap 中被重写了，所以下面的方法是因为是有返回值的，所以它不在是空方法体了，而是一个直接返回false 的方法体了
 
-```
+```java
 protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
     return false;
 }
@@ -458,7 +454,7 @@ protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
 
 如果一个链表只能维持10个元素，那么当插入了第11个元素时，以如下方式重写removeEldestEntry的话，那么将会删除最老的一个元素
 
-```
+```java
 public class BuerLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
     private int maxCacheSiz;
 
@@ -503,7 +499,7 @@ public class BuerLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 
 这个方法和上面的方法一样，在HashMap 中都是没有实现的，但是在LinkedHashMap的实现如下,其实这个方法是在删除节点后调用的，可以思考一下为甚么
 
-```
+```java
 void afterNodeRemoval(Node<K,V> e) { // unlink
 		// 将要删除的节点标记为p， b 是p 的前置，a 是p 的后置
     LinkedHashMap.Entry<K,V> p =(LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
@@ -520,7 +516,7 @@ void afterNodeRemoval(Node<K,V> e) { // unlink
         tail = b;
     // 如果a 不是null 则是一个普通的节点，也就是说删除的不是tail 则让a 也指向b    
     else
-        a.before = b;
+        a.before = b;java
 }
 ```
 
@@ -534,7 +530,7 @@ void afterNodeRemoval(Node<K,V> e) { // unlink
 
 其他细节请参考上一篇HashMap,因为 DRY(don't repeat yourself)
 
-```
+```java
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                boolean evict) {
     Node<K,V>[] tab; Node<K,V> p; int n, i;
@@ -585,7 +581,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 
 
 
-##  获取元素的过程
+##  debug 源码 获取元素的过程
 
 首先 LinkedHashMap 重写了get 方法，getNode 方法依然使用的实HashMap 的，当元素存在的时候，判断是否要根据accessOrder 将元素移动到双向链表的尾部
 
@@ -606,11 +602,11 @@ public V get(Object key) {
 
 
 
-## 删除元素的过程
+## debug 源码 删除元素的过程
 
 Hashmap 一节，我们也没有讲remove 方法，所以这里我们来看一下，细节的一些东西都写在注释里了，首先remove 方法是有返回值的，存在则返回key 对应的value 不存在则返回null
 
-```
+```java
 public V remove(Object key) {
     Node<K,V> e;
     return (e = removeNode(hash(key), key, null, false, true)) == null ?

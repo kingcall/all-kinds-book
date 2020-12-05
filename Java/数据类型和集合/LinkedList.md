@@ -1,10 +1,14 @@
-## LinkedList
+[TOC]
+
+
+
+## 一. LinkedList初始
 
 LinkedList和ArrayList一样是集合List的实现类，虽然较之ArrayList，其使用场景并不多，但同样有用到的时候，那么接下来，我们来认识一下它。
 
 ![image-20201203162552545](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/03/16:25:53-image-20201203162552545.png)
 
-## 一. 定义一个LinkedList
+## 二. 定义一个LinkedList
 
 ```java
 public static void main(String[] args) {
@@ -89,7 +93,7 @@ private static class Node<E> {
 
 我们知道LinkedList是通过双向链表实现的，而双向链表就是通过Node类来体现的，类中通过item变量保存了当前节点的值，通过next变量指向下一个节点，通过prev变量指向上一个节点。
 
-## 二. LinkedList常用方法
+## 三. LinkedList常用方法
 
 #### 1. get(int index)
 
@@ -358,6 +362,7 @@ public static void listByStrengThenFor(LinkedList<Integer> list)
 
 还有类似于pollFirst()，pollLast()取值后删除的方法也能达到部分的遍历效果。
 
-## 三. 总结
+## 四. 总结
 
 本文基于java8从定义一个LinkList入手，逐步展开，从源码角度分析LinkedList双向链表的结构是如何构建的，同时针对其常用方法进行分析，包括get，add，remove以及常用的遍历方法，并简单的说明了它的插入、删除操作为何相对高效，而取值操作性能相对较低，若有不对之处，请批评指正，望共同进步，谢谢！
+

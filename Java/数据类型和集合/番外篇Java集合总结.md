@@ -93,3 +93,48 @@ LinkedHashMap：在需要输出的顺序和输入的顺序相同的情况下。
 ## 总结
 
 本文对List集合进行了总结，包括类结构图，ArrayList和Vector对比分析，ArrayList和LinkedList的对比分析，若有不对之处，请批评指正，望共同进步，谢谢！
+
+
+
+
+
+[深度剖析HashMap](https://blog.csdn.net/king14bhhb/article/details/110294590)
+
+[深度剖析LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651)
+
+[深度剖析HashSet](https://blog.csdn.net/king14bhhb/article/details/110679661) 
+
+
+
+ArrayList 也是有顺序的
+
+
+
+
+
+- **capacity** - The capacity of this hash set is 8. Meaning, it can store 8 elements.
+- **loadFactor** - The load factor of this hash set is 0.6. This means, whenever our hash table is filled by 60%, the elements are moved to a new hash table of double the size of the original hash table.
+
+从衍生时间上进行对比，线程安全、有序性、底层实现，性能上进行对比
+
+
+
+## LinkedHashSet Vs. HashSet
+
+Both `LinkedHashSet` and `HashSet` implements the `Set` interface. However, there exist some differences between them.
+
+- `LinkedHashSet` maintains a linked list internally. Due to this, it maintains the insertion order of its elements.
+- The `LinkedHashSet` class requires more storage than `HashSet`. This is because `LinkedHashSet` maintains linked lists internally.
+- The performance of `LinkedHashSet` is slower than `HashSet`. It is because of linked lists present in `LinkedHashSet`.
+
+------
+
+------
+
+## LinkedHashSet Vs. TreeSet
+
+Here are the major differences between `LinkedHashSet` and `TreeSet`:
+
+- The `TreeSet` class implements the `SortedSet` interface. That's why elements in a tree set are sorted. However, the `LinkedHashSet` class only maintains the insertion order of its elements.
+- A `TreeSet` is usually slower than a `LinkedHashSet`. It is because whenever an element is added to a `TreeSet`, it has to perform the sorting operation.
+- `LinkedHashSet` allows the insertion of null values. However, we cannot insert a null value to `TreeSet`.
