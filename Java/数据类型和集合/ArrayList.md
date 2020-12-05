@@ -1,6 +1,8 @@
 [TOC]
 
-## ArrayList
+## 一. ArrayList 初识
+
+
 
 ArrayList是集合的一种实现，实现了接口List，List接口继承了Collection接口。
 
@@ -10,59 +12,134 @@ ArrayList  是java 中最常用的集合类型，这是因为它使用起来非�
 
 ArrayList使用非常广泛，不论是数据库表查询，excel导入解析，还是网站数据爬取都需要使用到，了解ArrayList原理及使用方法显得非常重要。
 
-
-
 ### ArrayList 的构造方法
+
+
 
 #### 无参构造
 
-```
+```java
 //默认创建一个ArrayList集合
 List<String> list = new ArrayList<>();
-    /**
-     * Constructs an empty list with an initial capacity of ten.
-     */
-    public ArrayList() {
-        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
-    }
+/**
+ * Constructs an empty list with an initial capacity of ten.
+ */
+public ArrayList() {
+    this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+}
 ```
 
- Constructs an empty list with an initial capacity of ten.
+创建一个空的使用默认容量的list(默认是10)
 
 #### 指定初始容量
 
-```
+```java
 //创建一个初始化长度为100的ArrayList集合
 List<String> initlist = new ArrayList<>(100);
 
-    public ArrayList(int initialCapacity) {
-        if (initialCapacity > 0) {
-            this.elementData = new Object[initialCapacity];
-        } else if (initialCapacity == 0) {
-            this.elementData = EMPTY_ELEMENTDATA;
-        } else {
-            throw new IllegalArgumentException("Illegal Capacity: "+
-                                               initialCapacity);
-        }
+public ArrayList(int initialCapacity) {
+    if (initialCapacity > 0) {
+        this.elementData = new Object[initialCapacity];
+    } else if (initialCapacity == 0) {
+        this.elementData = EMPTY_ELEMENTDATA;
+    } else {
+        throw new IllegalArgumentException("Illegal Capacity: "+ initialCapacity);
     }
+}
 ```
 
-Constructs an empty list with the specified initial capacity.
+创建一个空的指定容量的list
 
 #### 其他集合作为参数
 
 ```java
-
-
 //将其他类型的集合转为ArrayList
 List<String> setList = new ArrayList<>(new HashSet());
+
+/**
+ * Constructs a list containing the elements of the specified
+ * collection, in the order they are returned by the collection's
+ * iterator.
+ *
+ * @param c the collection whose elements are to be placed into this list
+ * @throws NullPointerException if the specified collection is null
+ */
+public ArrayList(Collection<? extends E> c) {
+    elementData = c.toArray();
+    if ((size = elementData.length) != 0) {
+        // c.toArray might (incorrectly) not return Object[] (see 6260652)
+        if (elementData.getClass() != Object[].class)
+            elementData = Arrays.copyOf(elementData, size, Object[].class);
+    } else {
+        // replace with empty array.
+        this.elementData = EMPTY_ELEMENTDATA;
+    }
+}
 ```
 
-构造一个包含指定集合元素的列表，其顺序由集合的迭代器返回。
+构造一个包含指定集合元素的列表，其顺序由集合的迭代器返回。当传入的集合参数为空的话，抛出NullPointerException，因为它会调用该集合的toArray 方法，和HashTable 里面调用key 的hashcode 方法的原理一样
+
+当集合是一个空的集合的话，elementData = EMPTY_ELEMENTDATA和指定0是initialCapacity的效果一样
+
+**注意:**在传入集合的ArrayList的构造方法中，有这样一个判断
+
+> if (elementData.getClass() != Object[].class)，
+>
+> 给出的注释是：c.toArray might (incorrectly) not return Object[] (see 6260652)，即调用toArray方法返回的不一定是Object[]类型，查看Collection接口的定义 
+
+```
+Object[] toArray();
+```
 
 
 
-我们读一下源码，看看定义ArrayList的的构造方法和核心属性，当然我们还是习惯性的读一下类注释，让我们先有一个大概的认识，最后我们再通过例子，对它有一个精准的认识
+> 我们发现返回的确实是Object[]，那么为什么还会有这样的判断呢？
+>
+> 如果有一个类CustomList继承了ArrayList，然后重写了toArray()方法呢。。
+
+```java
+public class CustomList<E> extends ArrayList {
+    @Override
+    public Integer [] toArray() {
+        return new Integer[]{1,2};
+    };
+    
+    public static void main(String[] args) {
+        Object[] elementData = new CustomList<Integer>().toArray();
+        System.out.println(elementData.getClass());
+        System.out.println(Object[].class);
+        System.out.println(elementData.getClass() == Object[].class);
+    }
+}
+```
+
+执行结果：
+
+```
+class [Ljava.lang.Integer;
+class [Ljava.lang.Object;
+false
+```
+
+接着说，如果传入的集合类型和我们定义用来保存添加到集合中值的Object[]类型不一致时，ArrayList做了什么处理？读源码看到，调用了`Arrays.copyOf(elementData, size, Object[].class);`，继续往下走
+
+```java
+public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {    
+    T[] copy = ((Object)newType == (Object)Object[].class)
+        ? (T[]) new Object[newLength]
+        : (T[]) Array.newInstance(newType.getComponentType(), newLength); 
+    System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+    return copy;
+}
+```
+
+我们发现定义了一个新的数组，将原数组的数据拷贝到了新的数组中去。
+
+### ArrayList 重要属性
+
+
+
+我们读一下源码，看看定义ArrayList的重要属性，当然我们还是习惯性的读一下类注释，让我们先有一个大概的认识，最后我们再通过例子，对它有一个精准的认识
 
 ```java
 /**
@@ -139,111 +216,40 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @serial
      */
     private int size;
-
-    /**
-     * Constructs an empty list with the specified initial capacity.
-     *
-     * @param  initialCapacity  the initial capacity of the list
-     * @throws IllegalArgumentException if the specified initial capacity
-     *         is negative
-     */
-    public ArrayList(int initialCapacity) {
-        if (initialCapacity > 0) {
-            this.elementData = new Object[initialCapacity];
-        } else if (initialCapacity == 0) {
-            this.elementData = EMPTY_ELEMENTDATA;
-        } else {
-            throw new IllegalArgumentException("Illegal Capacity: "+
-                                               initialCapacity);
-        }
-    }
-
-    /**
-     * Constructs an empty list with an initial capacity of ten.
-     */
-    public ArrayList() {
-        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
-    }
-
-    /**
-     * Constructs a list containing the elements of the specified
-     * collection, in the order they are returned by the collection's
-     * iterator.
-     *
-     * @param c the collection whose elements are to be placed into this list
-     * @throws NullPointerException if the specified collection is null
-     */
-    public ArrayList(Collection<? extends E> c) {
-        elementData = c.toArray();
-        if ((size = elementData.length) != 0) {
-            // c.toArray might (incorrectly) not return Object[] (see 6260652)
-            if (elementData.getClass() != Object[].class)
-                elementData = Arrays.copyOf(elementData, size, Object[].class);
-        } else {
-            // replace with empty array.
-            this.elementData = EMPTY_ELEMENTDATA;
-        }
-    }
 }
 ```
 
-其实源码里面已经很清晰了，ArrayList非线程安全，底层是一个Object[]，添加到ArrayList中的数据保存在了elementData属性中。
+其实源码里面已经很清晰了，底层是一个Object[]，添加到ArrayList中的数据保存在了elementData属性中。
 
-- 当调用`new ArrayList<>()`时，将一个空数组{}赋值给了elementData，这个时候集合的长度size为默认长度0；
-- 当调用`new ArrayList<>(100)`时，根据传入的长度，new一个Object[100]赋值给elementData，当然如果玩儿的话，传了一个0，那么将一个空数组{}赋值给了elementData；
+- 当调用`new ArrayList<>()`时，将一个空数组 **DEFAULTCAPACITY_EMPTY_ELEMENTDATA**  赋值给了elementData，这个时候集合的长度size为默认长度0；
+- 当调用`new ArrayList<>(100)`时，根据传入的长度，new一个Object[100]赋值给elementData，当然如果玩儿的话，传了一个0，那么将一个空数组 **EMPTY_ELEMENTDATA** 赋值给了elementData；
 - 当调用new ArrayList<>(new HashSet())时，根据源码，我们可知，可以传递任何实现了Collection接口的类，将传递的集合调用toArray()方法转为数组内赋值给elementData;
 
-> **注意：**在传入集合的ArrayList的构造方法中，有这样一个判断
->
-> if (elementData.getClass() != Object[].class)，
->
-> 给出的注释是：c.toArray might (incorrectly) not return Object[] (see 6260652)，即调用toArray方法返回的不一定是Object[]类型，查看ArrayList源码
->
-> ```java
-> public Object[] toArray() {    return Arrays.copyOf(elementData, size);}
-> ```
->
-> 我们发现返回的确实是Object[]，那么为什么还会有这样的判断呢？
->
-> 如果有一个类CustomList继承了ArrayList，然后重写了toArray()方法呢。。
+#### size
 
-```java
-public class CustomList<E> extends ArrayList {
-    @Override
-    public Integer [] toArray() {
-        return new Integer[]{1,2};
-    };
-    
-    public static void main(String[] args) {
-        Object[] elementData = new CustomList<Integer>().toArray();
-        System.out.println(elementData.getClass());
-        System.out.println(Object[].class);
-        System.out.println(elementData.getClass() == Object[].class);
-    }
-}
-```
+实际存储的元素个数，也就是数组中存储的元素个数，而不是数组的大小
 
-执行结果：
+#### DEFAULT_CAPACITY
 
-```
-class [Ljava.lang.Integer;
-class [Ljava.lang.Object;
-false
-```
+默认的数组大小，就是在你不指定minCapacity变量的时候，它将使用DEFAULT_CAPACITY 作为数组的大小(但是需要注意的是它是在第一次添加元素的时候在使用的)，而不是像你指定了minCapacity在构造方法中那样，在创建ArrayList 的过程中就创建了
 
-接着说，如果传入的集合类型和我们定义用来保存添加到集合中值的Object[]类型不一致时，ArrayList做了什么处理？读源码看到，调用了`Arrays.copyOf(elementData, size, Object[].class);`，继续往下走
+#### CAPACITY
 
-```java
-public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {    
-    T[] copy = ((Object)newType == (Object)Object[].class)
-        ? (T[]) new Object[newLength]
-        : (T[]) Array.newInstance(newType.getComponentType(), newLength); 
-    System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
-    return copy;
-}
-```
+首先说明一下，ArrayList 中没有这样的变量，但是我把它单独拿出来说，是想强调一点，CAPACITY 表示的实数组的大小，而不是实际存储的元素个数——size,它表示的实存储能力，size 表示已经使用
 
-我们发现定义了一个新的数组，将原数组的数据拷贝到了新的数组中去。
+#### elementData
+
+ArrayList 背后真正存储数据的结构，也就是存储数据的数组,可以说是ArrayList背后的巨人
+
+
+
+#### DEFAULTCAPACITY_EMPTY_ELEMENTDATA
+
+无参构造时候，elementData=DEFAULTCAPACITY_EMPTY_ELEMENTDATA 其实主要是为了区分elementData=它是无参构造的赋值，还是有参但是是0的时候的赋值
+
+#### EMPTY_ELEMENTDATA
+
+无参构造时候但是initialCapacity=0的时候，EMPTY_ELEMENTDATA 其实主要是为了区分elementData=它是无参构造的赋值，还是有参但是是0的时候的赋值
 
 ## 二. ArrayList常用方法
 
@@ -263,17 +269,17 @@ Object[] elementData中数据如下：
 
 ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/23:06:19-1677914-20190626150620394-1213393047.png)
 
-### 1 add(E element)
+### 1. add(E element)
 
 我们通过源码来看一下add("白骨精")到底发生了什么
 
 ```java
-    /**
-     * Appends the specified element to the end of this list.
-     * 添加一个元素到列表的末尾
-     * @param e element to be appended to this list 被添加的元素
-     * @return <tt>true</tt> (as specified by {@link Collection#add}) 固定的返回值 True
-*/
+/**
+ * Appends the specified element to the end of this list.
+ * 添加一个元素到列表的末尾
+ * @param e element to be appended to this list 被添加的元素
+ * @return <tt>true</tt> (as specified by {@link Collection#add}) 固定的返回值 True
+ */
 public boolean add(E e) {
     ensureCapacityInternal(size + 1);
     // Increments modCount!!
@@ -341,13 +347,19 @@ private void grow(int minCapacity) {
 
 扩容规则为 **数组小容量 + （数组当前容量 / 2）**，即**数组当前容量 \* 1.5**，当然有最大值的限制。如果计算出来的结果也就是**数组当前容量 \* 1.5** 还是不足的话，直接使用newCapacity作为最小容量
 
+这里需要注意一个问题，在老版本的代码中，它的计算公式是这样的
+
+```
+int newCapacity = (oldCapacity * 3)/2 + 1;
+```
+
 
 
 因为最开始定义了集合容量为10，故而本次不会进行扩容，直接将第8个位置（从0开始，下标为7）设置为“白骨精”，这时Object[] elementData中数据如下：
 
 ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/23:06:19-1677914-20190626150705934-1128204746.png)
 
-还有和add()类似的方法。空间扩容原理都是一样，如：
+当然add 方法还有很多变体，如果你感兴趣可以自己研究一下，因为add方法指定index的时候和set 方法很类似，所以你可以看完下面的set 方法再去看add 方法的变体
 
 > `add("铁扇", 0);` //将数组中的元素各自往后移动一位，再将“铁扇”放到第一个位置上；
 >
@@ -360,6 +372,19 @@ private void grow(int minCapacity) {
 > ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/23:06:19-1677914-20190626150816841-278720793.png)
 >
 > 指定了插入位置的，会通过**rangeCheckForAdd(int index)**方法判断是否数组越界
+
+**总结**
+
+当添加一个新元素到ArrayList的时候，首选会验证一下ArrayList时候有足够的容量了来存储新的元素，如果不够的话则会创建一个新的数组是原来数组大小的1.5 倍，然后copy 数据到新的数组
+
+
+
+```
+arrayList.add(1,"a");
+arrayList.addAll(new HashSet());
+```
+
+**这里需要注意一下的是扩容这个过程，或者说是计算容量的过程，如果你是无参构造则一次性扩容到DEFAULT_CAPACITY，如果不是则都是根据所需容量(size+1)进行判断是否要扩容,如果是的话，则扩容为原来的1.5倍**
 
 ### 2. set(int index, E element)
 
@@ -383,7 +408,7 @@ public E set(int index, E element) {
 
 ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/23:06:19-1677914-20190626150842478-1367690033.png)
 
-#### 3. get(int index)
+### 3. get(int index)
 
 ArrayList中get方法也非常简单，通过下标查找即可，同时需要进行了类型转换，因为数组为Object[]，前提是需要判断传入的数组下标是否越界。
 
@@ -400,7 +425,7 @@ E elementData(int index) {
 
 调用get(6)返回”哪吒“。
 
-#### 4. remove(int index)
+### 4. remove(int index)
 
 首先说一下ArrayList通过下标删除的方法，我们看一下源码
 
@@ -417,11 +442,13 @@ public E remove(int index) {
 }
 ```
 
-通过源码我们可以看到首先获取了待删除的元素，并最终返回了。其次计算了数组中需要移动的位数 size - index - 1，那么很明显我们可以得出待删除的是最后一个元素的话，移到位数为0，否则移动位数大于0，那么通过数组元素的拷贝来实现往前移动相应位数。
+通过源码我们可以看到首先获取了待删除的元素，并最终返回了。这里的下标和数组一样，都是从0开始的
+
+其次计算了数组中需要移动的位数 size - index - 1，那么很明显我们可以得出待删除的是最后一个元素的话，移到位数为0，否则移动位数大于0，那么通过数组元素的拷贝来实现往前移动相应位数。
 
 如remove(10)，找到的元素为“美猴王”，那么移动位数 = 12-10-1 = 1；此时将原本在第12个位置上（数组下标为11）的“白骨精”往前移动一位，同时设置elementData[11] = null；这里通过设置null值让GC起作用。
 
-#### 5. remove(Object o)
+### 5. remove(Object o)
 
 删除ArrayList中的值对象，其实和通过下标删除很相似，只是多了一个步骤，遍历底层数组elementData，通过equals()方法或 == （特殊情况下）来找到要删除的元素，获取其下标，调用remove(int index)一样的代码即可。
 
@@ -444,7 +471,73 @@ public boolean remove(Object o) {
 }
 ```
 
-### 6. 其他方法
+当然 ArrayList 还给我们提供了另外一个方法，那就是removeIf()，它是一个函数式接口
+
+```java
+ List<String> cityList = new ArrayList<>(2);
+ cityList.removeIf((String name )->name.equalsIgnoreCase("Bangalore"));
+```
+
+
+
+### 6. iterator 方法
+
+这里主要演示一下它的快速失败属性
+
+```java
+@Test
+public void itrator(){
+    List<String> cityList = new ArrayList<>(2);
+    cityList.add("London");
+    cityList.add("Paris");
+    cityList.add("Bangalore");
+    cityList.add("Istanbul");
+    Iterator<String> itr = cityList.iterator();
+    while(itr.hasNext()){
+        String city = itr.next();
+        if(city.equals("Paris")){
+            cityList.remove(city);
+        }
+        System.out.println(city);
+    }
+}
+```
+
+输出结果
+
+```
+London
+Paris
+java.util.ConcurrentModificationException
+	at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:909)
+	at java.util.ArrayList$Itr.next(ArrayList.java:859)
+```
+
+当然如果你就想在遍历的过程中删除元素，也不是不行,调用iterator 的remove 方法即可,然后ArrayList 中的元素也会被删除的
+
+```java
+@Test
+public void itrator2(){
+    List<String> cityList = new ArrayList<>(2);
+    cityList.add("London");
+    cityList.add("Paris");
+    cityList.add("Bangalore");
+    cityList.add("Istanbul");
+    Iterator<String> itr = cityList.iterator();
+    while(itr.hasNext()){
+        String city = itr.next();
+        if(city.equals("Paris")){
+            itr.remove();
+        }else {
+            System.out.println(city);
+        }
+    }
+}
+```
+
+
+
+### 7. 其他方法
 
 **size()** : 获取集合长度，通过定义在ArrayList中的私有变量size得到
 
@@ -454,541 +547,37 @@ public boolean remove(Object o) {
 
 **clear()**：集合清空，通过遍历底层数组elementData，设置为null
 
-```
-    /**
-     * Removes all of the elements from this list.  The list will
-     * be empty after this call returns.
-     */
-    public void clear() {
-        modCount++;
+```java
+ /**
+  * Removes all of the elements from this list.  The list will
+  * be empty after this call returns.
+  */
+ public void clear() {
+     modCount++;
 
-        // clear to let GC do its work
-        for (int i = 0; i < size; i++)
-            elementData[i] = null;
-        size = 0;
-    }
-```
-
-这里给大家一个思考题，为什么要遍历呢，而不是先创建一个同等大小的数组，然后将数组当前设置为null呢，其实我觉得也可以
-
-## 三. 总结
-
-- ArrayList is a Resizable-array implementation of the List interface. It can grow dynamically if more elements are to be added after the capacity is reached. Same way when the elements are removed from the ArrayList it shrinks by shifting the other elements to fill the space created by the removed element.
-- Each ArrayList instance has a capacity. The capacity is the size of the array used to store the elements in the list.
-- In ArrayList insertion order of the elements is maintained which means it is an ordered collection.
-- ArrayList in Java can contain duplicate values. Any number of null elements are also allowed.
-- The iterators returned by ArrayList's iterator and listIterator methods are fail-fast. If the list is structurally modified at any time after the iterator is created, in any way except through the iterator's own remove or add methods, the iterator will throw a **ConcurrentModificationException**.
-
-本文主要讲解了ArrayList原理，从底层数组着手，讲解了ArrayList定义时到底发生了什么，再添加元素时，扩容规则如何，删除元素时，数组的元素的移动方式以及一些常用方法的用途，若有不对之处，请批评指正，望共同进步，谢谢！
-
-
-
-
-
-### Creating ArrayList and adding elements to it
-
-
-
-There are other variants of add method too that can add the specified collection into the List. You can get the list of all methods in ArrayList class [here](https://docs.oracle.com/en/java/javase/12/docs/api/java.base/java/util/ArrayList.html).
-
-
-
-**Output**
-
-```
-City Name - London
-City Name - Paris
-City Name - Bangalore
-City Name - Istanbul
+     // clear to let GC do its work
+     for (int i = 0; i < size; i++)
+         elementData[i] = null;
+     size = 0;
+ }
 ```
 
-In the code you can see that the ArrayList is created with the initial capacity as 2 still 4 elements are added to it. Internally ArrayList has been resized to accommodate more elements. Also from the output you can see that the elements are inserted in the same order as they are added, so the insertion order is maintained.
+这里给大家一个思考题，为什么要遍历呢，而不是先创建一个同等大小的数组，然后将数组当前设置为null呢，其实我觉得也可以,而且更快
 
-### Java ArrayList allows duplicates
+## 三.  ArrayList 的性能
 
-ArrayList in Java allows *duplicate elements to be added*.
+- **Adding an element**- 如果你使用的实  **add(E e)** 方法添加一个元素到ArrayList末尾 ，它的时间复杂度 **O(1)**；但是当空间不足引发扩容的时候，会导致新建数组然后拷贝数据，这个时候它的时间复杂度 **O(n)** ;当你使用 add(int index, E element)的时候它的算法复杂度是 **O(n - index)** 也就是 **O(n)**
+- **Retrieving an element**- 当你使用**get(int index)** 的时候，它的时间复杂度是 **O(1)**，因为数组可以直接根据下标进行定位
+- **Removing an element**- 当你使用 **remove(int index)** 它的时间复杂度是 **O(n - index) **，因为它涉及到移动元素
 
-```
-public class LoopListDemo {
-  public static void main(String[] args) {
-    // Using Diamond operator, so with ArrayList 
-    // don't need to provide String, this option is available from 
-    // Java 7 onward
-    List<String> cityList = new ArrayList<>();
-    cityList.add("Delhi");
-    cityList.add("Mumbai");
-    cityList.add("Bangalore");
-    cityList.add("Mumbai");
-    cityList.add("Mumbai");
-            
-    // Using for-each loop 
-    System.out.println("With for-each loop - Java 5");
-    for(String name : cityList){
-      System.out.println("City Name - " + name);
-    }
-  }
-}
-```
+## 四. 总结
 
-**Output**
 
-```
-With for-each loop - Java 5
-City Name - Delhi
-City Name - Mumbai
-City Name - Bangalore
-City Name - Mumbai
-City Name - Mumbai
-```
 
-Here it can be seen that Mumbai is added 3 times and when I am [looping the list](https://www.netjstech.com/2015/08/how-to-loop-iterate-arraylist-in-java.html) and displaying the elements in the list it is showing Mumbai 3 times.
+1. ArrayList 就是一个实现了List接口的课自动扩容的数组，当添加元素的时候它会尝试扩容，当删除元素的时候，它会左移元素，避免数组出现"空位"
+2. ArrayList 都有容量，容量就是ArrayList里面数组的大小
+3. ArrayList 是一个有序的集合，它的维持的顺序就是元素的插入顺序（可以对比HashMap）
+4. ArrayList 可以存储重复值和null值
+5. ArrayList 是快速失败的，在遍历的同时当集合被修改后会抛出**ConcurrentModificationException**，可以使用Iterator 的删除方法来避免这个问题
+6. ArrayList 不是线程安全的，如果你想在多线程环境中使用，可以使用Vector 或者它的线程安全包装类
 
-### Java ArrayList allows any number of nulls
-
-In ArrayList any number of nulls can be added. Let's see it with an example.
-
-```
-public class LoopListDemo {
-  public static void main(String[] args) {
-    // Using Diamond operator, so with ArrayList 
-    // don't need to provide String, this option is available from 
-    // Java 7 onwards
-    List<String> cityList = new ArrayList<>();
-    cityList.add("Delhi");
-    cityList.add("Mumbai");
-    cityList.add("Bangalore");
-    cityList.add("Mumbai");
-    cityList.add(null);
-    cityList.add("Mumbai");
-    cityList.add(null);
-    
-    // Using for-each loop 
-    System.out.println("With for-each loop - Java 5");
-    for(String name : cityList){
-      System.out.println("City Name - " + name);
-      //cityList.remove(2);
-    } 
-  }
-}
-```
-
-**Output**
-
-```
-With for-each loop - Java 5
-City Name - Delhi
-City Name - Mumbai
-City Name - Bangalore
-City Name - Mumbai
-City Name - null
-City Name - Mumbai
-City Name - null
-```
-
-It can be seen here that two null elements are added in the AraryList.
-
-### Removing elements from an ArrayList
-
-ArrayList provides several methods to remove elements from the List. Since ArrayList internally uses array to store elements, one point to note here is that *when an element is removed from the List internally the remaining elements are shifted to fill the gap created in the underlying array*.
-
-- **clear()**- Removes all of the elements from this list.
-- **remove(int index)**- Removes the element at the specified position in this list.
-- **remove(Object o)**- Removes the first occurrence of the specified element from this list, if it is present.
-- **removeAll(Collection<?> c)**- Removes from this list all of its elements that are contained in the specified collection.
-- **removeIf(Predicate<? super E> filter)**- Removes all of the elements of this collection that satisfy the given predicate. **Note** that removeIf is added in Java 8.
-
-```
-public class ArrayListDemo {
-  public static void main(String[] args) {
-    // List with initial capacity as 2
-    List<String> cityList = new ArrayList<>(2);
-    cityList.add("London");
-    cityList.add("Paris");
-    cityList.add("Bangalore");
-    cityList.add("Istanbul");
-    cityList.add("Delhi");
-    cityList.add("Houston");
-    System.out.println("Original List- ");
-    for(String name : cityList){
-      System.out.println("City Name - " + name);
-    }
-    // Removing element at index 3
-    String cityName = cityList.remove(3);
-    System.out.println("Removed from the List- " + cityName);
-    // using removeIf with a predicate
-    cityList.removeIf((String name )->name.equalsIgnoreCase("Bangalore"));
-    
-    System.out.println("List after removal of elements-");
-    
-    for(String name : cityList){
-      System.out.println("City Name - " + name);
-    }
-  }
-}
-```
-
-**Output**
-
-```
-Original List- 
-City Name - London
-City Name - Paris
-City Name - Bangalore
-City Name - Istanbul
-City Name - Delhi
-City Name - Houston
-Removed from the List- Istanbul
-List after removal of elements-
-City Name - London
-City Name - Paris
-City Name - Delhi
-City Name - Houston
-```
-
-Note that parameter for the removeIf is of type Predicate which is a [functional interface](https://www.netjstech.com/2015/06/functional-interfaces-and-lambda-expression-in-java-8.html), so it's method can be implemented using [lambda expression](https://www.netjstech.com/2015/06/lambda-expression-in-java-8-overview.html).
-
-- Refer [How to remove elements from an ArrayList in Java](https://www.netjstech.com/2015/08/how-to-remove-elements-from-arraylist-java.html) to see Java program for removing elements from Arraylist.
-
-### ArrayList is not synchronized
-
-ArrayList in Java is not synchronized. That means sharing an instance of ArrayList among many [threads](https://www.netjstech.com/2015/06/lifecycle-of-thread-thread-states-in-java-multithreading.html) where those threads are modifying the collection (adding or removing the values) may result in unpredictable behaviour. If we need to [synchronize](https://www.netjstech.com/2015/06/synchronization-in-java-multithreading-synchronizing-thread.html) an ArrayList you can use **synchronizedList** method provided by **Collections class**, which returns a synchronized (thread-safe) list backed by the specified list.
-
-- Refer [How and why to synchronize ArrayList in Java](https://www.netjstech.com/2015/09/how-and-why-to-synchronize-arraylist-in-java.html) to read more about Synchronization and ArrayList.
-- Refer [CopyOnWriteArrayList in Java](https://www.netjstech.com/2016/01/copyonwritearraylist-in-java.html) to know about a thread-safe variant of ArrayList.
-
-### Java ArrayList iterator
-
-ArrayList provides **iterator** to traverse the list in a sequential manner. Since ArrayList implements **List interface** so it provides **ListIterator** too *which is different from the iterator in a way that it provides iteration in both directions*.
-
-- Refer [List iterator in Java](https://www.netjstech.com/2015/08/list-iterator-in-java.html) to know more about List Iterator in Java.
-- Refer [How to loop/iterate an arraylist in Java](https://www.netjstech.com/2015/08/how-to-loop-iterate-arraylist-in-java.html) to know more about How to iterate a List in Java.
-
-One point to note here is that **both iterator and listiterator are fail fast**, *fail-fast iterator fails if the underlying collection is structurally modified at any time after the iterator is created*, thus the iterator will throw a **ConcurrentModificationException** if the underlying collection is structurally modified in any way except through the iterator's own remove or add (if applicable as in list-iterator) methods.
-
-**Structurally modifying ArrayList while iterating**
-
-```
-public class ArrayListDemo {
-  public static void main(String[] args) {
-    // List with initial capacity as 2
-    List<String> cityList = new ArrayList<>(2);
-    cityList.add("London");
-    cityList.add("Paris");
-    cityList.add("Bangalore");
-    cityList.add("Istanbul");
-    Iterator<String> itr = cityList.iterator();
-    while(itr.hasNext()){
-      String city = itr.next();
-      if(city.equals("Paris")){
-        // removing using remove method 
-        // of the ArrayList class
-        cityList.remove(city);
-      }
-    }
-  }
-}
-```
-
-**Output**
-
-```
-Exception in thread "main" java.util.ConcurrentModificationException
- at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:901)
- at java.util.ArrayList$Itr.next(ArrayList.java:851)
- at org.netjs.examples.ArrayListDemo.main(ArrayListDemo.java:18)
-```
-
-As you can see ConcurrentModificationException is thrown here as there is an attempt to remove an element from the ArrayList.
-
-**Modifying ArrayList using iterator's remove method**
-
-```
-public class ArrayListDemo {
-  public static void main(String[] args) {
-    // List with initial capacity as 2
-    List<String> cityList = new ArrayList<>(2);
-    cityList.add("London");
-    cityList.add("Paris");
-    cityList.add("Bangalore");
-    cityList.add("Istanbul");
-    Iterator<String> itr = cityList.iterator();
-    while(itr.hasNext()){
-      String city = itr.next();
-      if(city.equals("Paris")){
-        itr.remove();
-      }
-    }
-    // iterating after removal
-    for(String name : cityList){
-      System.out.println("City Name - " + name);
-    }
-  }
-}
-```
-
-**Output**
-
-```
-City Name - London
-City Name - Bangalore
-City Name - Istanbul
-```
-
-Now ConcurrentModificationException is not thrown as iterator's remove method is used to remove element from the ArrayList.
-
-- Refer [fail-fast Vs fail-safe iterator in Java](https://www.netjstech.com/2015/05/fail-fast-vs-fail-safe-iterator-in-java.html) to know more about fail-fast and fail-safe iterator.
-
-### Performance of Java ArrayList
-
-- **Adding an element**- If you are adding at the end using **add(E e)** method it is **O(1)**. Even in the case of adding at the last ArrayList may give O(n) performance in the worst case. That will happen if you add more elements than the capacity of the underlying array, as in that case *a new array (1.5 times the last size) is created, and the old array is copied to the new one*. If you are using **add(int index, E element)** then it is **O(n - index)** and it'll become O(n) if every time element is added at the beginning of the list.
-- **Retrieving an element**- Since ArrayList internally uses an array to store elements so **get(int index)** means going to that index directly in the array. So, for ArrayList get(int index) is **O(1)**.
-- **Removing an element**- If you are removing using the **remove(int index)** method then, in case of ArrayList getting to that index is fast *but removing will mean shuffling the remaining elements to fill the gap created by the removed element with in the underlying array*. It ranges from O(1) for removing the last element to O(n). Thus it can be said remove(int index) operation is O(n - index) for the arraylist.
-
-- Refer [Difference between ArrayList and LinkedList in Java](https://www.netjstech.com/2015/08/difference-between-arraylist-and-linkedlist-in-java.html) to know about the performance of ArrayList and LinkedList for various operations.
-
-
-
-
-
-### How ArrayList Works Internally in Java
-
-ArrayList arguably would be the most used collection along with the [HashMap](https://www.netjstech.com/2015/11/difference-between-hashmap-and-hashtable-java.html). Many of us programmers whip up code everyday which contains atleast one of these data structures to hold objects. I have already discussed [how HashMap works internally in Java](https://www.netjstech.com/2015/05/how-hashmap-internally-works-in-java.html), in this post I'll try to explain **how ArrayList internally works in Java**.
-
-As most of us would already be knowing that **ArrayList is a Resizable-array implementation** of the List interface i.e. ArrayList grows dynamically as the elements are added to it. So let's try to get clear idea about the following points-
-
-- How ArrayList is internally implemented in Java.
-- What is the backing data structure for an [ArrayList](https://www.netjstech.com/2015/09/arraylist-in-java.html).
-- How it grows dynamically and ensures that there is always room to add elements.
-
-Because of all these side questions it is also a very important [Java Collections interview question](https://www.netjstech.com/2015/11/java-collections-interview-questions.html).
-
-
-
-**Note** - Code of ArrayList used here for reference is from **Java 10**.
-
-**Table of contents**
-
-1. [Where does ArrayList internally store elements](https://www.netjstech.com/2015/08/how-arraylist-works-internally-in-java.html#arraylistinternalstorage)
-2. [What happens when ArrayList is created](https://www.netjstech.com/2015/08/how-arraylist-works-internally-in-java.html#arraylistcreation)
-3. [How does ArrayList grow dynamically](https://www.netjstech.com/2015/08/how-arraylist-works-internally-in-java.html#arraylistdynamic)
-4. [What happens when an element is removed from ArrayList](https://www.netjstech.com/2015/08/how-arraylist-works-internally-in-java.html#arraylistelementremoval)
-
-
-
-### Where does ArrayList internally store elements
-
-Basic data structure used by Java ArrayList to store objects is an [array](https://www.netjstech.com/2017/02/array-in-java.html) of [Object class](https://www.netjstech.com/2017/06/object-class-in-java.html), which is defined as follows -
-
-```
-transient Object[] elementData;
-```
-
-I am sure many of you would be thinking why [transient](https://www.netjstech.com/2017/04/transient-in-java.html) and how about [serializing](https://www.netjstech.com/2017/04/serialization-in-java.html) an ArrayList then?
-ArrayList provides its own version of **readObject** and **writeObject** methods so no problem in serializing an ArrayList and that is the reason, I think, of making this Object array as **transient**.
-
-### What happens when ArrayList is created
-
-ArrayList class in Java provides **3 constructors** to create an ArrayList.
-
-- public ArrayList(int initialCapacity)
-
-   
-
-  \- When this
-
-   
-
-  constructor
-
-   
-
-  is used we can provide some initial capacity rather than depending on the default capacity as defined in the ArrayList class.
-
-  As example -
-
-  ```
-  List<String> myList = new ArrayList<String>(7);
-  ```
-
-  Code in the ArrayList class is as -
-
-  ```
-  public ArrayList(int initialCapacity) {
-       if (initialCapacity > 0) {
-          this.elementData = new Object[initialCapacity];
-       } else if (initialCapacity == 0) {
-          this.elementData = EMPTY_ELEMENTDATA;
-       } else {
-          throw new IllegalArgumentException("Illegal Capacity: "+
-                                                 initialCapacity);
-       }
-  }
-  ```
-
-  Where **EMPTY_ELEMENTDATA** is defined as -
-
-  ```
-  private static final Object[] EMPTY_ELEMENTDATA = {};
-  ```
-
-  It is easy to see that, if provided capacity is greater than zero then the elementData array will be created with that capacity, in case provided capacity is zero then elementData array is initialized with an empty Object array. In that case ArrayList will grow when first element is added.
-
-- public ArrayList()
-
-   
-
-  \- In case
-
-   
-
-  default constructor
-
-   
-
-  is used i.e. ArrayList is created like -
-
-  ```
-   myList = new ArrayList();
-  ```
-
-  Code in the ArrayList class is as -
-
-  ```
-  public ArrayList() {
-      this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
-  }
-  ```
-
-  Where **DEFAULTCAPACITY_EMPTY_ELEMENTDATA** is defined as
-
-  ```
-  /**
-   * Shared empty array instance used for default sized empty instances. We
-   * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
-   * first element is added.
-   */
-  private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
-  ```
-
-  So you can see initially it will be initialized with an empty array, it will grow only when first element is added to the list.
-
-- public ArrayList(Collection<? extends E> c)
-
-   
-
-  \- If we want to construct a list containing the elements of the specified collection we can use this
-
-   
-
-  constructor
-
-  . In this constructor implementation checks for the length of the collection passed as parameter, if length is greater than zero then
-
-   
-
-  Arrays.copyOf
-
-   
-
-  method is used to copy the collection to the elementData array.
-
-  ```
-  elementData = Arrays.copyOf(elementData, size, Object[].class);
-  ```
-
-### How does ArrayList grow dynamically
-
-When we add an element to an ArrayList it first verifies whether it has that much capacity in the array to store new element or not, in case there is not then the new capacity is calculated which is 50% more than the old capacity and the array is increased by that much capacity (Actually uses Arrays.copyOf which returns the original array increased to the new length).
-
-Code in the Java ArrayList implementation is like this-
-
-```
-public boolean add(E e) {
-     ensureCapacityInternal(size + 1);  // Increments modCount!!
-     elementData[size++] = e;
-     return true;
-}
-private void ensureCapacityInternal(int minCapacity) {
-    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
-    }
-    ensureExplicitCapacity(minCapacity);
-}
-```
-
-Where DEFAULT_CAPACITY is defined as -
-
-```
-private static final int DEFAULT_CAPACITY = 10;
-private void ensureExplicitCapacity(int minCapacity) {
-    modCount++;
-    // overflow-conscious code
-    if (minCapacity - elementData.length > 0)
-       grow(minCapacity);
-}
-```
-
-You can see here it is determined if there is a need to increase the size of the array, if yes then grow method is called.
-
-```
-private void grow(int minCapacity) {
-    // overflow-conscious code
-    int oldCapacity = elementData.length;
-    int newCapacity = oldCapacity + (oldCapacity >> 1);
-    if (newCapacity - minCapacity < 0)
-        newCapacity = minCapacity;
-    if (newCapacity - MAX_ARRAY_SIZE > 0)
-        newCapacity = hugeCapacity(minCapacity);
-    // minCapacity is usually close to size, so this is a win:
-    elementData = Arrays.copyOf(elementData, newCapacity);
-}
-```
-
-Note that till **Java 6** the new capacity calculation used to be like this -
-
-```
-int newCapacity = (oldCapacity * 3)/2 + 1;
-```
-
-Which is changed in **Java 7** to use right shift operator. With right shift operator also it will grow by 50% of old capacity.
-Let's see it with the help of a small program
-
-```
-public class Test {
-    public static void main(String args[])  {
-       int a = 10;
-       System.out.println(a>>1);   
-    }    
-}
-```
-
-**Output**
-
-5
-
-If the default capacity was 10 then
-
-```
-int newCapacity = oldCapacity + (oldCapacity >> 1);
-```
-
-will return 15.
-
-### What happens when an element is removed from ArrayList
-
-When elements are removed from an ArrayList in Java using either **remove(int i)** (i.e using index) or **remove(Object o)**, gap created by the removal of an element has to be filled in the underlying array. That is done by Shifting any subsequent elements to the left (subtracts one from their indices). **System.arrayCopy** method is used for that.
-
-```
-System.arraycopy(elementData, index+1, elementData, index, numMoved);
-```
-
-Here index+1 is the source position and index is the destination position. Since element at the position index is removed so elements starting from index+1 are copied to destination starting from index.
-
-**Points to note**
-
-1. ArrayList in Java is a Resizable-array implementation of the List interface.
-2. Internally ArrayList class uses an array of Object class to store its elements.
-3. When initializing an ArrayList you can provide initial capacity then the array would be of the size provided as initial capacity.
-4. If initial capacity is not specified then default capacity is used to create an array. Default capacity is 10.
-5. When an element is added to an ArrayList it first verifies whether it can accommodate the new element or it needs to grow, in case capacity has to be increased then the new capacity is calculated which is 50% more than the old capacity and the array is increased by that much capacity.
-6. When elements are removed from an ArrayList space created by the removal of an element has to be filled in the underlying array. That is done by Shifting any subsequent elements to the left.
