@@ -12,7 +12,117 @@ ArrayList  是java 中最常用的集合类型，这是因为它使用起来非�
 
 ArrayList使用非常广泛，不论是数据库表查询，excel导入解析，还是网站数据爬取都需要使用到，了解ArrayList原理及使用方法显得非常重要。
 
-### ArrayList 的构造方法
+
+
+下面就是ArrayList 的真实形态了
+
+
+
+![image-20201206095212963](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/06/09:52:13-image-20201206095212963.png)
+
+
+
+### 1. ArrayList 的说明书
+
+在看说明书之前，我们还是先看一下整个类的继承关系
+
+
+
+![image-20201206112834609](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/06/11:28:35-image-20201206112834609.png)
+
+
+
+
+
+我们读一下源码，看看定义ArrayList的重要属性，当然我们还是习惯性的读一下类注释，让我们先有一个大概的认识，最后我们再通过例子，对它有一个精准的认识
+
+```java
+/**
+ * Resizable-array implementation of the <tt>List</tt> interface.  Implements all optional list operations, and permits all elements, including <tt>null</tt>.  
+ * 可变化的数组实现了list 接口，实现了list 的所有操作，并且允许插入所有的元素，包括null 
+ * In addition to implementing the <tt>List</tt> interface, this class provides methods to manipulate the size of the array that is used internally to store the list. 
+ * 除了实现了list 接口之外，还提供了在内部使用的，操作存储了list元素数组的大小的方法
+ * (This class is roughly equivalent to <tt>Vector</tt>, except that it is unsynchronized.)
+ * 这个类大致上和Vector 类似，除了这个类不是同步的
+ * <p>The <tt>size</tt>, <tt>isEmpty</tt>, <tt>get</tt>, <tt>set</tt>, <tt>iterator</tt>, and <tt>listIterator</tt> operations run in constant time. 
+ * 上面这些方法的时间复杂度都是常数，其实就是O(1)
+ * The <tt>add</tt> operation runs in <i>amortized constant time</i>,that is, adding n elements requires O(n) time. 
+ * add 方法 均摊时间复杂度是O(1),添加n 个元素的时间复杂度就是O(n)
+ * All of the other operations run in linear time (roughly speaking).  The constant factor is low compared to that for the <tt>LinkedList</tt> implementation.
+ * 所有其他的方法的时间复杂度都是线性的，
+ * <p>Each <tt>ArrayList</tt> instance has a <i>capacity</i>.  The capacity is the size of the array used to store the elements in the list.  It is always
+ * at least as large as the list size. 
+ * 每一个ArrayList的实例都有一个容量，这个容量就是list 里面用来存储元素的数组的大小，它是和list 的大小是一样大的
+ * As elements are added to an ArrayList,its capacity grows automatically. 
+ * 随着元素的添加，ArrayList 的大小在自动变化
+ * The details of the growth policy are not specified beyond the fact that adding an element has constant amortized time cost.
+ * 除了增加一个元素具有固定的均摊时间复杂度这一事实外，增长策略的细节没有被指定。
+ * <p>An application can increase the capacity of an <tt>ArrayList</tt> instance before adding a large number of elements using the <tt>ensureCapacity</tt>
+ * operation.  This may reduce the amount of incremental reallocation.
+ * 应用程序可以在添加大量元素之前通过该指定ensureCapacity的操作来增加ArrayList的容量（其实就是通过构造方法），这样可以减少重新分配的次数(扩容的次数)
+ * <p><strong>Note that this implementation is not synchronized.</strong> 
+ * 重点注意这个实现不是线程安全的
+ * The list should be "wrapped" using the  {@link Collections#synchronizedList Collections.synchronizedList} method.  This is best done at creation time, to prevent accidental
+ * unsynchronized access to the list:<pre> List list = Collections.synchronizedList(new ArrayList(...));</pre>
+ * 如果需要线程安全的对象，可以使用Collections.synchronizedList对其进行包装，最好在创建时执行此操作，以防止意外的对列表的非同步访问，List list = Collections.synchronizedList(new ArrayList(...))
+ * <p><a name="fail-fast"> The iterators returned by this class's {@link #iterator() iterator} and {@link #listIterator(int) listIterator} methods are <em>fail-fast</em>:</a>
+ * 这个类的iterator() 和 listIterator() 方法返回的迭代器都是fail-fast 的
+ * if the list is structurally modified at any time after the iterator is created, in any way except through the iterator's own {@link ListIterator#remove() remove} or {@link ListIterator#add(Object) add} methods, the   iterator will throw a {@link ConcurrentModificationException}. 
+ * 除了ListIterator#remove()和ListIterator#add(Object) 这两个方法之外的任何情况下，这个类对象的iterator在创建之后的任何时间，发生了结构上的修改则会抛出ConcurrentModificationException 的异常
+ * @author  Josh Bloch
+ * @author  Neal Gafter
+ * @since   1.2
+ */
+
+public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
+    /**
+     * Default initial capacity.  默认的初始容量
+     */
+    private static final int DEFAULT_CAPACITY = 10;
+
+    /**
+     * Shared empty array instance used for empty instances.
+     * 指定参数初始容量，但是初始容量是0的时候 
+     * elementData= EMPTY_ELEMENTDATA
+     */
+    private static final Object[] EMPTY_ELEMENTDATA = {};
+
+    /**
+     * Shared empty array instance used for default sized empty instances. We
+     * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
+     * first element is added.
+     * 无参构造的时候使用 elementData= DEFAULTCAPACITY_EMPTY_ELEMENTDATA
+     */
+    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+
+    /**
+     * The array buffer into which the elements of the ArrayList are stored.
+     * The capacity of the ArrayList is the length of this array buffer. 
+     * 其实就是实际存储元素的数组
+     * Any empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
+     * will be expanded to DEFAULT_CAPACITY when the first element is added.
+     * 如果是 elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA 则在第一次添加元素的时候则会扩容到DEFAULT_CAPACITY
+     */
+    transient Object[] elementData; // non-private to simplify nested class access
+
+    /**
+     * The size of the ArrayList (the number of elements it contains).
+     * 实际存储的元素多少
+     * @serial
+     */
+    private int size;
+}
+```
+
+其实源码里面已经很清晰了，底层是一个Object[]，添加到ArrayList中的数据保存在了elementData属性中。
+
+- 例如当调用`new ArrayList<>()`时，将一个空数组 **DEFAULTCAPACITY_EMPTY_ELEMENTDATA**  赋值给了elementData，这个时候集合的长度size为默认长度0；
+- 例如当调用`new ArrayList<>(100)`时，根据传入的长度，new一个Object[100]赋值给elementData，当然如果玩儿的话，传了一个0，那么将一个空数组 **EMPTY_ELEMENTDATA** 赋值给了elementData；
+- 例如当调用new ArrayList<>(new HashSet())时，根据源码，我们可知，可以传递任何实现了Collection接口的类，将传递的集合调用toArray()方法转为数组内赋值给elementData;
+
+
+
+### 2. ArrayList 的构造方法
 
 
 
@@ -135,95 +245,7 @@ public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]>
 
 我们发现定义了一个新的数组，将原数组的数据拷贝到了新的数组中去。
 
-### ArrayList 重要属性
-
-
-
-我们读一下源码，看看定义ArrayList的重要属性，当然我们还是习惯性的读一下类注释，让我们先有一个大概的认识，最后我们再通过例子，对它有一个精准的认识
-
-```java
-/**
- * Resizable-array implementation of the <tt>List</tt> interface.  Implements all optional list operations, and permits all elements, including <tt>null</tt>.  
- * 可变化的数组实现了list 接口，实现了list 的所有操作，并且允许插入所有的元素，包括null 
- * In addition to implementing the <tt>List</tt> interface, this class provides methods to manipulate the size of the array that is used internally to store the list. 
- * 除了实现了list 接口之外，还提供了在内部使用的，操作存储了list元素数组的大小的方法
- * (This class is roughly equivalent to <tt>Vector</tt>, except that it is unsynchronized.)
- * 这个类大致上和Vector 类似，除了这个类不是同步的
- * <p>The <tt>size</tt>, <tt>isEmpty</tt>, <tt>get</tt>, <tt>set</tt>, <tt>iterator</tt>, and <tt>listIterator</tt> operations run in constant time. 
- * 上面这些方法的时间复杂度都是常数，其实就是O(1)
- * The <tt>add</tt> operation runs in <i>amortized constant time</i>,that is, adding n elements requires O(n) time. 
- * add 方法 均摊时间复杂度是O(1),添加n 个元素的时间复杂度就是O(n)
- * All of the other operations run in linear time (roughly speaking).  The constant factor is low compared to that for the <tt>LinkedList</tt> implementation.
- * 所有其他的方法的时间复杂度都是线性的，
- * <p>Each <tt>ArrayList</tt> instance has a <i>capacity</i>.  The capacity is the size of the array used to store the elements in the list.  It is always
- * at least as large as the list size. 
- * 每一个ArrayList的实例都有一个容量，这个容量就是list 里面用来存储元素的数组的大小，它是和list 的大小是一样大的
- * As elements are added to an ArrayList,its capacity grows automatically. 
- * 随着元素的添加，ArrayList 的大小在自动变化
- * The details of the growth policy are not specified beyond the fact that adding an element has constant amortized time cost.
- * 除了增加一个元素具有固定的均摊时间复杂度这一事实外，增长策略的细节没有被指定。
- * <p>An application can increase the capacity of an <tt>ArrayList</tt> instance before adding a large number of elements using the <tt>ensureCapacity</tt>
- * operation.  This may reduce the amount of incremental reallocation.
- * 应用程序可以在添加大量元素之前通过该指定ensureCapacity的操作来增加ArrayList的容量（其实就是通过构造方法），这样可以减少重新分配的次数(扩容的次数)
- * <p><strong>Note that this implementation is not synchronized.</strong> 
- * 重点注意这个实现不是线程安全的
- * The list should be "wrapped" using the  {@link Collections#synchronizedList Collections.synchronizedList} method.  This is best done at creation time, to prevent accidental
- * unsynchronized access to the list:<pre> List list = Collections.synchronizedList(new ArrayList(...));</pre>
- * 如果需要线程安全的对象，可以使用Collections.synchronizedList对其进行包装，最好在创建时执行此操作，以防止意外的对列表的非同步访问，List list = Collections.synchronizedList(new ArrayList(...))
- * <p><a name="fail-fast"> The iterators returned by this class's {@link #iterator() iterator} and {@link #listIterator(int) listIterator} methods are <em>fail-fast</em>:</a>
- * 这个类的iterator() 和 listIterator() 方法返回的迭代器都是fail-fast 的
- * if the list is structurally modified at any time after the iterator is created, in any way except through the iterator's own {@link ListIterator#remove() remove} or {@link ListIterator#add(Object) add} methods, the   iterator will throw a {@link ConcurrentModificationException}. 
- * 除了ListIterator#remove()和ListIterator#add(Object) 这两个方法之外的任何情况下，这个类对象的iterator在创建之后的任何时间，发生了结构上的修改则会抛出ConcurrentModificationException 的异常
- * @author  Josh Bloch
- * @author  Neal Gafter
- * @since   1.2
- */
-
-public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
-    /**
-     * Default initial capacity.  默认的初始容量
-     */
-    private static final int DEFAULT_CAPACITY = 10;
-
-    /**
-     * Shared empty array instance used for empty instances.
-     * 指定参数初始容量，但是初始容量是0的时候 
-     * elementData= EMPTY_ELEMENTDATA
-     */
-    private static final Object[] EMPTY_ELEMENTDATA = {};
-
-    /**
-     * Shared empty array instance used for default sized empty instances. We
-     * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
-     * first element is added.
-     * 无参构造的时候使用 elementData= DEFAULTCAPACITY_EMPTY_ELEMENTDATA
-     */
-    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
-
-    /**
-     * The array buffer into which the elements of the ArrayList are stored.
-     * The capacity of the ArrayList is the length of this array buffer. 
-     * 其实就是实际存储元素的数组
-     * Any empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
-     * will be expanded to DEFAULT_CAPACITY when the first element is added.
-     * 如果是 elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA 则在第一次添加元素的时候则会扩容到DEFAULT_CAPACITY
-     */
-    transient Object[] elementData; // non-private to simplify nested class access
-
-    /**
-     * The size of the ArrayList (the number of elements it contains).
-     * 实际存储的元素多少
-     * @serial
-     */
-    private int size;
-}
-```
-
-其实源码里面已经很清晰了，底层是一个Object[]，添加到ArrayList中的数据保存在了elementData属性中。
-
-- 当调用`new ArrayList<>()`时，将一个空数组 **DEFAULTCAPACITY_EMPTY_ELEMENTDATA**  赋值给了elementData，这个时候集合的长度size为默认长度0；
-- 当调用`new ArrayList<>(100)`时，根据传入的长度，new一个Object[100]赋值给elementData，当然如果玩儿的话，传了一个0，那么将一个空数组 **EMPTY_ELEMENTDATA** 赋值给了elementData；
-- 当调用new ArrayList<>(new HashSet())时，根据源码，我们可知，可以传递任何实现了Collection接口的类，将传递的集合调用toArray()方法转为数组内赋值给elementData;
+### 3. ArrayList 内部构成
 
 #### size
 
@@ -379,12 +401,57 @@ int newCapacity = (oldCapacity * 3)/2 + 1;
 
 
 
+**这里需要注意一下的是扩容这个过程，或者说是计算容量的过程，如果你是无参构造则一次性扩容到DEFAULT_CAPACITY，如果不是则都是根据所需容量(size+1)进行判断是否要扩容,如果是的话，则扩容为原来的1.5倍**
+
+
+
+当然ArrayList 的add 也存在很多变体的方法，例如下面的两个方法，你可以研究一下，当然添加元素到指定位置的方法，和set 有点类似，只不过set 是覆盖，add 可能需要移动元素
+
 ```
 arrayList.add(1,"a");
 arrayList.addAll(new HashSet());
 ```
 
-**这里需要注意一下的是扩容这个过程，或者说是计算容量的过程，如果你是无参构造则一次性扩容到DEFAULT_CAPACITY，如果不是则都是根据所需容量(size+1)进行判断是否要扩容,如果是的话，则扩容为原来的1.5倍**
+这里我还是对添加到指定位置进行简单说明一下，我们还是接着看源码
+
+```java
+/**
+ * Inserts the specified element at the specified position in this list. Shifts the element currently at that position (if any) and
+ * any subsequent elements to the right (adds one to their indices).
+ * 插入指定元素到指定位置，如果当前待插入的位置有元素，则需要右移当前元素和其后的元素
+ * @param index index at which the specified element is to be inserted
+ * @param element element to be inserted
+ * @throws IndexOutOfBoundsException {@inheritDoc}
+ */
+public void add(int index, E element) {
+  	// 检查位置的合法性
+    rangeCheckForAdd(index);
+		// 扩容
+    ensureCapacityInternal(size + 1);  // Increments modCount!!
+  	// 移动当前位置和其后置的元素
+    System.arraycopy(elementData, index, elementData, index + 1,ize - index);
+  	// 存储该元素
+    elementData[index] = element;
+  	// 修改元素数目
+    size++;
+}
+```
+
+这里的检查方法也是比较简单的，就是下标必须是已经存在的元素的位置
+
+```java
+/**
+ * A version of rangeCheck used by add and addAll.
+ */
+private void rangeCheckForAdd(int index) {
+    if (index > size || index < 0)
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+```
+
+
+
+其实走到这个你就会发现，ArrayLis 是一个**密集的数据结构**，因为它不会差生空位，你可以对比HashMap
 
 ### 2. set(int index, E element)
 
@@ -404,7 +471,7 @@ public E set(int index, E element) {
     }
 ```
 
-//返回值“猕猴王”，当前数组中数据：
+返回值“猕猴王”，当前数组中数据：
 
 ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/23:06:19-1677914-20190626150842478-1367690033.png)
 
@@ -539,6 +606,8 @@ public void itrator2(){
 
 ### 7. 其他方法
 
+
+
 **size()** : 获取集合长度，通过定义在ArrayList中的私有变量size得到
 
 **isEmpty()**：是否为空，通过定义在ArrayList中的私有变量size得到
@@ -566,13 +635,17 @@ public void itrator2(){
 
 ## 三.  ArrayList 的性能
 
-- **Adding an element**- 如果你使用的实  **add(E e)** 方法添加一个元素到ArrayList末尾 ，它的时间复杂度 **O(1)**；但是当空间不足引发扩容的时候，会导致新建数组然后拷贝数据，这个时候它的时间复杂度 **O(n)** ;当你使用 add(int index, E element)的时候它的算法复杂度是 **O(n - index)** 也就是 **O(n)**
-- **Retrieving an element**- 当你使用**get(int index)** 的时候，它的时间复杂度是 **O(1)**，因为数组可以直接根据下标进行定位
-- **Removing an element**- 当你使用 **remove(int index)** 它的时间复杂度是 **O(n - index) **，因为它涉及到移动元素
+**Adding an element**- 如果你使用的实  **add(E e)** 方法添加一个元素到ArrayList末尾 ，它的时间复杂度 **O(1)**；但是当空间不足引发扩容的时候，会导致新建数组然后拷贝数据，这个时候它的时间复杂度 **O(n)** ;当你使用 add(int index, E element)的时候它的算法复杂度是 **O(n - index)** 也就是 **O(n)**
+
+**Retrieving an element**- 当你使用**get(int index)** 的时候，它的时间复杂度是 **O(1)**，因为数组可以直接根据下标进行定位
+
+**Removing an element**- 当你使用 **remove(int index)** 它的时间复杂度是 **O(n - index) **，因为它涉及到移动元素
+
+**Traverse** - 遍历的时间时间复杂度是**O(n)**,也就是依赖于Capacity 的大小，如果你比较重视遍历的性能，就请不要不要给它设置一个很大的初始容量
+
+
 
 ## 四. 总结
-
-
 
 1. ArrayList 就是一个实现了List接口的课自动扩容的数组，当添加元素的时候它会尝试扩容，当删除元素的时候，它会左移元素，避免数组出现"空位"
 2. ArrayList 都有容量，容量就是ArrayList里面数组的大小
