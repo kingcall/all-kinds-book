@@ -1,3 +1,9 @@
+[link](https://mp.weixin.qq.com/s/e6LnmWs5g9SVbpOHysLOrg)
+
+
+
+
+
 前面我们分别讲了Map接口的两个实现类HashMap和LinkedHashMap本章我们讲一下Map接口另一个重要的实现类TreeMap，TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的应用场景，TreeMap可以实现元素的自动排序。
 
 ## 一. TreeMap概述

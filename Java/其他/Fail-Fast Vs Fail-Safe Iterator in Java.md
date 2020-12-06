@@ -1,3 +1,5 @@
+https://mp.weixin.qq.com/s/TWG9OIOMEdbtKrE_abVe5w
+
 ### Fail-Fast Vs Fail-Safe Iterator in Java
 
 Difference between fail-fast and fail-safe iterator in Java, apart from being an important [Java Collections interview questions](https://www.netjstech.com/2015/11/java-collections-interview-questions.html), is a very important concept to know. The collections which are there from Java 1.2 (or even legacy) like [ArrayList](https://www.netjstech.com/2015/09/arraylist-in-java.html), [Vector](https://www.netjstech.com/2015/12/difference-between-arraylist-and-vector-java.html), [HashSet](https://www.netjstech.com/2015/09/how-hashset-works-internally-in-java.html) all have **fail-fast iterator** whereas Concurrent collections added in Java 1.5 like [ConcurrrentHashMap](https://www.netjstech.com/2016/01/concurrenthashmap-in-java.html), [CopyOnWriteArrayList](https://www.netjstech.com/2016/01/copyonwritearraylist-in-java.html), [CopyOnWriteArraySet](https://www.netjstech.com/2016/03/copyonwritearrayset-in-java-concurrency.html) have **fail-safe iterator**.
