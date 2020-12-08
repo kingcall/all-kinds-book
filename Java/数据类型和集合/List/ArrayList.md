@@ -315,46 +315,44 @@ public boolean add(E e) {
 
 这里如果是首次添加元素的话，szie=0 然后minCapacity=1 的
 
-```
+```java
 private void ensureCapacityInternal(int minCapacity) {
-        ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
-    }
+    ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
+}
 ```
 
 首先调用了下面的方法计算容量，见名知意吧(calculate Capacity)，如果elementData 不是空的话，直接返回minCapacity，也就是szie+1,是空的话就返回Math.max(DEFAULT_CAPACITY, minCapacity) 也就是10
 
 ```java
-    
-    private static int calculateCapacity(Object[] elementData, int minCapacity) {
-        // 这里有个注意点就是，无参数构造的话，elementData =DEFAULTCAPACITY_EMPTY_ELEMENTDATA 也就是说这里会返回 10，但是有参构造的话，不满足这个条件,也就是如果是无参构造的话，在第一次添加元素的时候将直接扩容到DEFAULT_CAPACITY
-        if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-            return Math.max(DEFAULT_CAPACITY, minCapacity);
-        }
-        // 否则的话则是有参构造或者不是第一次添加元素，那么这里返回的就是size+1，也就是说扩容到所需的szie+1 即可
-        return minCapacity;
+private static int calculateCapacity(Object[] elementData, int minCapacity) {
+    // 这里有个注意点就是，无参数构造的话，elementData =DEFAULTCAPACITY_EMPTY_ELEMENTDATA 也就是说这里会返回 10，但是有参构造的话，不满足这个条件,也就是如果是无参构造的话，在第一次添加元素的时候将直接扩容到DEFAULT_CAPACITY
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+        return Math.max(DEFAULT_CAPACITY, minCapacity);
     }
+    // 否则的话则是有参构造或者不是第一次添加元素，那么这里返回的就是size+1，也就是说扩容到所需的szie+1 即可
+    return minCapacity;
+}
 ```
 
 拿到返回的的capacity 之后，进行判断 确保足够的容量（ensure explicit capacity）
 
 ```java
-    private void ensureExplicitCapacity(int minCapacity) {
-        modCount++;
-        // 不满足要求的容量则进行扩容，也就是数组大小不够了
-        if (minCapacity - elementData.length > 0)
-            grow(minCapacity);
-    }
-
+private void ensureExplicitCapacity(int minCapacity) {
+    modCount++;
+    // 不满足要求的容量则进行扩容，也就是数组大小不够了
+    if (minCapacity - elementData.length > 0)
+        grow(minCapacity);
+}
 ```
 
 这里首先确定了Object[]足够存放添加数据的最小容量，然后通过 `grow(int minCapacity)` 来进行数组扩容
 
 ```java
-    /**
-     * Increases the capacity to ensure that it can hold at least the number of elements specified by the minimum capacity argument.
-     * 增加容量以保证至少可以存储输入参数那么多的元素
-     * @param minCapacity the desired minimum capacity 确定需要最少容量的参数
-     */
+/**
+ * Increases the capacity to ensure that it can hold at least the number of elements specified by the minimum capacity argument.
+ * 增加容量以保证至少可以存储输入参数那么多的元素
+ * @param minCapacity the desired minimum capacity 确定需要最少容量的参数
+ */
 private void grow(int minCapacity) {
     // overflow-conscious code
     int oldCapacity = elementData.length;
@@ -607,8 +605,6 @@ public void itrator2(){
 
 ### 7. 其他方法
 
-
-
 **size()** : 获取集合长度，通过定义在ArrayList中的私有变量size得到
 
 **isEmpty()**：是否为空，通过定义在ArrayList中的私有变量size得到
@@ -618,18 +614,18 @@ public void itrator2(){
 **clear()**：集合清空，通过遍历底层数组elementData，设置为null
 
 ```java
- /**
-  * Removes all of the elements from this list.  The list will
-  * be empty after this call returns.
-  */
- public void clear() {
-     modCount++;
+/**
+ * Removes all of the elements from this list.  The list will
+ * be empty after this call returns.
+ */
+public void clear() {
+    modCount++;
 
-     // clear to let GC do its work
-     for (int i = 0; i < size; i++)
-         elementData[i] = null;
-     size = 0;
- }
+    // clear to let GC do its work
+    for (int i = 0; i < size; i++)
+        elementData[i] = null;
+    size = 0;
+}
 ```
 
 这里给大家一个思考题，为什么要遍历呢，而不是先创建一个同等大小的数组，然后将数组当前设置为null呢，其实我觉得也可以,而且更快
@@ -648,7 +644,7 @@ public void itrator2(){
 
 ## 四. 总结
 
-1. ArrayList 就是一个实现了List接口的课自动扩容的数组，当添加元素的时候它会尝试扩容，当删除元素的时候，它会左移元素，避免数组出现"空位"
+1. ArrayList 就是一个实现了List接口的课自动扩容的数组，**当添加元素的时候它会尝试扩容,扩容的标准是变为原来的1.5倍**，当删除元素的时候，它会左移元素，避免数组出现"空位"
 2. ArrayList 都有容量，容量就是ArrayList里面数组的大小
 3. ArrayList 是一个有序的集合，它的维持的顺序就是元素的插入顺序（可以对比HashMap）
 4. ArrayList 可以存储重复值和null值

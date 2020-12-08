@@ -1,12 +1,18 @@
-[link](https://mp.weixin.qq.com/s/e6LnmWs5g9SVbpOHysLOrg)
 
 
+[TOC]
 
+## 一. TreeMap 初识
 
+前面我们分别讲了Map接口的两个实现类HashMap和LinkedHashMap本章我们讲一下Map接口另一个重要的实现类TreeMap
 
-前面我们分别讲了Map接口的两个实现类HashMap和LinkedHashMap本章我们讲一下Map接口另一个重要的实现类TreeMap，TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的应用场景，TreeMap可以实现元素的自动排序。
+TreeMap，虽然也是个 Map，但存在感太低了，导致TreeMap我只在面试之前学习一下，哈哈
 
-## 一. TreeMap概述
+TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的应用场景，TreeMap可以实现元素的自动排序
+
+之前 [LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651) 那篇文章里提到过了，HashMap 是无序的，所有有了 LinkedHashMap，加上了双向链表后，就可以保持元素的插入顺序和访问顺序，那 TreeMap 呢，TreeMap 由红黑树实现，可以保持元素的自然顺序，或者实现了 Comparator 接口的自定义顺序
+
+### 1 . TreeMap概述
 
 1. TreeMap存储K-V键值对，通过红黑树（R-B tree）实现；
 2. TreeMap继承了NavigableMap接口，NavigableMap接口继承了SortedMap接口，可支持一系列的导航定位以及导航操作的方法，当然只是提供了接口，需要TreeMap自己去实现；
@@ -16,9 +22,33 @@
 6. 如果使用排序的映射，建议使用TreeMap。在使用TreeMap时，key必须实现Comparable接口或者在构造TreeMap传入自定义的Comparator，否则会在运行时抛出java.lang.ClassCastException类型的异常。
 7. TreeMap中的元素默认按照keys的自然排序排列（对Integer来说，其自然排序就是数字的升序；对String来说，其自然排序就是按照字母表排序）
 
-## 二. 红黑树回顾
+### 2. 红黑树回顾
 
-因为TreeMap的存储结构是红黑树，我们回顾一下红黑树的特点以及基本操作，红黑树的原理可参考[关于红黑树(R-B tree)原理，看这篇如何](https://www.cnblogs.com/LiaHon/p/11203229.html)。下图为典型的红黑树：
+红黑树（英语：Red–black tree）是一种**自平衡的二叉查找树**（Binary Search Tree又名二叉排序树，结构复杂，但却有着良好的性能，完成查找、插入和删除的时间复杂度均为 log(n)。
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/08/22:15:03-640.png)
+
+
+
+上图中这棵树，就是一颗典型的二叉查找树：
+
+1）左子树上所有节点的值均小于或等于它的根结点的值。
+
+2）右子树上所有节点的值均大于或等于它的根结点的值。
+
+3）左、右子树也分别为二叉查找树。
+
+不过，二叉查找树有一个不足，**就是容易变成瘸子，就是一侧多，一侧少**，就像下图这样
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/08/22:17:32-640-20201208221732218.png)
+
+
+
+查找的效率就要从 log(n) 变成 o(n) 了，对吧？必须要平衡一下，于是就有了平衡二叉树，左右两个子树的高度差的绝对值不超过 1，就像下图这样：
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/08/22:21:35-640-20201208222135216.png)
+
+因为TreeMap的存储结构是红黑树，我们回顾一下红黑树的特点以及基本操作，红黑树的原理可参考[深度剖析数据结构—红黑树](https://blog.csdn.net/king14bhhb/article/details/110905875)。下图为典型的红黑树：
 
 ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/22:58:16-1677914-20190721162629858-1229050958.png)
 
@@ -37,7 +67,9 @@
 2. 左旋：逆时针旋转两个节点，让一个节点被其右子节点取代，而该节点成为右子节点的左子节点
 3. 右旋：顺时针旋转两个节点，让一个节点被其左子节点取代，而该节点成为左子节点的右子节点
 
-## 三. TreeMap构造
+### 3. TreeMap构造函数
+
+
 
 我们先看一下TreeMap中主要的成员变量
 
