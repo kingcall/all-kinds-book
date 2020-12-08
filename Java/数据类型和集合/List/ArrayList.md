@@ -303,6 +303,7 @@ Object[] elementData中数据如下：
  * @return <tt>true</tt> (as specified by {@link Collection#add}) 固定的返回值 True
  */
 public boolean add(E e) {
+    // 保证容量，这个就是在添加元素之前要要保证内部的数组大小足够可以容纳该元素 
     ensureCapacityInternal(size + 1);
     // Increments modCount!!
     elementData[size++] = e;
