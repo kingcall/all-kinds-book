@@ -1,12 +1,18 @@
-[link](https://mp.weixin.qq.com/s/e6LnmWs5g9SVbpOHysLOrg)
 
 
+[TOC]
 
+## 一. TreeMap 初识
 
+前面我们分别讲了Map接口的两个实现类HashMap和LinkedHashMap本章我们讲一下Map接口另一个重要的实现类TreeMap
 
-前面我们分别讲了Map接口的两个实现类HashMap和LinkedHashMap本章我们讲一下Map接口另一个重要的实现类TreeMap，TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的应用场景，TreeMap可以实现元素的自动排序。
+TreeMap，虽然也是个 Map，但存在感太低了，导致TreeMap我只在面试之前学习一下，哈哈
 
-## 一. TreeMap概述
+TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的应用场景，TreeMap可以实现元素的自动排序
+
+之前 [LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651) 那篇文章里提到过了，HashMap 是无序的，所有有了 LinkedHashMap，加上了双向链表后，就可以保持元素的插入顺序和访问顺序，那 TreeMap 呢，TreeMap 由红黑树实现，可以保持元素的自然顺序，或者实现了 Comparator 接口的自定义顺序
+
+### 1 . TreeMap概述
 
 1. TreeMap存储K-V键值对，通过红黑树（R-B tree）实现；
 2. TreeMap继承了NavigableMap接口，NavigableMap接口继承了SortedMap接口，可支持一系列的导航定位以及导航操作的方法，当然只是提供了接口，需要TreeMap自己去实现；
@@ -16,9 +22,33 @@
 6. 如果使用排序的映射，建议使用TreeMap。在使用TreeMap时，key必须实现Comparable接口或者在构造TreeMap传入自定义的Comparator，否则会在运行时抛出java.lang.ClassCastException类型的异常。
 7. TreeMap中的元素默认按照keys的自然排序排列（对Integer来说，其自然排序就是数字的升序；对String来说，其自然排序就是按照字母表排序）
 
-## 二. 红黑树回顾
+### 2. 红黑树回顾
 
-因为TreeMap的存储结构是红黑树，我们回顾一下红黑树的特点以及基本操作，红黑树的原理可参考[关于红黑树(R-B tree)原理，看这篇如何](https://www.cnblogs.com/LiaHon/p/11203229.html)。下图为典型的红黑树：
+红黑树（英语：Red–black tree）是一种**自平衡的二叉查找树**（Binary Search Tree又名二叉排序树，结构复杂，但却有着良好的性能，完成查找、插入和删除的时间复杂度均为 log(n)。
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/08/22:15:03-640.png)
+
+
+
+上图中这棵树，就是一颗典型的二叉查找树：
+
+1）左子树上所有节点的值均小于或等于它的根结点的值。
+
+2）右子树上所有节点的值均大于或等于它的根结点的值。
+
+3）左、右子树也分别为二叉查找树。
+
+不过，二叉查找树有一个不足，**就是容易变成瘸子，就是一侧多，一侧少**，就像下图这样
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/08/22:17:32-640-20201208221732218.png)
+
+
+
+查找的效率就要从 log(n) 变成 o(n) 了，对吧？必须要平衡一下，于是就有了平衡二叉树，左右两个子树的高度差的绝对值不超过 1，就像下图这样：
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/08/22:21:35-640-20201208222135216.png)
+
+因为TreeMap的存储结构是红黑树，我们回顾一下红黑树的特点以及基本操作，红黑树的原理可参考[深度剖析数据结构—红黑树](https://blog.csdn.net/king14bhhb/article/details/110905875)。下图为典型的红黑树：
 
 ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/22:58:16-1677914-20190721162629858-1229050958.png)
 
@@ -37,7 +67,93 @@
 2. 左旋：逆时针旋转两个节点，让一个节点被其右子节点取代，而该节点成为右子节点的左子节点
 3. 右旋：顺时针旋转两个节点，让一个节点被其左子节点取代，而该节点成为左子节点的右子节点
 
-## 三. TreeMap构造
+
+
+### 3. TreeMap 的说明书
+
+```java
+/**
+ * A Red-Black tree based {@link NavigableMap} implementation. The map is sorted according to the {@linkplain Comparable natural ordering} of its keys, or by a {@link Comparator} provided at map
+ * creation time, depending on which constructor is used.
+ * 基于NavigableMap实现的红黑树，这个map按照key 的自然顺序或者是Map 被创建的时候提供的Comparator进行排序，排序的方式取决于用的是那个构造方法
+ * <p>This implementation provides guaranteed log(n) time cost for the {@code containsKey}, {@code get}, {@code put} and {@code remove} operations. 
+ * 这个实现保证了containsKey，get，put，remove 方法都是log(n) 的时间复杂度
+ * Algorithms are adaptations of those in Cormen, Leiserson, and Rivest's <em>Introduction to Algorithms</em>.
+ * 红黑树的实现是对 Cormen, Leiserson和Rivest 算法的改进
+ * <p>Note that the ordering maintained by a tree map, like any sorted map, and whether or not an explicit comparator is provided, 
+ * 需要注意的是tree map 维护的顺序和任何sorted map一样，无论是否提供显式比较器，
+ * must be <em>consistent  with {@code equals}</em> if this sorted map is to correctly implement the {@code Map} interface. 
+ * 如果这个TreeMap要正确的实现Map 接口，则需要和equals 方法保持一致，
+ * (See {@code Comparable} or {@code Comparator} for a precise definition of <em>consistent with equals</em>.)  
+ * 查看Comparable或者Comparator来查看与equals保持一致的定义
+ * This is so because the {@code Map} interface is defined in terms of the {@code equals} operation, 
+ * 这个也是因为Map 接口是根据equals的操作定义的, 
+ * but a sorted map performs all key comparisons using its {@code compareTo} (or {@code compare}) method, so two keys that are deemed equal by this method are, from the standpoint of the sorted map, equal.  
+ * 但是sorted map 执行key 的compareTo或者compare 方法来进行key 的比较，因此，从sorted map的角度来看，这个方法认为相等的两个键是相等的
+ * The behavior of a sorted map <em>is</em> well-defined even if its ordering is inconsistent with {@code equals}; it just fails to obey the general contract of the {@code Map} interface.
+ *
+ * <p><strong>Note that this implementation is not synchronized.</strong>
+ * If multiple threads access a map concurrently, and at least one of the
+ * threads modifies the map structurally, it <em>must</em> be synchronized
+ * externally.  (A structural modification is any operation that adds or
+ * deletes one or more mappings; merely changing the value associated
+ * with an existing key is not a structural modification.)  This is
+ * typically accomplished by synchronizing on some object that naturally
+ * encapsulates the map.
+ * If no such object exists, the map should be "wrapped" using the
+ * {@link Collections#synchronizedSortedMap Collections.synchronizedSortedMap}
+ * method.  This is best done at creation time, to prevent accidental
+ * unsynchronized access to the map: <pre>
+ *   SortedMap m = Collections.synchronizedSortedMap(new TreeMap(...));</pre>
+ *
+ * <p>The iterators returned by the {@code iterator} method of the collections
+ * returned by all of this class's "collection view methods" are
+ * <em>fail-fast</em>: if the map is structurally modified at any time after
+ * the iterator is created, in any way except through the iterator's own
+ * {@code remove} method, the iterator will throw a {@link
+ * ConcurrentModificationException}.  Thus, in the face of concurrent
+ * modification, the iterator fails quickly and cleanly, rather than risking
+ * arbitrary, non-deterministic behavior at an undetermined time in the future.
+ *
+ * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
+ * as it is, generally speaking, impossible to make any hard guarantees in the
+ * presence of unsynchronized concurrent modification.  Fail-fast iterators
+ * throw {@code ConcurrentModificationException} on a best-effort basis.
+ * Therefore, it would be wrong to write a program that depended on this
+ * exception for its correctness:   <em>the fail-fast behavior of iterators
+ * should be used only to detect bugs.</em>
+ *
+ * <p>All {@code Map.Entry} pairs returned by methods in this class
+ * and its views represent snapshots of mappings at the time they were
+ * produced. They do <strong>not</strong> support the {@code Entry.setValue}
+ * method. (Note however that it is possible to change mappings in the
+ * associated map using {@code put}.)
+ *
+ * <p>This class is a member of the
+ * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * Java Collections Framework</a>.
+ *
+ * @param <K> the type of keys maintained by this map
+ * @param <V> the type of mapped values
+ *
+ * @author  Josh Bloch and Doug Lea
+ * @see Map
+ * @see HashMap
+ * @see Hashtable
+ * @see Comparable
+ * @see Comparator
+ * @see Collection
+ * @since 1.2
+ */
+public class TreeMap<K,V> extends AbstractMap<K,V> implements NavigableMap<K,V>, Cloneable, java.io.Serializable
+{ ... ... }
+```
+
+
+
+### 4. TreeMap构造函数
+
+
 
 我们先看一下TreeMap中主要的成员变量
 
@@ -157,7 +273,9 @@ public TreeMap(SortedMap<K, ? extends V> m) {
 }
 ```
 
-## 四. put方法
+## 二 常用方法
+
+### 1. put方法
 
 put方法为Map的核心方法，TreeMap的put方法大概流程如下：
 
@@ -350,7 +468,7 @@ private void rotateLeft(Entry<K,V> p) {
 
 ![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/22:58:17-1677914-20190721162724674-1472239183.png)
 
-## 五. get 方法
+### 2. get 方法
 
 get方法是通过二分查找的思想，我们看一下源码
 
@@ -419,7 +537,7 @@ final Entry<K,V> getEntryUsingComparator(Object key) {
 }
 ```
 
-## 六. remove方法
+### 3. remove方法
 
 remove方法可以分为两个步骤，先是找到这个节点，直接调用了上面介绍的getEntry(Object key)，这个步骤我们就不说了，直接说第二个步骤，找到后的删除操作。
 
@@ -623,13 +741,63 @@ private void fixAfterDeletion(Entry<K,V> x) {
 
 四种场景讲完了，删除后的自平衡操作不太好理解，代码层面的已经弄明白了，但如果让我自己去实现的话，还是差了一些，还需要再研究。
 
-## 七. 遍历
+### 4. 遍历
 
 遍历比较简单，TreeMap的遍历可以使用map.values(), map.keySet()，map.entrySet()，map.forEach()，这里不再多说。
 
-## 八. 总结
 
-本文详细介绍了TreeMap的基本特点，并对其底层数据结构红黑树进行了回顾，同时讲述了其自动排序的原理，并从源码的角度结合红黑树图形对put方法、get方法、remove方法进行了讲解，最后简单提了一下遍历操作，若有不对之处，请批评指正，望共同进步，谢谢！
+
+## 三 例子
+
+### 自然顺序
+
+默认情况下，TreeMap 是根据 key 的自然顺序排列的。比如说整数，就是升序，1、2、3、4、5,英文字就是 a、b、c、d、e，那汉字是什么呢？
+
+```java
+@Test
+public void testDefaultOrder() {
+    TreeMap<String, String> map = new TreeMap<String, String>();
+    map.put("d", "ddddd");
+    map.put("b", "bbbbb");
+    map.put("a", "aaaaa");
+    map.put("c", "ccccc");
+    System.out.println(map);
+}
+```
+
+输出结果如下所示：
+
+```
+{a=aaaaa, b=bbbbb, c=ccccc, d=ddddd}
+```
+
+### 自定义排序
+
+如果自然顺序不满足，那就可以在声明 TreeMap 对象的时候指定排序规则。
+
+```java
+@Test
+public void testDefineOrder() {
+    TreeMap<String, String> map = new TreeMap<String, String>(Comparator.reverseOrder());
+    map.put("d", "ddddd");
+    map.put("b", "bbbbb");
+    map.put("a", "aaaaa");
+    map.put("c", "ccccc");
+    System.out.println(map);
+}
+```
+
+输出结果如下所示：
+
+```
+{d=ddddd, c=ccccc, b=bbbbb, a=aaaaa}
+```
+
+## 四. 总结
+
+本文详细介绍了TreeMap的基本特点，并对其底层数据结构红黑树进行了回顾，同时讲述了其自动排序的原理，并从源码的角度结合红黑树图形对put方法、get方法、remove方法进行了讲解，最后简单提了一下遍历操作
+
+
 
 
 

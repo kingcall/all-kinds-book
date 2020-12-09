@@ -8,7 +8,7 @@ vector类称作向量类，它实现了动态数组，用于元素数量变化�
 
 **其实Vector和ArrayList一样，都是基于数组实现的List，其主要的区别是在于线程安全上**，前面讲ArrayList的时候我们讲到ArrayList不是线程安全的，一种寻求线程安全的解决方式就是ArrayList 的封装类`Collections.synchronizedList(new ArrayList<>());`就像这样，还有一个解决方法就是使用Vector。
 
-还有一点就是，Vector 虽然和ArrayList 都是List 的实现，但是Vector 是比ArrayList出现的要早的，Vector 在JDK1.0 的时候就存在的，但是ArrayList是在JDK1.2 的时候才出现的
+还有一点就是，Vector 虽然和ArrayList 都是List 的实现，但是Vector 是比ArrayList出现的要早的，Vector 在JDK1.0 的时候就存在的，但是ArrayList是在JDK1.2 的时候才出现的，所以Vector 在目前的开发中也用的不多，主要是它实现线程安全的方式比较低效，但是如果有一天Java 将synchronized锁的效率提高了，那Vector依然是一个不错的选择
 
 ### 1. Vector 的说明书
 
@@ -137,14 +137,16 @@ Vector(Collection<? extends E> collection)
 
 #### 无参构造
 
+其实这个构造方法，调用的是指定初始容量的构造方法
+
 ```java
-    /**
-     * Constructs an empty vector so that its internal data array has size {@code 10} and its standard capacity increment is zero.
-     * 创建一个空的vector,因此其内部的数组的大小是10并且其容量的增量是0
-     */
-    public Vector() {
-        this(10);
-    }
+/**
+ * Constructs an empty vector so that its internal data array has size {@code 10} and its standard capacity increment is zero.
+ * 创建一个空的vector,因此其内部的数组的大小是10并且其容量的增量是0
+ */
+public Vector() {
+    this(10);
+}
 ```
 
 
@@ -152,16 +154,16 @@ Vector(Collection<? extends E> collection)
 #### 指定初始容量
 
 ```java
-    /**
-     * Constructs an empty vector with the specified initial capacity and
-     * with its capacity increment equal to zero.
-     * 创建一个指定初始容量和容量增量为0的空的 vector
-     * @param   initialCapacity   the initial capacity of the vector
-     * @throws IllegalArgumentException if the specified initial capacity is negative 当参数是负的时候，抛出异常
-     */
-    public Vector(int initialCapacity) {
-        this(initialCapacity, 0);
-    }
+/**
+ * Constructs an empty vector with the specified initial capacity and
+ * with its capacity increment equal to zero.
+ * 创建一个指定初始容量和容量增量为0的空的 vector
+ * @param   initialCapacity   the initial capacity of the vector
+ * @throws IllegalArgumentException if the specified initial capacity is negative 当参数是负的时候，抛出异常
+ */
+public Vector(int initialCapacity) {
+    this(initialCapacity, 0);
+}
 ```
 
 
@@ -195,27 +197,26 @@ Vector(Collection<? extends E> collection)
 #### 基于其他集合
 
 ```java
-
-    /**
-     * Constructs a vector containing the elements of the specified
-     * collection, in the order they are returned by the collection's
-     * iterator.
-     * 创建一个包含指定集合内容元素的vector,vector中的元素按照集合的遍历顺序存储
-     * @param c the collection whose elements are to be placed into this vector
-     * @throws NullPointerException if the specified collection is null 如果参数集合为空则抛出异常
-     * @since   1.2
-     */
-    public Vector(Collection<? extends E> c) {
-        // 因为这里调用了该集合的toArray 方法，所以如果集合为空，则抛出异常
-        Object[] a = c.toArray();
-        elementCount = a.length;
-        // 下面则完成对集合元素的添加，如果c 是ArrayList 的话，则直接完成赋值，否则的话使用Arrays 的copy 方法
-        if (c.getClass() == ArrayList.class) {
-            elementData = a;
-        } else {
-            elementData = Arrays.copyOf(a, elementCount, Object[].class);
-        }
+/**
+ * Constructs a vector containing the elements of the specified
+ * collection, in the order they are returned by the collection's
+ * iterator.
+ * 创建一个包含指定集合内容元素的vector,vector中的元素按照集合的遍历顺序存储
+ * @param c the collection whose elements are to be placed into this vector
+ * @throws NullPointerException if the specified collection is null 如果参数集合为空则抛出异常
+ * @since   1.2
+ */
+public Vector(Collection<? extends E> c) {
+    // 因为这里调用了该集合的toArray 方法，所以如果集合为空，则抛出异常
+    Object[] a = c.toArray();
+    elementCount = a.length;
+    // 下面则完成对集合元素的添加，如果c 是ArrayList 的话，则直接完成赋值，否则的话使用Arrays 的copy 方法
+    if (c.getClass() == ArrayList.class) {
+        elementData = a;
+    } else {
+        elementData = Arrays.copyOf(a, elementCount, Object[].class);
     }
+}
 ```
 
 
@@ -227,69 +228,68 @@ Vector(Collection<? extends E> collection)
 ### 1. add 方法
 
 ```java
-    @Test
-    public void testAdd() {
-        Vector<String> vector = new Vector(10);
-        vector.add("a");
-    }
-
+@Test
+public void testAdd() {
+    Vector<String> vector = new Vector(10);
+    vector.add("a");
+}
 ```
 
 下面我们跟踪一下add 方法的源码
 
 ```java
-    /**
-     * Appends the specified element to the end of this Vector.
-     * 添加特定的元素到Vector的尾部，需要注意的是这个方法是synchronized
-     * @param e element to be appended to this Vector
-     * @return {@code true} (as specified by {@link Collection#add})
-     * @since 1.2
-     */
-    public synchronized boolean add(E e) {
-        // 记录修改
-        modCount++;
-        // 保证容量，这个就是在添加元素之前要要保证内部的数组大小足够可以容纳该元素,在ArrayList 里面也有，是这样的  ensureCapacityInternal(size + 1)，(elementCount + 1) 可以认为是需要的
-        ensureCapacityHelper(elementCount + 1);
-        // 容量可以保证之后，我们就将这个元素添加到数组的指定位置
-        elementData[elementCount++] = e;
-        return true;
-    }
+/**
+ * Appends the specified element to the end of this Vector.
+ * 添加特定的元素到Vector的尾部，需要注意的是这个方法是synchronized
+ * @param e element to be appended to this Vector
+ * @return {@code true} (as specified by {@link Collection#add})
+ * @since 1.2
+ */
+public synchronized boolean add(E e) {
+    // 记录修改
+    modCount++;
+    // 保证容量，这个就是在添加元素之前要要保证内部的数组大小足够可以容纳该元素,在ArrayList 里面也有，是这样的  ensureCapacityInternal(size + 1)，(elementCount + 1) 可以认为是需要的
+    ensureCapacityHelper(elementCount + 1);
+    // 容量可以保证之后，我们就将这个元素添加到数组的指定位置
+    elementData[elementCount++] = e;
+    return true;
+}
 ```
 
 接下来，我们看一下`ensureCapacityHelper`的代码实现
 
 ```java
-    /**
-     * This implements the unsynchronized semantics of ensureCapacity.
-     * Synchronized methods in this class can internally call this
-     * method for ensuring capacity without incurring the cost of an
-     * extra synchronization.
-     *
-     * @see #ensureCapacity(int)
-     */
-    private void ensureCapacityHelper(int minCapacity) {
-        // 判断需要扩容吗，如果所需的最小容量大于实际可存储的容量则需要扩容
-        if (minCapacity - elementData.length > 0)
-            // 扩容方法
-            grow(minCapacity);
-    }
+/**
+ * This implements the unsynchronized semantics of ensureCapacity.
+ * Synchronized methods in this class can internally call this
+ * method for ensuring capacity without incurring the cost of an
+ * extra synchronization.
+ *
+ * @see #ensureCapacity(int)
+ */
+private void ensureCapacityHelper(int minCapacity) {
+    // 判断需要扩容吗，如果所需的最小容量大于实际可存储的容量则需要扩容
+    if (minCapacity - elementData.length > 0)
+        // 扩容方法
+        grow(minCapacity);
+}
 ```
 
 下面则是具体的扩容方法
 
 ```java
-    private void grow(int minCapacity) {
-        // overflow-conscious code
-        int oldCapacity = elementData.length;
-        // 如果capacityIncrement>0 则新的容量是oldCapacity+capacityIncrement ；否则2倍的oldCapacity
-        int newCapacity = oldCapacity + ((capacityIncrement > 0) ? capacityIncrement : oldCapacity);
-        if (newCapacity - minCapacity < 0)
-            newCapacity = minCapacity;
-        if (newCapacity - MAX_ARRAY_SIZE > 0)
-            newCapacity = hugeCapacity(minCapacity);
-        // 完成扩容和数据迁移
-        elementData = Arrays.copyOf(elementData, newCapacity);
-    }
+private void grow(int minCapacity) {
+    // overflow-conscious code
+    int oldCapacity = elementData.length;
+    // 如果capacityIncrement>0 则新的容量是oldCapacity+capacityIncrement ；否则2倍的oldCapacity
+    int newCapacity = oldCapacity + ((capacityIncrement > 0) ? capacityIncrement : oldCapacity);
+    if (newCapacity - minCapacity < 0)
+        newCapacity = minCapacity;
+    if (newCapacity - MAX_ARRAY_SIZE > 0)
+        newCapacity = hugeCapacity(minCapacity);
+    // 完成扩容和数据迁移
+    elementData = Arrays.copyOf(elementData, newCapacity);
+}
 ```
 
 
@@ -299,60 +299,48 @@ Vector(Collection<? extends E> collection)
 这个方法主要是用来将元素**插入到指定位置**，而 **add(E e)则是将元素添加到vector 的尾部**
 
 ```java
-    /**
-     * Inserts the specified element at the specified position in this Vector.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (adds one to their indices).
-     * 插入一个指定的元素到Vector的指定位置，如果当前位置有元素的话，则需要将当前位置的元素和其后面的元素移动
-     * 到前位置 的右边
-     * @param index index at which the specified element is to be inserted
-     * @param element element to be inserted
-     * @throws ArrayIndexOutOfBoundsException if the index is out of range
-     *         ({@code index < 0 || index > size()})
-     * @since 1.2
-     */   
- 	public void add(int index, E element) {
-        insertElementAt(element, index);
-    }
+/**
+* Inserts the specified element at the specified position in this Vector.
+* Shifts the element currently at that position (if any) and any
+* subsequent elements to the right (adds one to their indices).
+* 插入一个指定的元素到Vector的指定位置，如果当前位置有元素的话，则需要将当前位置的元素和其后面的元素移动
+* 到前位置 的右边
+* @param index index at which the specified element is to be inserted
+* @param element element to be inserted
+* @throws ArrayIndexOutOfBoundsException if the index is out of range
+*         ({@code index < 0 || index > size()})
+* @since 1.2
+*/   
+public void add(int index, E element) {
+   insertElementAt(element, index);
+}
 ```
 
 接下来我么看一下insertElementAt 的具体实现
 
 ```java
-    /**
-     * Inserts the specified object as a component in this vector at the
-     * specified {@code index}. Each component in this vector with
-     * an index greater or equal to the specified {@code index} is
-     * shifted upward to have an index one greater than the value it had
-     * previously.
-     *
-     * <p>The index must be a value greater than or equal to {@code 0}
-     * and less than or equal to the current size of the vector. (If the
-     * index is equal to the current size of the vector, the new element
-     * is appended to the Vector.)
-     *
-     * <p>This method is identical in functionality to the
-     * {@link #add(int, Object) add(int, E)}
-     * method (which is part of the {@link List} interface).  Note that the
-     * {@code add} method reverses the order of the parameters, to more closely
-     * match array usage.
-     *
-     * @param      obj     the component to insert
-     * @param      index   where to insert the new component
-     * @throws ArrayIndexOutOfBoundsException if the index is out of range
-     *         ({@code index < 0 || index > size()})
-     */
-    public synchronized void insertElementAt(E obj, int index) {
-        modCount++;
-        if (index > elementCount) {
-            throw new ArrayIndexOutOfBoundsException(index
-                                                     + " > " + elementCount);
-        }
-        ensureCapacityHelper(elementCount + 1);
-        System.arraycopy(elementData, index, elementData, index + 1, elementCount - index);
-        elementData[index] = obj;
-        elementCount++;
-    }
+/**
+* Inserts the specified object as a component in this vector at the specified {@code index}. 
+* Each component in this vector with an index greater or equal to the specified {@code index} is shifted upward to have an index one greater than the value it had previously.
+* 将元素插入到指定位置，当前位置及其以后位置都要移动到当前位置的下个位置
+* <p>The index must be a value greater than or equal to {@code 0} and less than or equal to the current size of the vector. (If the
+* index is equal to the current size of the vector, the new element is appended to the Vector.)
+* 这个位置必须是 0~size之间，如果index 等于 size 的话，这个元素将被添加到 Vector 尾部
+* @param      obj     the component to insert
+* @param      index   where to insert the new component
+* @throws ArrayIndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > size()})
+*/
+public synchronized void insertElementAt(E obj, int index) {
+   modCount++;
+   if (index > elementCount) {
+       throw new ArrayIndexOutOfBoundsException(index  + " > " + elementCount);
+   }
+  // 下面的方法前面都解释过，其实就是将保证有足够的空间，然后复制index及其后面的元素到index+1处，然后依次放置
+   ensureCapacityHelper(elementCount + 1);
+   System.arraycopy(elementData, index, elementData, index + 1, elementCount - index);
+   elementData[index] = obj;
+   elementCount++;
+}
 ```
 
 
@@ -360,29 +348,28 @@ Vector(Collection<? extends E> collection)
 ### 3. get 方法
 
 ```java
-    /**
-     * Returns the element at the specified position in this Vector.
-     * 返回Vector中特定位置的的元素(需要注意的是这个方法，依然是加了synchronized 修饰的)
-     * @param index index of the element to return
-     * @return object at the specified index
-     * @throws ArrayIndexOutOfBoundsException if the index is out of range
-     *            ({@code index < 0 || index >= size()})
-     * @since 1.2
-     */
-    public synchronized E get(int index) {
-        //  如果index >= elementCount 则抛出异常，因为最后一个元素是elementData[elementCount-1]
-        if (index >= elementCount)
-            throw new ArrayIndexOutOfBoundsException(index);
+/**
+* Returns the element at the specified position in this Vector.
+* 返回Vector中特定位置的的元素(需要注意的是这个方法，依然是加了synchronized 修饰的)
+* @param index index of the element to return
+* @return object at the specified index
+* @throws ArrayIndexOutOfBoundsException if the index is out of range ({@code index < 0 || index >= size()})
+* @since 1.2
+*/
+public synchronized E get(int index) {
+   //  如果index >= elementCount 则抛出异常，因为最后一个元素是elementData[elementCount-1]
+   if (index >= elementCount)
+       throw new ArrayIndexOutOfBoundsException(index);
 
-        return elementData(index);
-    }
-    /**
-    * 返回特定的数据
-    */
-    @SuppressWarnings("unchecked")
-    E elementData(int index) {
-        return (E) elementData[index];
-    }
+   return elementData(index);
+}
+/**
+* 返回特定的数据
+*/
+@SuppressWarnings("unchecked")
+E elementData(int index) {
+   return (E) elementData[index];
+}
 ```
 
 
@@ -448,82 +435,82 @@ iteratorThroughEnumeration：289 ms
 
 
 ```java
-  @Test
-    public  void iterator() {
-        Vector vec = new Vector();
-        for (int i = 0; i < 10000000; i++) {
-            vec.add(i);
-        }
-        iteratorThroughRandomAccess(vec);
-        iteratorThroughIterator(vec);
-        iteratorThroughFor2(vec);
-        iteratorThroughEnumeration(vec);
+@Test
+public  void iterator() {
+    Vector vec = new Vector();
+    for (int i = 0; i < 10000000; i++) {
+        vec.add(i);
+    }
+    iteratorThroughRandomAccess(vec);
+    iteratorThroughIterator(vec);
+    iteratorThroughFor2(vec);
+    iteratorThroughEnumeration(vec);
 
+}
+
+
+private static void isRandomAccessSupported(List list) {
+    if (list instanceof RandomAccess) {
+        System.out.println("RandomAccess implemented!");
+    } else {
+        System.out.println("RandomAccess not implemented!");
     }
 
+}
 
-    private static void isRandomAccessSupported(List list) {
-        if (list instanceof RandomAccess) {
-            System.out.println("RandomAccess implemented!");
-        } else {
-            System.out.println("RandomAccess not implemented!");
-        }
+public static void iteratorThroughRandomAccess(List list) {
 
+    long startTime;
+    long endTime;
+    startTime = System.currentTimeMillis();
+    int size = list.size();
+    // 这里注意一下，你不要把i < list.size() 直接放在for 循环里，因为这样每次都会调用size 方法就会有性能损耗
+    for (int i = 0; i < size; i++) {
+        list.get(i);
     }
+    endTime = System.currentTimeMillis();
+    long interval = endTime - startTime;
+    System.out.println("iteratorThroughRandomAccess：" + interval + " ms");
+}
 
-    public static void iteratorThroughRandomAccess(List list) {
+public static void iteratorThroughIterator(List list) {
 
-        long startTime;
-        long endTime;
-        startTime = System.currentTimeMillis();
-        int size = list.size();
-        // 这里注意一下，你不要把i < list.size() 直接放在for 循环里，因为这样每次都会调用size 方法就会有性能损耗
-        for (int i = 0; i < size; i++) {
-            list.get(i);
-        }
-        endTime = System.currentTimeMillis();
-        long interval = endTime - startTime;
-        System.out.println("iteratorThroughRandomAccess：" + interval + " ms");
+    long startTime;
+    long endTime;
+    startTime = System.currentTimeMillis();
+    for (Iterator iter = list.iterator(); iter.hasNext(); ) {
+        iter.next();
     }
+    endTime = System.currentTimeMillis();
+    long interval = endTime - startTime;
+    System.out.println("iteratorThroughIterator：" + interval + " ms");
+}
 
-    public static void iteratorThroughIterator(List list) {
 
-        long startTime;
-        long endTime;
-        startTime = System.currentTimeMillis();
-        for (Iterator iter = list.iterator(); iter.hasNext(); ) {
-            iter.next();
-        }
-        endTime = System.currentTimeMillis();
-        long interval = endTime - startTime;
-        System.out.println("iteratorThroughIterator：" + interval + " ms");
+public static void iteratorThroughFor2(List list) {
+
+    long startTime;
+    long endTime;
+    startTime = System.currentTimeMillis();
+    for (Object obj : list)
+        ;
+    endTime = System.currentTimeMillis();
+    long interval = endTime - startTime;
+    System.out.println("iteratorThroughFor2：" + interval + " ms");
+}
+
+public static void iteratorThroughEnumeration(Vector vec) {
+
+    long startTime;
+    long endTime;
+    startTime = System.currentTimeMillis();
+    for (Enumeration enu = vec.elements(); enu.hasMoreElements(); ) {
+        enu.nextElement();
     }
-
-
-    public static void iteratorThroughFor2(List list) {
-
-        long startTime;
-        long endTime;
-        startTime = System.currentTimeMillis();
-        for (Object obj : list)
-            ;
-        endTime = System.currentTimeMillis();
-        long interval = endTime - startTime;
-        System.out.println("iteratorThroughFor2：" + interval + " ms");
-    }
-
-    public static void iteratorThroughEnumeration(Vector vec) {
-
-        long startTime;
-        long endTime;
-        startTime = System.currentTimeMillis();
-        for (Enumeration enu = vec.elements(); enu.hasMoreElements(); ) {
-            enu.nextElement();
-        }
-        endTime = System.currentTimeMillis();
-        long interval = endTime - startTime;
-        System.out.println("iteratorThroughEnumeration：" + interval + " ms");
-    }
+    endTime = System.currentTimeMillis();
+    long interval = endTime - startTime;
+    System.out.println("iteratorThroughEnumeration：" + interval + " ms");
+}
 ```
 
 #### 对比ArrayList
@@ -538,18 +525,18 @@ iteratorThroughIterator：17 ms
 这里，我么贴出遍历的代码
 
 ```java
-    @Test
-    public  void iterator2() {
-        Vector vec = new Vector();
-        ArrayList arr = new ArrayList();
-        for (int i = 0; i < 10000000; i++) {
-            vec.add(i);
-            arr.add(i);
-        }
-        //iteratorThroughIterator 还是用的是上面的代码
-        iteratorThroughIterator(vec);
-        iteratorThroughIterator(arr);
+@Test
+public  void iterator2() {
+    Vector vec = new Vector();
+    ArrayList arr = new ArrayList();
+    for (int i = 0; i < 10000000; i++) {
+        vec.add(i);
+        arr.add(i);
     }
+    //iteratorThroughIterator 还是用的是上面的代码
+    iteratorThroughIterator(vec);
+    iteratorThroughIterator(arr);
+}
 ```
 
 
@@ -576,18 +563,17 @@ public ListIterator<E> listIterator() {
 下面是测试代码
 
 ```java
-
-    @Test
-    public  void iterator3() {
-        Vector vec = new Vector();
-        ArrayList arr = new ArrayList();
-        for (int i = 0; i < 10000000; i++) {
-            vec.add(i);
-            arr.add(i);
-        }
-        iteratorThroughIterator(vec);
-        iteratorThroughIterator(Collections.synchronizedList(arr));
+@Test
+public  void iterator3() {
+    Vector vec = new Vector();
+    ArrayList arr = new ArrayList();
+    for (int i = 0; i < 10000000; i++) {
+        vec.add(i);
+        arr.add(i);
     }
+    iteratorThroughIterator(vec);
+    iteratorThroughIterator(Collections.synchronizedList(arr));
+}
 ```
 
 
@@ -596,5 +582,7 @@ public ListIterator<E> listIterator() {
 
 **其实Vector和ArrayList一样，都是基于数组实现的List，也就是说都是属于List 阵营的，其主要的区别是在于线程安全上**，二者的底层实现都是基于数组的
 
-Vector 实现线程安全的方式就是给方法上加synchronized 锁，**所以线程安全的情况下请使用ArrayList，多线程的情况下使用Vector**
+Vector 实现线程安全的方式就是给方法上加synchronized 锁，**所以线程安全的情况下请使用ArrayList，多线程的情况下使用Vector**，Vector 在目前的开发中也用的不多，主要是它实现线程安全的方式比较低效，但是如果有一天Java 将synchronized锁的效率提高了，那Vector依然是一个不错的选择
+
+和ArrayList不一样的是，**Vector 扩容的后的容量不是当前容量加上capacityIncrement就是当前容量的2倍**
 
