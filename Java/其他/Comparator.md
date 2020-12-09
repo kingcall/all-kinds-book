@@ -37,7 +37,7 @@ class People  {
 
 例如当上面的代码中，People类没有实现Comparable 接口的时候，你就会看到下面的错误，这个时候你只要让People实现Comparable 接口即可，如果People不是你写的代码或者你不想实现Comparable ，这个时候你就可以使用Comparator，这个前面也讲过
 
-![image-20201209182548868](C:\Users\Wenqliu\AppData\Roaming\Typora\typora-user-images\image-20201209182548868.png)
+![image-20201209182548868](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20201209182548868.png)
 
 但是有时候你会看到类似下面的代码缺可以执行，这是为什么呢,这是因为, String 类本身已经实现了 Comparable接口，所以我们在这里就可以得到一个结论，那就是如果不提供Comparator ，那么被排序的对象必须实现Comparable接口
 

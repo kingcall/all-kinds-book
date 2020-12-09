@@ -389,7 +389,7 @@ Student{name='a', age=1}
 
 看了上面的代码，我们就大概知道，这是怎么玩的了，也就是说这个的`Comparator` 本质上还是Comparable，只是改变了排序的方向，如果你不是实现`Comparable` 接口，则报错信息如下
 
-![image-20201209175621765](C:\Users\Wenqliu\AppData\Roaming\Typora\typora-user-images\image-20201209175621765.png)
+![image-20201209175621765](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20201209175621765.png)
 
 
 
