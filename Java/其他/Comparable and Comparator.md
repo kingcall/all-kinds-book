@@ -1,3 +1,5 @@
+[TOC]
+
 ### Difference Between Comparable and Comparator in Java
 
 While sorting elements in collection classes, these two interfaces **Comparable** and **Comparator** in Java come into picture. Both of these interfaces are used to sort collection elements. An obvious question which comes to mind is *why two different interfaces?*

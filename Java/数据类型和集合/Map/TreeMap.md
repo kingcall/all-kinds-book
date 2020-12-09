@@ -73,28 +73,24 @@ TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的
 
 ```java
 /**
- * A Red-Black tree based {@link NavigableMap} implementation.
- * The map is sorted according to the {@linkplain Comparable natural
- * ordering} of its keys, or by a {@link Comparator} provided at map
+ * A Red-Black tree based {@link NavigableMap} implementation. The map is sorted according to the {@linkplain Comparable natural ordering} of its keys, or by a {@link Comparator} provided at map
  * creation time, depending on which constructor is used.
- *
- * <p>This implementation provides guaranteed log(n) time cost for the
- * {@code containsKey}, {@code get}, {@code put} and {@code remove}
- * operations.  Algorithms are adaptations of those in Cormen, Leiserson, and
- * Rivest's <em>Introduction to Algorithms</em>.
- *
- * <p>Note that the ordering maintained by a tree map, like any sorted map, and
- * whether or not an explicit comparator is provided, must be <em>consistent
- * with {@code equals}</em> if this sorted map is to correctly implement the
- * {@code Map} interface.  (See {@code Comparable} or {@code Comparator} for a
- * precise definition of <em>consistent with equals</em>.)  This is so because
- * the {@code Map} interface is defined in terms of the {@code equals}
- * operation, but a sorted map performs all key comparisons using its {@code
- * compareTo} (or {@code compare}) method, so two keys that are deemed equal by
- * this method are, from the standpoint of the sorted map, equal.  The behavior
- * of a sorted map <em>is</em> well-defined even if its ordering is
- * inconsistent with {@code equals}; it just fails to obey the general contract
- * of the {@code Map} interface.
+ * 基于NavigableMap实现的红黑树，这个map按照key 的自然顺序或者是Map 被创建的时候提供的Comparator进行排序，排序的方式取决于用的是那个构造方法
+ * <p>This implementation provides guaranteed log(n) time cost for the {@code containsKey}, {@code get}, {@code put} and {@code remove} operations. 
+ * 这个实现保证了containsKey，get，put，remove 方法都是log(n) 的时间复杂度
+ * Algorithms are adaptations of those in Cormen, Leiserson, and Rivest's <em>Introduction to Algorithms</em>.
+ * 红黑树的实现是对 Cormen, Leiserson和Rivest 算法的改进
+ * <p>Note that the ordering maintained by a tree map, like any sorted map, and whether or not an explicit comparator is provided, 
+ * 需要注意的是tree map 维护的顺序和任何sorted map一样，无论是否提供显式比较器，
+ * must be <em>consistent  with {@code equals}</em> if this sorted map is to correctly implement the {@code Map} interface. 
+ * 如果这个TreeMap要正确的实现Map 接口，则需要和equals 方法保持一致，
+ * (See {@code Comparable} or {@code Comparator} for a precise definition of <em>consistent with equals</em>.)  
+ * 查看Comparable或者Comparator来查看与equals保持一致的定义
+ * This is so because the {@code Map} interface is defined in terms of the {@code equals} operation, 
+ * 这个也是因为Map 接口是根据equals的操作定义的, 
+ * but a sorted map performs all key comparisons using its {@code compareTo} (or {@code compare}) method, so two keys that are deemed equal by this method are, from the standpoint of the sorted map, equal.  
+ * 但是sorted map 执行key 的compareTo或者compare 方法来进行key 的比较，因此，从sorted map的角度来看，这个方法认为相等的两个键是相等的
+ * The behavior of a sorted map <em>is</em> well-defined even if its ordering is inconsistent with {@code equals}; it just fails to obey the general contract of the {@code Map} interface.
  *
  * <p><strong>Note that this implementation is not synchronized.</strong>
  * If multiple threads access a map concurrently, and at least one of the
@@ -755,23 +751,24 @@ private void fixAfterDeletion(Entry<K,V> x) {
 
 ### 自然顺序
 
-默认情况下，TreeMap 是根据 key 的自然顺序排列的。比如说整数，就是升序，1、2、3、4、5。
+默认情况下，TreeMap 是根据 key 的自然顺序排列的。比如说整数，就是升序，1、2、3、4、5,英文字就是 a、b、c、d、e，那汉字是什么呢？
 
-```
-TreeMap<Integer,String> mapInt = new TreeMap<>();
-mapInt.put(3, "沉默王二");
-mapInt.put(2, "沉默王二");
-mapInt.put(1, "沉默王二");
-mapInt.put(5, "沉默王二");
-mapInt.put(4, "沉默王二");
-
-System.out.println(mapInt);
+```java
+@Test
+public void testDefaultOrder() {
+    TreeMap<String, String> map = new TreeMap<String, String>();
+    map.put("d", "ddddd");
+    map.put("b", "bbbbb");
+    map.put("a", "aaaaa");
+    map.put("c", "ccccc");
+    System.out.println(map);
+}
 ```
 
 输出结果如下所示：
 
 ```
-{1=沉默王二, 2=沉默王二, 3=沉默王二, 4=沉默王二, 5=沉默王二}
+{a=aaaaa, b=bbbbb, c=ccccc, d=ddddd}
 ```
 
 ### 自定义排序
@@ -779,19 +776,28 @@ System.out.println(mapInt);
 如果自然顺序不满足，那就可以在声明 TreeMap 对象的时候指定排序规则。
 
 ```java
-TreeMap<Integer,String> mapIntReverse = new TreeMap<>(Comparator.reverseOrder());
-mapIntReverse.put(3, "沉默王二");
-mapIntReverse.put(2, "沉默王二");
-mapIntReverse.put(1, "沉默王二");
-mapIntReverse.put(5, "沉默王二");
-mapIntReverse.put(4, "沉默王二");
-
-System.out.println(mapIntReverse);
+@Test
+public void testDefineOrder() {
+    TreeMap<String, String> map = new TreeMap<String, String>(Comparator.reverseOrder());
+    map.put("d", "ddddd");
+    map.put("b", "bbbbb");
+    map.put("a", "aaaaa");
+    map.put("c", "ccccc");
+    System.out.println(map);
+}
 ```
 
-## 八. 总结
+输出结果如下所示：
 
-本文详细介绍了TreeMap的基本特点，并对其底层数据结构红黑树进行了回顾，同时讲述了其自动排序的原理，并从源码的角度结合红黑树图形对put方法、get方法、remove方法进行了讲解，最后简单提了一下遍历操作，若有不对之处，请批评指正，望共同进步，谢谢！
+```
+{d=ddddd, c=ccccc, b=bbbbb, a=aaaaa}
+```
+
+## 四. 总结
+
+本文详细介绍了TreeMap的基本特点，并对其底层数据结构红黑树进行了回顾，同时讲述了其自动排序的原理，并从源码的角度结合红黑树图形对put方法、get方法、remove方法进行了讲解，最后简单提了一下遍历操作
+
+
 
 
 
