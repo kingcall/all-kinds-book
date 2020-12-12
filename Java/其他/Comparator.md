@@ -25,14 +25,14 @@ class People  {
     }
 }
 
-	@Test
-    public void comparatorUsage() {
-        List<People> peopleList = new ArrayList<>();
-        peopleList.add(new People("b", 2));
-        peopleList.add(new People("a", 1));
-        Collections.sort(peopleList);
+@Test
+public void comparatorUsage() {
+    List<People> peopleList = new ArrayList<>();
+    peopleList.add(new People("b", 2));
+    peopleList.add(new People("a", 1));
+    Collections.sort(peopleList);
 
-    }
+}
 ```
 
 例如当上面的代码中，People类没有实现Comparable 接口的时候，你就会看到下面的错误，这个时候你只要让People实现Comparable 接口即可，如果People不是你写的代码或者你不想实现Comparable ，这个时候你就可以使用Comparator，这个前面也讲过
@@ -42,26 +42,25 @@ class People  {
 但是有时候你会看到类似下面的代码缺可以执行，这是为什么呢,这是因为, String 类本身已经实现了 Comparable接口，所以我们在这里就可以得到一个结论，那就是如果不提供Comparator ，那么被排序的对象必须实现Comparable接口
 
 ```java
-    static List<String> testList = null;
+static List<String> testList = null;
 
-    @BeforeAll
-    public static void setUp() {
-        testList = new ArrayList<>();
-        testList.add("d");
-        testList.add("a");
-        testList.add("c");
-        testList.add("b");
-        System.out.println("====================Original List========================");
-        testList.forEach(System.out::println);
-    }
+@BeforeAll
+public static void setUp() {
+    testList = new ArrayList<>();
+    testList.add("d");
+    testList.add("a");
+    testList.add("c");
+    testList.add("b");
+    System.out.println("====================Original List========================");
+    testList.forEach(System.out::println);
+}
 
-    @Test
-    @Order(1)
-    public void defaultSort() {
-        Collections.sort(testList);
-        System.out.println("====================Default List========================");
-        testList.forEach(System.out::println);
-    }
+@Test
+public void defaultSort() {
+    Collections.sort(testList);
+    System.out.println("====================Default List========================");
+    testList.forEach(System.out::println);
+}
 ```
 
 
@@ -163,18 +162,18 @@ Comparator.comparing(keyExtractor,keyComparator)接受两个参数
 第二个是Comparator，则是你需要定义比较的逻辑，本来Comparator中compare的参数直接是需要比较的两个对象，这里则是keyExtractor的输出
 
 ```java
-    @Test
-    public void comparing() {
-        List<People> peopleList = new ArrayList<>();
-        peopleList.add(new People("b", 2));
-        peopleList.add(new People("a", 1));
+@Test
+public void comparing() {
+    List<People> peopleList = new ArrayList<>();
+    peopleList.add(new People("b", 2));
+    peopleList.add(new People("a", 1));
 
-        Collections.sort(peopleList, Comparator.comparing(
-                (people) -> people.getName() + people.getAge(),
-                (o1, o2) -> o1.compareTo(o2)));
-        System.out.println("====================Reverse List========================");
-        peopleList.forEach(System.out::println);
-    }
+    Collections.sort(peopleList, Comparator.comparing(
+            (people) -> people.getName() + people.getAge(),
+            (o1, o2) -> o1.compareTo(o2)));
+    System.out.println("====================Reverse List========================");
+    peopleList.forEach(System.out::println);
+}
 ```
 
 输出结果
@@ -192,29 +191,28 @@ Student{name='b', age=2}
 就是keyExtractor提取出来的key，然后对key 调用进行compareTo 方法作为Comparator
 
 ```java
-    public static <T, U extends Comparable<? super U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor)
-    {
-        Objects.requireNonNull(keyExtractor);
-        return (Comparator<T> & Serializable)
-            (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2));
-    }
+public static <T, U extends Comparable<? super U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor){
+    Objects.requireNonNull(keyExtractor);
+    return (Comparator<T> & Serializable)
+        (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2));
+}
 ```
 
 **但是这里有个注意的地方时，你提取出来的key必须是实现Comparable 接口的，因为它接下来要调用key 的compareTo 方法**
 
 ````java
-    @Test
-    public void comparing2() {
-        List<People> peopleList = new ArrayList<>();
-        peopleList.add(new People("b", 2));
-        peopleList.add(new People("a", 1));
+@Test
+public void comparing2() {
+    List<People> peopleList = new ArrayList<>();
+    peopleList.add(new People("b", 2));
+    peopleList.add(new People("a", 1));
 
-        Collections.sort(peopleList, Comparator.comparing(
-                (people) -> people.getName() + people.getAge()));
-        System.out.println("====================Reverse List========================");
-        peopleList.forEach(System.out::println);
+    Collections.sort(peopleList, Comparator.comparing(
+            (people) -> people.getName() + people.getAge()));
+    System.out.println("====================Reverse List========================");
+    peopleList.forEach(System.out::println);
 
-    }
+}
 ````
 
 
@@ -244,30 +242,30 @@ class MyComparator implements Comparator<People> {
 ### Comparator的匿名内部类的实现
 
 ```java
-    @Test
-    public void comparatorUsageByAnonymous() {
-        List<People> peopleList = new ArrayList<>();
-        peopleList.add(new People("b", 2));
-        peopleList.add(new People("a", 1));
+@Test
+public void comparatorUsageByAnonymous() {
+    List<People> peopleList = new ArrayList<>();
+    peopleList.add(new People("b", 2));
+    peopleList.add(new People("a", 1));
 
-        Collections.sort(peopleList, new Comparator<People>() {
-            @Override
-            public int compare(People o1, People o2) {
-                return (o1.name + o1.age).compareTo(o2.name + o2.age);
-            }
-        });
-        System.out.println("====================Reverse List========================");
-        peopleList.forEach(System.out::println);
-    }
+    Collections.sort(peopleList, new Comparator<People>() {
+        @Override
+        public int compare(People o1, People o2) {
+            return (o1.name + o1.age).compareTo(o2.name + o2.age);
+        }
+    });
+    System.out.println("====================Reverse List========================");
+    peopleList.forEach(System.out::println);
+}
 ```
 
 上面的这个实现和People实现Comparable的下面这种方式是等价的
 
 ```java
-    @Override
-    public int compareTo(Student o) {
-        return (this.name + this.age).compareTo(o.name + age);
-    }
+@Override
+public int compareTo(Student o) {
+    return (this.name + this.age).compareTo(o.name + age);
+}
 ```
 
 需要注意的是，匿名内部类往往是在这个Comparator只使用一次的时候才使用，所以如果你要多次使用还是要以类的方式将其提取出来
@@ -275,15 +273,15 @@ class MyComparator implements Comparator<People> {
 ### Comparator的Lambda 表达式的实现
 
 ```java
-    public void comparatorUsageByLambda() {
-        List<People> peopleList = new ArrayList<>();
-        peopleList.add(new People("b", 2));
-        peopleList.add(new People("a", 1));
-        
-        Collections.sort(peopleList, (o1, o2) -> (o1.name + o1.age).compareTo(o2.name + o2.age));
-        System.out.println("====================Reverse List========================");
-        peopleList.forEach(System.out::println);
-    }
+public void comparatorUsageByLambda() {
+    List<People> peopleList = new ArrayList<>();
+    peopleList.add(new People("b", 2));
+    peopleList.add(new People("a", 1));
+    
+    Collections.sort(peopleList, (o1, o2) -> (o1.name + o1.age).compareTo(o2.name + o2.age));
+    System.out.println("====================Reverse List========================");
+    peopleList.forEach(System.out::println);
+}
 ```
 
 

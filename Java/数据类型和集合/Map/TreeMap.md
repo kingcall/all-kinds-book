@@ -10,7 +10,83 @@ TreeMap，虽然也是个 Map，但存在感太低了，导致TreeMap我只在�
 
 TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的应用场景，TreeMap可以实现元素的自动排序
 
-之前 [LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651) 那篇文章里提到过了，HashMap 是无序的，所有有了 LinkedHashMap，加上了双向链表后，就可以保持元素的插入顺序和访问顺序，那 TreeMap 呢，TreeMap 由红黑树实现，可以保持元素的自然顺序，或者实现了 Comparator 接口的自定义顺序
+之前 [LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651) 那篇文章里提到过了，HashMap 是无序的，所有有了 LinkedHashMap，加上了双向链表后，就可以保持**元素的插入顺序或者访问顺序**，那 TreeMap 呢，TreeMap 由红黑树实现，可以保持**元素的自然顺序**，这里指的是实现了 Comparable 接口的自然排序，或者是由Comparator定义的自定义排序，关于Comparable和Comparator可以查看[深度剖析—Comparable和Comparator](https://blog.csdn.net/king14bhhb/article/details/110941207) 和 [一文掌握Comparator的数十种用法](https://blog.csdn.net/king14bhhb/article/details/110941401)
+
+
+
+在开始之前我们先看一个例子，还是我们前面在学习[LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651) 时引入的例子，我们想在页面展示一周内的消费变化情况，用echarts面积图进行展示。如下：
+
+![image-20201127231231411](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/10/10:15:01-09:33:26-image-20201127231231411.png)
+
+我们是借助LinkedHashMap**维持了元素的插入顺序**，然后我们就得到了想要的顺序，从星期一到星期日，但是这个要求我们的插入顺序就必须是我们想要的顺序，但是有时候我们不能做到这一点，例如周二是大促，数据量大对账系统还没有计算出来
+
+```java
+public  void test() {
+    LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
+    map.put("星期一", 40);
+    map.put("星期三", 35);
+    // 对账系统在周三的时候才计算出来
+    map.put("星期二", 43);
+    map.put("星期四", 55);
+    map.put("星期五", 45);
+    map.put("星期六", 35);
+    map.put("星期日", 30);
+    for (Map.Entry<String, Integer> entry : map.entrySet()){
+        System.out.println("key: " + entry.getKey() + ", value: " + entry.getValue());
+    }
+}
+
+```
+
+这个时候我们看看发生了什么,结果不对了
+
+```
+key: 星期一, value: 40
+key: 星期三, value: 35
+key: 星期二, value: 43
+key: 星期四, value: 55
+key: 星期五, value: 45
+key: 星期六, value: 35
+key: 星期日, value: 30
+```
+
+接下来我们看一下TreeMap 是能否满足我们的要求,这里我们对程序稍微改动一下，星期一 到星期日 依次用1到7代替，因为要根据key 进行排序,如果你不满意这个操作也可以重新键一个map 维护数字和日期的关系，等输出的时候再将数字替换成日期
+
+```java
+@Test
+public  void test() {
+    TreeMap<String, Integer> map = new TreeMap<>();
+    map.put("1", 40);
+    map.put("3", 35);
+    // 对账系统在周三的时候才计算出来
+    map.put("2", 43);
+    map.put("4", 55);
+    map.put("5", 45);
+    map.put("6", 35);
+    map.put("7", 30);
+    System.out.println(map);
+}
+```
+
+
+
+输出结果
+
+```
+key: 1, value: 40
+key: 2, value: 43
+key: 3, value: 35
+key: 4, value: 55
+key: 5, value: 45
+key: 6, value: 35
+key: 7, value: 30
+```
+
+
+
+
+
+
 
 ### 1 . TreeMap概述
 
@@ -92,20 +168,17 @@ TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的
  * 但是sorted map 执行key 的compareTo或者compare 方法来进行key 的比较，因此，从sorted map的角度来看，这个方法认为相等的两个键是相等的
  * The behavior of a sorted map <em>is</em> well-defined even if its ordering is inconsistent with {@code equals}; it just fails to obey the general contract of the {@code Map} interface.
  *
- * <p><strong>Note that this implementation is not synchronized.</strong>
- * If multiple threads access a map concurrently, and at least one of the
- * threads modifies the map structurally, it <em>must</em> be synchronized
- * externally.  (A structural modification is any operation that adds or
- * deletes one or more mappings; merely changing the value associated
- * with an existing key is not a structural modification.)  This is
- * typically accomplished by synchronizing on some object that naturally
- * encapsulates the map.
+ * <p><strong>Note that this implementation is not synchronized.</strong> If multiple threads access a map concurrently, and at least one of the
+ * threads modifies the map structurally, it <em>must</em> be synchronized externally.  (A structural modification is any operation that adds or
+ * deletes one or more mappings; merely changing the value associated with an existing key is not a structural modification.)  This is
+ * typically accomplished by synchronizing on some object that naturally encapsulates the map.
  * If no such object exists, the map should be "wrapped" using the
  * {@link Collections#synchronizedSortedMap Collections.synchronizedSortedMap}
  * method.  This is best done at creation time, to prevent accidental
  * unsynchronized access to the map: <pre>
  *   SortedMap m = Collections.synchronizedSortedMap(new TreeMap(...));</pre>
- *
+ * 这一段是讲TreeMap 不是线程安全的，如果你需要在多线程环境中使用，可以通过对一个object 对象加锁，如果你找不到这个样的对象，你可以使用它的包装类，调用方法是 SortedMap m = Collections.synchronizedSortedMap(new TreeMap(...))
+ * 由于这一段我们在前面将其他集合的时候，已经翻译了很多遍了，所以在这里就简要说一下，没有逐字逐句的翻译
  * <p>The iterators returned by the {@code iterator} method of the collections
  * returned by all of this class's "collection view methods" are
  * <em>fail-fast</em>: if the map is structurally modified at any time after
@@ -122,19 +195,11 @@ TreeMap或许不如HashMap那么常用，但存在即合理，它也有自己的
  * Therefore, it would be wrong to write a program that depended on this
  * exception for its correctness:   <em>the fail-fast behavior of iterators
  * should be used only to detect bugs.</em>
- *
- * <p>All {@code Map.Entry} pairs returned by methods in this class
- * and its views represent snapshots of mappings at the time they were
- * produced. They do <strong>not</strong> support the {@code Entry.setValue}
- * method. (Note however that it is possible to change mappings in the
+ *上面的两段，前面的文章我们也翻译过了，可自行查看
+ * <p>All {@code Map.Entry} pairs returned by methods in this class and its views represent snapshots of mappings at the time they were
+ * produced. They do <strong>not</strong> support the {@code Entry.setValue} method. (Note however that it is possible to change mappings in the
  * associated map using {@code put}.)
- *
- * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
- *
- * @param <K> the type of keys maintained by this map
- * @param <V> the type of mapped values
+ * 所有被TreeMap 中的方法和其视图 返回的Map.Entry 代表的是它们在创建是的快照，所以不支持使用 Entry.setValue(需要注意的实它们可以在对应的map 的put 方法中使用)
  *
  * @author  Josh Bloch and Doug Lea
  * @see Map
@@ -151,37 +216,51 @@ public class TreeMap<K,V> extends AbstractMap<K,V> implements NavigableMap<K,V>,
 
 
 
-### 4. TreeMap构造函数
+### 4. TreeMap的主要内部构成
 
+#### comparator
 
+我们前面提到TreeMap是可以自动排序的，默认情况下comparator为null(例如无参构造)
 
-我们先看一下TreeMap中主要的成员变量
+这个时候按照key的自然顺序进行排序，然而并不是所有情况下都可以直接使用key的自然顺序，1 是key 的自然排序不满足我们的要求，2 key 没有实现Comparable 当然就没有自然排序一说了
+
+所以有时候我们想让Map的自动排序按照我们自己的规则， 这个时候你就需要传递Comparator的实现类，然后由comparator来实现排序的逻辑
+
 
 ```java
-/**
- * 我们前面提到TreeMap是可以自动排序的，默认情况下comparator为null，这个时候按照key的自然顺序进行排
- * 序，然而并不是所有情况下都可以直接使用key的自然顺序，有时候我们想让Map的自动排序按照我们自己的规则，
- * 这个时候你就需要传递Comparator的实现类
- */
 private final Comparator<? super K> comparator;
+```
 
-/**
- * TreeMap的存储结构既然是红黑树，那么必然会有唯一的根节点。
- */
+#### root
+
+TreeMap的存储结构既然是红黑树，那么必然会有唯一的根节点，而root 就是TreeMap的根节点
+
+```java
 private transient Entry<K,V> root;
+```
 
-/**
- * Map中key-val对的数量，也即是红黑树中节点Entry的数量
- */
+#### size
+
+Map中key-val对的数量，也即是红黑树中节点Entry的数量,现在很多集合都统一使用size 表示元素的多少了，而不像早期的java 版本中，你能看到各种各样表示大小的变量
+
+```java
 private transient int size = 0;
+```
 
+#### modCount
+
+```
 /**
  * 红黑树结构的调整次数
  */
 private transient int modCount = 0;
 ```
 
-上面的主要成员变量根节点root是Entry类的实体，我们来看一下Entry类的源码
+
+
+#### Entry
+
+上面的主要成员变量根节点root是Entry类的实体，我们来看一下Entry类的源码,和HashMap 一样，都要自己的实现，HahsMap 中加Node
 
 ```java
 static final class Entry<K,V> implements Map.Entry<K,V> {
@@ -198,9 +277,9 @@ static final class Entry<K,V> implements Map.Entry<K,V> {
     boolean color = BLACK;
 
     /**
-     * 构造器
+     * 构造器，使用key 和 value 以及parent 创建一个 黑色节点
      */
-    Entry(K key, V value, Entry<K,V> parent) {
+    Entry(K key, V value, Entry<K,V> parent 创建一个 黑色节点) {
         this.key = key;
         this.value = value;
         this.parent = parent;
@@ -224,14 +303,19 @@ static final class Entry<K,V> implements Map.Entry<K,V> {
         this.value = value;
         return oldValue;
     }
-
+  	/**
+     * 判断相等，类型一致且key-value 都相等
+     */
     public boolean equals(Object o) {
         if (!(o instanceof Map.Entry))
             return false;
         Map.Entry<?,?> e = (Map.Entry<?,?>)o;
         return valEquals(key,e.getKey()) && valEquals(value,e.getValue());
     }
-
+  
+   	/**
+     * 计算hash 值
+     */
     public int hashCode() {
         int keyHash = (key==null ? 0 : key.hashCode());
         int valueHash = (value==null ? 0 : value.hashCode());
@@ -244,25 +328,105 @@ static final class Entry<K,V> implements Map.Entry<K,V> {
 }
 ```
 
+
+
 Entry静态内部类实现了Map的内部接口Entry，提供了红黑树存储结构的java实现，通过left属性可以建立左子树，通过right属性可以建立右子树，通过parent可以往上找到父节点。
 
 大体的实现结构图如下：
 
-![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/28/22:58:17-1677914-20190721162648131-326996030.png)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/10/10:40:55-22:58:17-1677914-20190721162648131-326996030.png)
 
-**TreeMap构造函数：**
+### 5. TreeMap构造函数
+
+#### 默认构造函数
+
+默认构造函数，按照key的自然顺序排列
 
 ```java
-//默认构造函数，按照key的自然顺序排列
-public TreeMap() {comparator = null;}
-//传递Comparator具体实现，按照该实现规则进行排序
-public TreeMap(Comparator<? super K> comparator) {this.comparator = comparator;}
-//传递一个map实体构建TreeMap,按照默认规则排序
+/**
+ * Constructs a new, empty tree map, using the natural ordering of its
+ * keys.  All keys inserted into the map must implement the {@link
+ * Comparable} interface.  Furthermore, all such keys must be
+ * <em>mutually comparable</em>: {@code k1.compareTo(k2)} must not throw
+ * a {@code ClassCastException} for any keys {@code k1} and
+ * {@code k2} in the map.  If the user attempts to put a key into the
+ * map that violates this constraint (for example, the user attempts to
+ * put a string key into a map whose keys are integers), the
+ * {@code put(Object key, Object value)} call will throw a
+ * {@code ClassCastException}.
+ */
+public TreeMap() {
+    comparator = null;
+}
+```
+
+
+
+#### 指定 Comparator
+
+传递Comparator具体实现，按照该实现的排序逻辑进行排序
+
+```java
+/**
+ * Constructs a new, empty tree map, ordered according to the given
+ * comparator.  All keys inserted into the map must be <em>mutually
+ * comparable</em> by the given comparator: {@code comparator.compare(k1,
+ * k2)} must not throw a {@code ClassCastException} for any keys
+ * {@code k1} and {@code k2} in the map.  If the user attempts to put
+ * a key into the map that violates this constraint, the {@code put(Object
+ * key, Object value)} call will throw a
+ * {@code ClassCastException}.
+ *
+ * @param comparator the comparator that will be used to order this map.
+ *        If {@code null}, the {@linkplain Comparable natural
+ *        ordering} of the keys will be used.
+ */
+public TreeMap(Comparator<? super K> comparator) {
+    this.comparator = comparator;
+}
+```
+
+
+
+#### 基于Map 的创建
+
+传递一个map实体构建TreeMap,按照默认规则排序
+
+```java
+/**
+ * Constructs a new tree map containing the same mappings as the given
+ * map, ordered according to the <em>natural ordering</em> of its keys.
+ * All keys inserted into the new map must implement the {@link
+ * Comparable} interface.  Furthermore, all such keys must be
+ * <em>mutually comparable</em>: {@code k1.compareTo(k2)} must not throw
+ * a {@code ClassCastException} for any keys {@code k1} and
+ * {@code k2} in the map.  This method runs in n*log(n) time.
+ *
+ * @param  m the map whose mappings are to be placed in this map
+ * @throws ClassCastException if the keys in m are not {@link Comparable},
+ *         or are not mutually comparable
+ * @throws NullPointerException if the specified map is null
+ */
 public TreeMap(Map<? extends K, ? extends V> m) {
     comparator = null;
     putAll(m);
 }
-//传递一个map实体构建TreeMap,按照传递的map的排序规则进行排序
+```
+
+#### 基于SortedMap 创建
+
+传递一个map实体构建TreeMap,按照传递的map的排序规则进行排序
+
+```java
+/**
+ * Constructs a new tree map containing the same mappings and
+ * using the same ordering as the specified sorted map.  This
+ * method runs in linear time.
+ *
+ * @param  m the sorted map whose mappings are to be placed in this map,
+ *         and whose comparator is to be used to sort this map
+ * @throws NullPointerException if the specified map is null
+ */
 public TreeMap(SortedMap<K, ? extends V> m) {
     comparator = m.comparator();
     try {
@@ -272,6 +436,12 @@ public TreeMap(SortedMap<K, ? extends V> m) {
     }
 }
 ```
+
+
+
+
+
+
 
 ## 二 常用方法
 
@@ -284,13 +454,30 @@ put方法为Map的核心方法，TreeMap的put方法大概流程如下：
 我们来分析一下源码
 
 ```java
+/**
+ * Associates the specified value with the specified key in this map.
+ * If the map previously contained a mapping for the key, the old
+ * value is replaced.
+ * 将指定的值与该map 中的指定键相关联，如果该map以及包含了该key 的映射，则老的值将被替换
+ * @param key key with which the specified value is to be associated
+ * @param value value to be associated with the specified key
+ * @return the previous value associated with {@code key}, or {@code null} if there was no mapping for {@code key}.
+ * (A {@code null} return can also indicate that the map previously associated {@code null} with {@code key}.)
+ * 返回key 先前对应的value ，如果返回值是null 说明map 中不包含这样的映射或者说是key 先前对应的value 就是null
+ * @throws ClassCastException if the specified key cannot be compared with the keys currently in the map
+ * 如果要插入的key 不能和已经在map 中存在的key 比较则抛出 ClassCastException
+ * @throws NullPointerException if the specified key is null and this map uses natural ordering, or its comparator
+ *         does not permit null keys 如果comparator不许null值，或者使用自然排序，则当key 为空的时候，抛出NullPointerException
+ */
+
 public V put(K key, V value) {
     Entry<K,V> t = root;
     /**
-     * 如果根节点都为null，还没建立起来红黑树，我们先new Entry并赋值给root把红黑树建立起来，这个时候红
-     * 黑树中已经有一个节点了，同时修改操作+1。
+     * 如果根节点都为null，还没建立起来红黑树，我们先new Entry并赋值给root把红黑树建立起来，这个时候红黑树中已经有一个节点了，同时修改操作+1。
+     * 创建的时候由于是root 节点，所以parent 是null
      */
     if (t == null) {
+       // 类型检测，其实这个时候因为是第一个节点其实是不需要比较大小的，但是这里依然调用了这个方法，主要目的是为了检测key 的雷士是否合适
         compare(key, key); 
         root = new Entry<>(key, value, null);
         size = 1;
@@ -298,8 +485,7 @@ public V put(K key, V value) {
         return null;
     }
     /**
-     * 如果节点不为null,定义一个cmp，这个变量用来进行二分查找时的比较；定义parent，是new Entry时必须
-     * 要的参数
+     * 如果节点不为null,定义一个cmp，这个变量用来进行二分查找时的比较；定义parent，是new Entry时必须要的参数
      */
     int cmp;
     Entry<K,V> parent;
@@ -744,6 +930,8 @@ private void fixAfterDeletion(Entry<K,V> x) {
 ### 4. 遍历
 
 遍历比较简单，TreeMap的遍历可以使用map.values(), map.keySet()，map.entrySet()，map.forEach()，这里不再多说。
+
+
 
 
 

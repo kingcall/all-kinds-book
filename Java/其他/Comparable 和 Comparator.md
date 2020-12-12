@@ -159,36 +159,36 @@ Ram Tiwari 23 E003
 
 ```java
 public class SortObjectList {
-        public static void main(String[] args) {
-        List<Employee> empList = new ArrayList<Employee>();
-        // Storing elements in the arraylist
-        empList.add(getData("E001", "Mishra", "Pyaremohan", 35));
-        empList.add(getData("E002", "Smith", "John", 45));
-        empList.add(getData("E003", "Sharma", "Ram", 23));
-        empList.add(getData("E004", "Mishra", "Pyaremohan", 60));
-        empList.add(getData("E005", "Caroll", "Eva", 32));
-        empList.add(getData("E003", "Tiwari", "Ram", 23));
+		public static void main(String[] args) {
+		List<Employee> empList = new ArrayList<Employee>();
+		// Storing elements in the arraylist
+		empList.add(getData("E001", "Mishra", "Pyaremohan", 35));
+		empList.add(getData("E002", "Smith", "John", 45));
+		empList.add(getData("E003", "Sharma", "Ram", 23));
+		empList.add(getData("E004", "Mishra", "Pyaremohan", 60));
+		empList.add(getData("E005", "Caroll", "Eva", 32));
+		empList.add(getData("E003", "Tiwari", "Ram", 23));
 
-        System.out.println("====================Original List========================");
-        for(Employee emp : empList){
-            System.out.println("" + emp);
-        }
-        // Sorting the list
-        Collections.sort(empList);
+		System.out.println("====================Original List========================");
+		for(Employee emp : empList){
+		    System.out.println("" + emp);
+		}
+		// Sorting the list
+		Collections.sort(empList);
 
-        System.out.println("====================Natural Sorted List=======================");
-        for(Employee emp : empList){
-            System.out.println("" + emp);
-        }
+		System.out.println("====================Natural Sorted List=======================");
+		for(Employee emp : empList){
+		    System.out.println("" + emp);
+		}
 
-        // Sorting the list
-        Collections.sort(empList, new MyComparator());
+		// Sorting the list
+		Collections.sort(empList, new MyComparator());
 
-        System.out.println("====================External Sorted List=======================");
-        for(Employee emp : empList){
-            System.out.println("" + emp);
-        }
-    }
+		System.out.println("====================External Sorted List=======================");
+		for(Employee emp : empList){
+		    System.out.println("" + emp);
+		}
+  }    
 }      
 
 class MyComparator implements Comparator<Employee>{
@@ -297,28 +297,27 @@ class Student implements Comparable<Student> {
 然后下面我们写了一个测试代码，从测试的输出结果我们在进行分析
 
 ```java
-    @Test
-    @Order(4)
-    public void testSort() {
-        List<Student> studentList = new ArrayList<>();
-        studentList.add(new Student("b", 2));
-        studentList.add(new Student("a", 1));
-        System.out.println("====================Original List========================");
-        studentList.forEach(System.out::println);
+@Test
+public void testSort() {
+    List<Student> studentList = new ArrayList<>();
+    studentList.add(new Student("b", 2));
+    studentList.add(new Student("a", 1));
+    System.out.println("====================Original List========================");
+    studentList.forEach(System.out::println);
 
-        Collections.sort(studentList);
-        System.out.println("====================Natural List========================");
-        studentList.forEach(System.out::println);
+    Collections.sort(studentList);
+    System.out.println("====================Natural List========================");
+    studentList.forEach(System.out::println);
 
 
-        Collections.sort(studentList, Comparator.naturalOrder());
-        System.out.println("====================naturalOrder List========================");
-        studentList.forEach(System.out::println);
+    Collections.sort(studentList, Comparator.naturalOrder());
+    System.out.println("====================naturalOrder List========================");
+    studentList.forEach(System.out::println);
 
-        Collections.sort(studentList, Comparator.reverseOrder());
-        System.out.println("====================reverseOrder List========================");
-        studentList.forEach(System.out::println);
-    }
+    Collections.sort(studentList, Comparator.reverseOrder());
+    System.out.println("====================reverseOrder List========================");
+    studentList.forEach(System.out::println);
+}
 ```
 
 下面是输出结果
@@ -351,38 +350,38 @@ Student{name='a', age=1}
 接下来，我们看一下源码，我们就从`Comparator.naturalOrder()` 开始，
 
 ```java
-    /**
-     * Returns a comparator that compares {@link Comparable} objects in natural order.
-     *  返回一个comparator 它使用Comparable的自然排序比较对象
-     */
-    @SuppressWarnings("unchecked")
-    public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() {
-        return (Comparator<T>) Comparators.NaturalOrderComparator.INSTANCE;
-    }
+/**
+ * Returns a comparator that compares {@link Comparable} objects in natural order.
+ *  返回一个comparator 它使用Comparable的自然排序比较对象
+ */
+@SuppressWarnings("unchecked")
+public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() {
+    return (Comparator<T>) Comparators.NaturalOrderComparator.INSTANCE;
+}
 ```
 
 接下来，我们看一下` Comparators.NaturalOrderComparator.INSTANCE;`
 
 ```java
-    /**
-     * Compares {@link Comparable} objects in natural order.
-     *
-     * @see Comparable
-     */
-    enum NaturalOrderComparator implements Comparator<Comparable<Object>> {
-        INSTANCE;
-        
-        @Override
-        public int compare(Comparable<Object> c1, Comparable<Object> c2) {
-            // 其实看到这里我们就明白了，我们看到Comparato的compare方法并没有实现自己的比较逻辑，只是用了参数的compareTo 方法，所以我么可以看到这里就要求被排序对象必须自己实现Comparable 接口
-            return c1.compareTo(c2);
-        }
-
-        @Override
-        public Comparator<Comparable<Object>> reversed() {
-            return Comparator.reverseOrder();
-        }
+/**
+ * Compares {@link Comparable} objects in natural order.
+ *
+ * @see Comparable
+ */
+enum NaturalOrderComparator implements Comparator<Comparable<Object>> {
+    INSTANCE;
+    
+    @Override
+    public int compare(Comparable<Object> c1, Comparable<Object> c2) {
+        // 其实看到这里我们就明白了，我们看到Comparato的compare方法并没有实现自己的比较逻辑，只是用了参数的compareTo 方法，所以我么可以看到这里就要求被排序对象必须自己实现Comparable 接口
+        return c1.compareTo(c2);
     }
+
+    @Override
+    public Comparator<Comparable<Object>> reversed() {
+        return Comparator.reverseOrder();
+    }
+}
 ```
 
 
