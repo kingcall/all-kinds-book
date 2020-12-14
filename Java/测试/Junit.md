@@ -9,6 +9,11 @@
 - 是类级别的，在执行一个测试类的时候只会调用一次被注解的Rule
 
 ### before
+
+ **@BeforeAll **和 **@AfterAll \**，它们定义了整个测试类在开始前以及结束时的操作，只能修饰静态方法，主要用于在测试过程中所需要的全局数据和外部资源的初始化和清理。与它们不同，\**@BeforeEach** 和 **@AfterEach** 所标注的方法会在每个测试用例方法开始前和结束时执行，主要是负责该测试用例所需要的运行环境的准备和销毁。
+
+
+
 #### @BeforeAll
 - 必须是static 
 - 只执行一次，执行时机是在所有测试和 @BeforeEach 注解方法之前。
@@ -32,4 +37,44 @@
 - 无论哪种检查，断言方法都可以接受一个字符串作为最后一个可选参数，它会在断言失败时提供必要的描述信息。如果提供出错信息的过程比较复杂，它也可以被包装在一个 lambda 表达式中，这样，只有到真正失败的时候，消息才会真正被构造出来。
 
 
+
+
+
+```java
+@DisplayName("我的第一个测试用例")
+public class MyFirstTestCaseTest {
+
+    @BeforeAll
+    public static void init() {
+        System.out.println("初始化数据");
+    }
+
+    @AfterAll
+    public static void cleanup() {
+        System.out.println("清理数据");
+    }
+
+    @BeforeEach
+    public void tearup() {
+        System.out.println("当前测试方法开始");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        System.out.println("当前测试方法结束");
+    }
+
+    @DisplayName("我的第一个测试")
+    @Test
+    void testFirstTest() {
+        System.out.println("我的第一个测试开始测试");
+    }
+
+    @DisplayName("我的第二个测试")
+    @Test
+    void testSecondTest() {
+        System.out.println("我的第二个测试开始测试");
+    }
+}
+```
 
