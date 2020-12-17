@@ -1,121 +1,124 @@
-[toc]
+[TOC]
 # hive知识点
-## hm3
-
-> hive创建orc格式表不能像textfile格式一样直接load数据到表中，一般需要创建临时textfile表，然后通过insert into 或者insert overwrite到orc存储格式表中。
-
-### 临时表
+工作中`hive`常用知识点。
+## Hive简介
+hive是基于Hadoop的一个数据仓库工具，可以将结构化的数据文件映射为一张数据库表，并提供简单的sql查询功能，可以将sql语句转换为MapReduce任务进行运行。其优点是学习成本低，可以通过类SQL语句快速实现简单的MapReduce统计，不必开发专门的MapReduce应用，十分适合数据仓库的统计分析。
+## 创建hive表
+```sql
+# 新建个数据库test
+create database test;
+create external table if not exists test.test(id string, name string);
 ```
-create table if not exists hm3.hm3_format_log_tmp
+这里创建了一个名为`test`的`hive`外部表，外部表与普通表的区别：
+1. 在导入数据到外部表，数据并没有移动到自己的数据仓库目录下，也就是说外部表中的数据并不是由它自己来管理的！而表则不一样；
+1. 在删除表的时候，Hive将会把属于表的元数据和数据全部删掉；而删除外部表的时候，Hive仅仅删除外部表的元数据，数据是不会删除的！那么，应该如何选择使用哪种表呢？在大多数情况没有太多的区别，因此选择只是个人喜好的问题。但是作为一个经验，如果所有处理都需要由Hive完成，那么你应该创建表，否则使用外部表！
+
+### 创建分区表
+通过`partition`关键字指定分区字段，分区表方便`hive`快速查询索引数据。
+```sql
+create table if not exists test.test
 (
-time string,
-source string,
-remote_addr string,
-remote_user string,
-body_bytes_sent string,
-request_time string,
-status string,
-host string,
-request_method string,
-http_referrer string,
-http_x_forwarded_for string,
-http_user_agent string,
-upstream_response_time string,
-upstream_addr string,
-ngx_timestamp string,
-get_type string,
-data string
+id string,
+name string
 )
-partitioned by (dt string, hour string, msgtype string, action string)
+partitioned by (dt string,hour string)
 row format delimited fields terminated by '\t';
 ```
-### hm3数据表
+这里指定了两个分区：`dt`和`hour`，对应`hdfs`的2级目录`dt,hour`：
 ```
-create external table if not exists hm3.hm3_format_log
+[hadoop@qcloud-test-hadoop01 ~]$ hdfs dfs -ls -R /hive/warehouse/test.db/test
+drwxr-xr-x   - hadoop supergroup          0 2019-09-10 19:07 /hive/warehouse/test.db/test/dt=2019-09-10
+drwxr-xr-x   - hadoop supergroup          0 2019-09-10 17:59 /hive/warehouse/test.db/test/dt=2019-09-10/hour=02
+-rwxr-xr-x   2 hadoop supergroup         39 2019-09-10 17:59 /hive/warehouse/test.db/test/dt=2019-09-10/hour=02/test.txt
+drwxr-xr-x   - hadoop supergroup          0 2019-09-10 19:07 /hive/warehouse/test.db/test/dt=2019-09-10/hour=03
+-rwxr-xr-x   2 hadoop supergroup         39 2019-09-10 19:07 /hive/warehouse/test.db/test/dt=2019-09-10/hour=03/test.txt
+```
+
+### 删除分区
+```sql
+ALTER TABLE table_name DROP IF EXISTS PARTITION(year = 2015, month = 10, day = 1);
+```
+
+## 创建orc存储格式表
+`hive`创建`orc`格式表不能像`textfile`格式一样直接`load`数据到表中，一般需要创建临时`textfile`表，然后通过`insert into` 或者`insert overwrite`到`orc`存储格式表中。
+
+### 1) 临时表testfile存储格式
+```sql
+create table if not exists test.test
 (
-time string,
-source string,
-remote_addr string,
-remote_user string,
-body_bytes_sent string,
-request_time string,
-status string,
-host string,
-request_method string,
-http_referrer string,
-http_x_forwarded_for string,
-http_user_agent string,
-upstream_response_time string,
-upstream_addr string,
-ngx_timestamp string,
-get_type string,
-data string
+id string,
+name string
 )
-partitioned by (dt string, hour string, msgtype string, action string)
+partitioned by (dt string,hour string)
+row format delimited fields terminated by '\t';
+```
+test.txt
+```
+001	keguang
+002	kg
+003	kk
+004	ikeguang
+```
+load data local inpath '/home/hadoop/data/test.txt' into table test.test partition(dt = '2019-09-10', hour = '02');
+### 2) 导入数据到orc表
+```sql
+create table if not exists test.test2
+(
+id string,
+name string
+)
+partitioned by (dt string,hour string)
 row format delimited fields terminated by '\t'
 stored as orc;
 ```
-### 导入数据
-#### (1) 导入数据到textfile
+`insert select` 导入数据
 ```
-load data inpath 'hdfs://path' into table hm3_format_log_tmp partition(dt="2018-06-22",hour="00",msgtype="web", action="click");
+insert overwrite table test.test2 partition(dt, hour) select `(dt|hour)?+.+`,dt,hour from test.test;
 ```
-#### (2)查询数据插入orc格式表
+这里`(dt|hour)?+.+`表示排除`dt,hour`两个字段，由于动态分区`partition(dt, hour)`是按照`select`出来的最后2个字段作为分区字段的。其实这里```select * ``` 也是可以的，因为分区表查询结果，最后两个字段就是分区字段。
 ```
-insert into hm3.hm3_format_log partition(dt="2018-06-22",hour="00",msgtype="web", action="click") select time,
-source,
-remote_addr,
-remote_user,
-body_bytes_sent,
-request_time,
-status,
-host,
-request_method,
-http_referrer,
-http_x_forwarded_for,
-http_user_agent,
-upstream_response_time,
-upstream_addr,
-ngx_timestamp,get_type,
-data 
-from hm3.hm3_format_log_tmp where dt = "2018-06-22" and hour = "00" 
-and msgtype = "web" and action = "click";
+select * from test.test2;
+
+结果
+001	keguang	2019-09-10	02
+002	kg	2019-09-10	02
+003	kk	2019-09-10	02
+004	ikeguang	2019-09-10	02
+```
+所以说，非textfile存储格式表导入数据步骤：
+1. 导入数据到textfile
+1. 查询数据插入orc格式表
+
+### select 排除字段
+选择`tableName`表中除了`name、id、pwd`之外的所有字段
+```
+set hive.support.quoted.identifiers=None;
+select `(name|id|pwd)?+.+` from tableName;
 ```
 
-## 离线
-```
-离线任务
-hadoop jar /home/hadoop/codejar/flash_format.jar com.js.dataclean.hm3.offline.Hm3_offline_Driver /data/hm3 /data/offline/hm3_output 18-06-11 18-06-30
-
-
-python /home/hadoop/scripts/offline/hm3_offline_format.py /data/offline/hm3_output "2018-06-11" "2018-06-30" "%Y-%m-%d"
-```
-
----
-### heper表添加字段
-```
-alter table hm2.helper add columns(country string, province string, city string);
-```
-
-### 定时任务
-```
-python /home/hadoop/scripts/hm2_hour_format.py /home/hadoop/codejar/flash_format.jar com.js.dataclean.hm2_hour.Hm2_hour_Driver /data/hm2 /data/hm2_output >> /tmp/hm2_hour.log
-```
-
-### 离线任务
-```
-hadoop jar /home/hadoop/codejar/flash_format.jar com.js.dataclean.hm2_offline.Hm2_offline_Driver /data/hm2 /data/offline/hm2_output '2018-09-03-14' '2018-09-03-16'
-
-python scripts/offline/hm2_offline_format.py /data/offline/hm2_output '2018-09-03 13' '2018-09-03 16' "%Y-%m-%d %H"
-
-```
-
-## UDF
-```
+## UDF用法
+添加临时函数
+```sql
 add jar /home/hadoop/codejar/flash_format.jar;
 create temporary function gamelabel as 'com.js.dataclean.hive.udf.hm2.GameLabel';
 ```
-==**查看函数用法**==：<br>
+删除临时函数
+```sql
+drop temporary function 数据库名.函数名;
+```
+添加永久函数
+```sql
+create function hm2.gamelabel as 'com.js.dataclean.hive.udf.hm2.GameLabel' using jar 'hdfsJarPath'
+```
+==注意==：1). 需要指定数据库.函数名，即`hm2.gamelabel`，否则默认在`default`数据库下面：`default.gamelabel`;2). `hdfsJarPath`即该`jar`包需要上传到`hdfs`目录；
+
+删除永久函数：
+```sql
+drop function 数据库名.函数名字;
+```
+如果客户端通过`hiveserver2`连接`hive`，为了正常使用自定义的永久`udf`，需要执行`reload function`；
+
+### 查看函数用法
 
 查month 相关的函数
 ```
@@ -130,28 +133,28 @@ desc function add_months;
 desc function extended add_months;
 ```
 
-### UDAF
+### UDAF用法
 关于UDAF开发注意点：
 
-1.需要import org.apache.hadoop.hive.ql.exec.UDAF以及org.apache.hadoop.hive.ql.exec.UDAFEvaluator,这两个包都是必须的
+1.需要`import org.apache.hadoop.hive.ql.exec.UDAF`以及`org.apache.hadoop.hive.ql.exec.UDAFEvaluator`,这两个包都是必须的
 
-2.函数类需要继承UDAF类，内部类Evaluator实现UDAFEvaluator接口
+2.函数类需要继承`UDAF`类，内部类Evaluator实现UDAFEvaluator接口
 
 3.Evaluator需要实现 init、iterate、terminatePartial、merge、terminate这几个函数
 
     1）init函数类似于构造函数，用于UDAF的初始化
-
+    
     2）iterate接收传入的参数，并进行内部的轮转。其返回类型为boolean
-
+    
     3）terminatePartial无参数，其为iterate函数轮转结束后，返回乱转数据，iterate和terminatePartial类似于hadoop的Combiner
-
+    
     4）merge接收terminatePartial的返回结果，进行数据merge操作，其返回类型为boolean
-
+    
     5）terminate返回最终的聚集函数结果  
---------------------- 
+---------------------
 
 ## hive hbase 关联
-```
+```sql
 create 'flash_people','info','label'
 
 create external table if not exists hm2.flash_people(
@@ -163,13 +166,16 @@ jstimestamp bigint comment "json时间戳"
 stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
 with serdeproperties("hbase.columns.mapping" = ":key,info:firsttime,info:ip,:timestamp")
 tblproperties("hbase.table.name" = "hm2:flash_people");
-
+```
+## hive -e 用法
+`hive -e`主要用来在命令行执行`sql`
+```bash
 hive -e 'set mapred.reduce.tasks = 30;insert into hm2.flash_people select guid,dt,remote_addr,(32523145869-ngx_timestamp) from hm2.data where dt = "2018-07-01" and length(guid) = 38 and ngx_timestamp is not null and ngx_timestamp != '' and ngx_timestamp is regexp '\\d{8}' and remote_addr is not null and remote_addr != '';'
 set mapred.reduce.tasks = 30;insert into hm2.flash_people select guid,dt,remote_addr,(32523145869-ngx_timestamp) from hm2.data where dt = "2018-07-01" and length(guid) = 38 and ngx_timestamp is not null and ngx_timestamp != '' and ngx_timestamp rlike'^\\d+$' and remote_addr is not null and remote_addr != '';
 ```
 
 hive一些优化参数
-```
+```sql
 set hive.auto.convert.join = false;
 set hive.ignore.mapjoin.hint=false;
 set hive.exec.parallel=true;
@@ -186,8 +192,124 @@ alter table hm2.helper add columns(country string, province string, city string)
 - [ ] 解决
 - [x] 未解决
 
-### 删除字段
+添加 map 复杂类型字段
 ```
+alter table hm2.helper add columns(data_map map<string, string>);
+
+hive> desc formatted hm2.helper;
+OK
+# col_name            	data_type           	comment             
+	 	 
+time                	string              	                    
+uuid                	string              	                    
+country             	string              	                    
+province            	string              	                    
+city                	string              	                    
+data_map            	map<string,string>  	                    
+	 	 
+# Partition Information	 	 
+# col_name            	data_type           	comment             
+	 	 
+dt                  	string              	                    
+hour                	string              	                    
+msgtype             	string              	                    
+	 	 
+# Detailed Table Information	 	 
+Database:           	hm2                 	 
+Owner:              	hadoop              	 
+CreateTime:         	Wed Apr 24 10:12:30 CST 2019	 
+LastAccessTime:     	UNKNOWN             	 
+Protect Mode:       	None                	 
+Retention:          	0                   	 
+Location:           	hdfs://nameser/hive/warehouse/hm2.db/helper	 
+Table Type:         	EXTERNAL_TABLE      	 
+Table Parameters:	 	 
+	EXTERNAL            	TRUE                
+	last_modified_by    	hadoop              
+	last_modified_time  	1556072221          
+	transient_lastDdlTime	1556072221          
+	 	 
+# Storage Information	 	 
+SerDe Library:      	org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe	 
+InputFormat:        	org.apache.hadoop.mapred.TextInputFormat	 
+OutputFormat:       	org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat	 
+Compressed:         	No                  	 
+Num Buckets:        	-1                  	 
+Bucket Columns:     	[]                  	 
+Sort Columns:       	[]                  	 
+Storage Desc Params:	 	 
+	field.delim         	\t                  
+	serialization.format	\t                  
+Time taken: 0.105 seconds, Fetched: 59 row(s)
+```
+仿照一张在创建表时定义了map类型字段的表的属性描述
+```
+Storage Desc Params:	 	 
+	colelction.delim    	,                   
+	field.delim         	\t                  
+	mapkey.delim        	:                   
+	serialization.format	\t                  
+```
+只需要将map属性修改为：
+```
+hive> alter table hm2.helper set serdeproperties('colelction.delim' = ',', 'mapkey.delim' = ':');
+OK
+Time taken: 0.132 seconds
+```
+那么
+```
+hive> desc formatted hm2.helper;
+OK
+# col_name            	data_type           	comment             
+	 	 
+time                	string              	                    
+uuid                	string              	                    
+country             	string              	                    
+province            	string              	                    
+city                	string              	                    
+data_map            	map<string,string>  	                    
+	 	 
+# Partition Information	 	 
+# col_name            	data_type           	comment             
+	 	 
+dt                  	string              	                    
+hour                	string              	                    
+msgtype             	string              	                    
+	 	 
+# Detailed Table Information	 	 
+Database:           	hm2                 	 
+Owner:              	hadoop              	 
+CreateTime:         	Wed Apr 24 10:12:30 CST 2019	 
+LastAccessTime:     	UNKNOWN             	 
+Protect Mode:       	None                	 
+Retention:          	0                   	 
+Location:           	hdfs://nameser/hive/warehouse/hm2.db/helper	 
+Table Type:         	EXTERNAL_TABLE      	 
+Table Parameters:	 	 
+	EXTERNAL            	TRUE                
+	last_modified_by    	hadoop              
+	last_modified_time  	1556072669          
+	transient_lastDdlTime	1556072669          
+	 	 
+# Storage Information	 	 
+SerDe Library:      	org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe	 
+InputFormat:        	org.apache.hadoop.mapred.TextInputFormat	 
+OutputFormat:       	org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat	 
+Compressed:         	No                  	 
+Num Buckets:        	-1                  	 
+Bucket Columns:     	[]                  	 
+Sort Columns:       	[]                  	 
+Storage Desc Params:	 	 
+	colelction.delim    	,                   
+	field.delim         	\t                  
+	mapkey.delim        	:                   
+	serialization.format	\t                  
+Time taken: 0.079 seconds, Fetched: 61 row(s)
+```
+即可
+
+### 删除字段
+```sql
 CREATE TABLE test (
 creatingTs BIGINT,
 a STRING,
@@ -199,7 +321,7 @@ f BIGINT
 );
 ```
 如果需要删除 column f 列，可以使用以下语句：
-```
+```sql
 ALTER TABLE test REPLACE COLUMNS (
 creatingTs BIGINT,
 a STRING,
@@ -211,13 +333,13 @@ e BIGINT
 ```
 
 增加列：
-```
+```sql
 alter table of_test columns (judegment int)
 ```
 
-## hive 支持insert,update,delete的配置
-hive-site.xml中添加配置
-```
+## hive-1.2.1 支持`insert,update,delete`的配置
+`hive-site.xml`中添加配置
+```xml
 <property>
     <name>hive.support.concurrency</name>
     <value>true</value>
@@ -244,7 +366,7 @@ hive-site.xml中添加配置
 </property>
 ```
 建表语句
-```
+```sql
 create external table if not exists hm2.history_helper
 (
 guid string,
@@ -255,44 +377,17 @@ num int
 clustered by(guid) into 50 buckets
 stored as orc TBLPROPERTIES ('transactional'='true');
 ```
-==说明：建表语句必须带有```into buckets```子句和```stored as orc TBLPROPERTIES ('transactional'='true')```子句，并且不能带有```sorted by```子句。==
+==说明：建表语句必须带有`into buckets`子句和`stored as orc TBLPROPERTIES ('transactional'='true')`子句，并且不能带有`sorted by`子句。==
 
-这样，这个表就可以就行insert,update,delete操作了。
+这样，这个表就可以就行`insert,update,delete`操作了。
 
-==注意：== 上面规则在 hive-1.2.1 是可以的，在 hive-2.1.1 中需要将````external```关键字去掉，即高版本不支持外部表update了。
-
-## 用户表
-flash_user
-
-**hbase**
-```
-create 'hm2:flash_user','info','label'
-```
-**hive**
-```
-create external table if not exists hm2.flash_user(
-guid string comment "用户的 guid",
-starttime string comment "首次入库时间",
-endtime string comment "最后一次访问时间",
-num int comment "访问天数",
-country string,
-province string,
-city string
-)
-stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
-with serdeproperties("hbase.columns.mapping" = ":key,info:starttime,info:endtime,info:num,info:country, info:province, info:cify")
-tblproperties("hbase.table.name" = "hm2:flash_user");
-```
-
-```
-insert into hm2.flash_user select guid, starttime, endtime, num from hm2.history_helper where length(guid) == 38;
-```
+==注意：== 上面规则在 hive-1.2.1 是可以的，在 hive-2.1.1 中需要将`external`关键字去掉，即高版本不支持外部表update了。
 
 ## hive表中的锁
 
 **场景：**
 
-在执行insert into或insert overwrite任务时，中途手动将程序停掉，会出现卡死情况（无法提交MapReduce），只能执行查询操作，而drop insert操作均不可操作，无论执行多久，都会保持卡死状态
+在执行`insert into`或insert overwrite任务时，中途手动将程序停掉，会出现卡死情况（无法提交MapReduce），只能执行查询操作，而`drop insert`操作均不可操作，无论执行多久，都会保持卡死状态
 
 临时解决办法是……把表名换一个…… 
 
@@ -319,8 +414,8 @@ OK
 test@helper	EXCLUSIVE
 ```
 解决办法：关闭锁机制
-```
-set hive.txn.manager = org.apache.hadoop.hive.ql.lockmgr.DummyTxnManager; // 这是默认值
+```sql
+set hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager; // 这是默认值
 set hive.support.concurrency=false; 默认为true
 ```
 
@@ -329,17 +424,6 @@ set hive.support.concurrency=false; 默认为true
 ```
  desc formatted table_name;
  desc table_name;
-```
-
-## data game label 表
-```
-create external table if not exists hm2.game_label
-(
-guid string,
-label string
-)
-partitioned by (dt string)
-row format delimited fields terminated by '\t';
 ```
 
 ## 导入数据到hive表
@@ -356,20 +440,19 @@ cmd = 'hive -e \'load data inpath "%s/part-r-*" into table hm2.game_label partit
 ```
 
 ### orc格式表
-hive创建orc格式表不能像textfile格式一样直接load数据到表中，一般需要load创建临时textfile表，然后通过insert into 或者insert overwrite到orc存储格式表中。
-
+- hive创建orc格式表不能像`textfile`格式一样直接load数据到表中，一般需要load创建临时textfile表，然后通过insert into 或者`insert overwrite`到orc存储格式表中。
+- 或者将现有orc文件cp到`hive`对应表的目录
 ## map,reduce知识
-1. 什么情况下只有一个reduce？ 
+什么情况下只有一个reduce？ 
 
 很多时候你会发现任务中不管数据量多大，不管你有没有设置调整reduce个数的参数，任务中一直都只有一个reduce任务；其实只有一个reduce任务的情况，除了数据量小于```hive.exec.reducers.bytes.per.reducer```参数值的情况外，还有以下原因：
-```
-a) 没有group by的汇总，比如把select pt,count(1) from popt_tbaccountcopy_mes where pt = '2012-07-04' group by pt; 写成 select count(1) from popt_tbaccountcopy_mes where pt = '2012-07-04'; 
+1. 没有group by的汇总，比如把select pt,count(1) from popt_tbaccountcopy_mes where pt = '2012-07-04' group by pt; 写成 select count(1) from popt_tbaccountcopy_mes where pt = '2012-07-04'; 
 这点非常常见，希望大家尽量改写。 
-b) 用了Order by 
-c) 有笛卡尔积 
+1. 用了Order by 
+1. 有笛卡尔积 
 通常这些情况下，除了找办法来变通和避免，我暂时没有什么好的办法，因为这些操作都是全局的，所以hadoop不得不用一个reduce去完成； 
 同样的，在设置reduce个数的时候也需要考虑这两个原则：使大数据量利用合适的reduce数；使单个reduce任务处理合适的数据量。
-```
+
 
 ## hive 优化
 1. hive mapreduce参数优化
@@ -385,7 +468,7 @@ set mapreduce.reduce.java.opts=-Xmx3428m;
 下面是对于该参数的测试过程:
 
 测试sql:
-```
+```sql
 select r1.a 
 from 
 (select t.a from sunwg_10 t join sunwg_10000000 s on t.a=s.b) r1 
@@ -414,12 +497,24 @@ set mapred.reduce.tasks = 15;
 set mapred.max.split.size=256000000;        -- 决定每个map处理的最大的文件大小，单位为B
 ```
 
+5. orc 小文件合并
+```sql
+set hive.execution.engine = mr; # 不是必须的
+alter table hm3.hm3_format_log partition (dt="2019-09-17", hour="16", msgtype="web", action="image") concatenate;
+```
+
+6. msck repair修复大量分区
+```sql
+set hive.msck.path.validation=ignore;
+msck repair table tbName;
+```
+
 ## hive on spark 知识
 cdh 6.0.1 下通过设置：
 ```
 set hive.execution.engine=spark;
 ```
-可以将默认的mapreduce执行引擎切换为spark；
+也可以将默认的`application`执行引擎切换为`spark`；
 [apache hadoop 下配置 hive on spark](https://www.cnblogs.com/xinfang520/p/7684605.html)
 
 
@@ -486,36 +581,40 @@ Failed to execute spark task, with exception 'org.apache.hadoop.hive.ql.metadata
 FAILED: Execution Error, return code 30041 from org.apache.hadoop.hive.ql.exec.spark.SparkTask. Failed to create Spark client for Spark session 50288c8b-96aa-44ad-9eea-3cb4abb1ae5b
 ```
 
-解决方案，修改Yarn的配置文件：
+解决方案，修改`Yarn`的配置文件：
 
 1、```yarn.nodemanager.resource.memory-mb``` 容器内存
 
-设置为 至少 : ```executor-memory(15g) + driver(512m)```的内存，如上例可配置为 16g
+设置为 至少 : ```executor-memory(15g) + driver(512m)```的内存，如上例可配置为 16g
 
 2、```yarn.scheduler.maximum-allocation-mb``` 最大容器内存
 
-设置为 至少 : ```executor-memory(15g) + driver(512m)```的内存，如上例可配置为 16g
+设置为 至少 : ```executor-memory(15g) + driver(512m)```的内存，如上例可配置为 16g
 
 第一个参数为```NodeManager```的配置 ，第二个参数为 ```ResourceManager```的配置。
 
 ## 字符串处理
-字符串连接：
+1 字符串连接：
 ```
 concat(str, str2, str3,...) 字符串连接
 concat_ws(separator, str, str2, str3, ...) 将字符串用separator作为间隔连接起来
 ```
-字符串截取
+2 字符串截取
 ```
 substr(s, 0, 1) 截取第一个字符
 substr(s, -1) 截取最后一个字符
 ```
+3 字符串urldecode
+```sql
+reflect("java.net.URLDecoder", "decode", trim(originalfilename), "UTF-8")
+```
 
 ## hive 中 join
 
-mapjoin的优化在于，在mapreduce task开始之前，创建一个local task,小表以hshtable的形式加载到内存，然后序列化到磁盘，把内存的hashtable压缩为tar文件。然后把文件分发到 Hadoop Distributed Cache，然后传输给每一个mapper，mapper在本地反序列化文件并加载进内存在做join
+`mapjoin`的优化在于，在`mapreduce task`开始之前，创建一个`local task`,小表以`hshtable`的形式加载到内存，然后序列化到磁盘，把内存的`hashtable`压缩为`tar`文件。然后把文件分发到 `Hadoop Distributed Cache`，然后传输给每一个`mapper`，`mapper`在本地反序列化文件并加载进内存在做`join`
 
 sql
-```
+```sql
 select workflow,count(workflow) from (select guid, substr(workflow, -1) workflow from hm2.workflow_list) m right join hm2.helper helper on m.guid = helper.guid and helper.dt = "2018-10-21" group by workflow;
 ```
 内存溢出解决办法:
@@ -557,10 +656,10 @@ Hive0.7之前，需要使用hint提示 /*+ mapjoin(table) */才会执行MapJoin,
 
 如图中的流程，首先是Task A，它是一个Local Task（在客户端本地执行的Task），负责扫描小表b的数据，将其转换成一个HashTable的数据结构，并写入本地的文件中，之后将该文件加载到DistributeCache中，该HashTable的数据结构可以抽象为：
 
-key | value
----|---
-1 | 26
-2 | 34
+| key  | value |
+| ---- | ----- |
+| 1    | 26    |
+| 2    | 34    |
 - 接下来是Task B，该任务是一个没有Reduce的MR，启动MapTasks扫描大表a,在Map阶段，根据a的每一条记录去和DistributeCache中b表对应的HashTable关联，并直接输出结果。
 - 由于MapJoin没有Reduce，所以由Map直接输出结果文件，有多少个Map Task，就有多少个结果文件。
 
@@ -575,14 +674,15 @@ OK
 ["a:1","b:2","c:3"]
 ["a:1","b:2","c:3"]
 ```
+其它转义字符还有`{`, `[`
 
 ## insert table select from
-```
+```sql
 insert into tbName select * from tbName2;
 insert overwrite table tbName select * from tbName2;
 ```
 insert overwrite例子
-```
+```sql
 insert overwrite table hm2.helper partition(dt = '2018-06-22', hour = '09',msgtype = 'helper') select time,source,remote_addr,remote_user,body_bytes_sent,request_time,status,host,request_method,http_referrer,http_x_forwarded_for,http_user_agent,upstream_response_time,upstream_addr,guid,helperversion,osversion,ngx_timestamp,get_type,split(ip2area(http_x_forwarded_for,remote_addr), "\t")[0] country,split(ip2area(http_x_forwarded_for,remote_addr), "\t")[1] province,split(ip2area(http_x_forwarded_for,remote_addr), "\t")[2] city from hm2.helper where dt = '2018-06-22' and hour = '09' and msgtype = 'helper';
 ```
 插入分区表，不用指定分区，可以自动识别
@@ -716,4 +816,46 @@ STAGE PLANS:
       limit: -1
       Processor Tree:
         ListSink
+```
+
+## 常用 sql 查询
+常用SQL查询。
+#### explode 一行变多行
+`explode`主要是将一行数据按照某个字段变为多行。
+```sql
+select mt.impress,count(mt.guid) from (select (case when t.impressed = '' or t.impressed is null then 'null' else t.impressed end) impress,t.guid from (select guid,impressed from hm2.install lateral view explode(split(replace(replace(offer_impressed,'[',''),']',''), ',')) test_alias as impressed where dt='2018-12-17') t) mt group by mt.impress;
+```
+#### 分组后取 top N
+`row_number() over(partition by)`
+
+表`hm4.ffbrowser_domain_url_2019_07_17`数据如下：
+```
+www.baidu.com	https://www.baidu.com/link?url=fCBMjU_THQzoAdo0RTAQLQIfVWIlPlgzpEM5Pk5qChKiahWFfMzFo6ckRjd9OFc7w8cj5h8esZXKBab5WqeLPgDYipewXUdz9LFPf-oxOfK&wd=&eqid=d2c80e8e0033424b000000045d2f14e9	1
+www.baidu.com	https://www.baidu.com/link?url=3jlP1HLS4aYSnN1L5CG3pPr0zXnqBpDdG8mlFQm47w1RcHFwHiBU0t8Hi0UrMD37lSJvQkGWQ3iBtNpc0AJhEei-v8MdGKgRnVqy62tuCA_&wd=&eqid=e3d5845b002790f7000000045d2f0af8	1
+www.baidu.com	http://www.baidu.com/	1
+www.baidu.com	https://www.baidu.com/link?url=8S_ziMFwpClJww3C15iXu__wqMrMOxnYuDnZDpQWnbs1PTTqx_wwjIY7QsrFfaKT&wd=&eqid=eb8f38f70039cf51000000045d2e8716	1
+www.baidu.com	https://www.baidu.com/link?url=AZvluWbTjZjpaT5lnIpkB-gTIdyX_nZdtoLX_pkbM5i&wd=&eqid=8b09c549000038e7000000035930ca9a	1
+www.baidu.com	https://www.baidu.com/link?url=IjStquL7c4YwVDk1zQJFYkwBiGY20Kv2PQsXuTQTHH0BhAPLjUaz-XhLLp5Zfe3fE4hU_KNfEs6JxyESkwGlea&wd=&eqid=e7e404c9000012b1000000045d2ee845	1
+www.baidu.com	https://www.baidu.com/link?url=qRaLKHc_ZZIskkWF_f6azkmHqRlfgmuRQZcrzRovBC5MEBR5yTIG20FiR3O__8Jz&wd=&eqid=e13f05290018e7fb000000045d2eed7d	2
+www.baidu.com	https://www.baidu.com/s?tn=50000201_hao_pg&usm=3&wd=%E7%AB%AF%E7%81%AB%E9%94%85%E6%B3%BC%E5%A6%BB%E5%AD%90%E5%90%8C%E5%AD%A6&ie=utf-8&rsv_cq=%E4%BA%BA%E7%B1%BB%E7%99%BB%E6%9C%8850%E5%91%A8%E5%B9%B4&rsv_dl=0_right_fyb_pchot_20811_01&rsf=531e82477396136261c6275e8afa58b1_1_10_8&rqid=e3d5845b002790f7	1
+www.baidu.com	https://www.baidu.com/link?url=NHmzZVrcbQ1tf6JnR4MJlHXJZFy-4RMgKwjNeDvskMyl17vpdi_8XgVCdRvGFtU2WJpNpHQf4VbwIeQi5qDHskDTrDUK5KMUkrkfKcWYxhy&wd=&eqid=e3d5845b002790f7000000045d2f0af8	1
+www.baidu.com	https://www.baidu.com/s?wd=%E5%BE%AE%E5%8D%9A&ie=utf-8	1
+```
+sql查询语句
+```sql
+select a.domain,a.url,a.cou from (select domain,url,cou,row_number() over(partition by domain order by cou desc) as n from hm4.ffbrowser_domain_url_2019_07_17)a where a.n <= 2;
+```
+结果
+```
+www.baidu.com	https://www.baidu.com/	69
+www.baidu.com	https://www.baidu.com/link?url=r6riiF-vxG9OX70KBVx86FuywJYXHu-TpTTSEst9ggK78xIjVvkI_QoS9tEDBAqq&wd=&eqid=ba409e160014f8c9000000045eec97	3
+```
+**相似问题**：每门课程成绩的前N名
+
+#### case when 用法
+```sql
+select reginlistlength, softname, sum(cou) from (select (case when reginlistlength > '1' then 'more' else reginlistlength end) as reginlistlength, softname, count(l.guid) cou from (select reginlistlength, softname, guid from hm2.lnk where dt = '2019-05-24' and softtype = '1' group by guid,reginlistlength, softname, guid)l where l.guid in (select guid from hm2.helper where dt = '2019-05-24' group by guid) group by reginlistlength, softname)m group by reginlistlength, softname;
+```
+```sql
+select (case when reginlistlength > '1' then 'more' else reginlistlength end) as reginlistlength, softname, count(l.guid) cou from (select reginlistlength, softname, guid from hm2.lnk where dt = '2019-05-24' and softtype = '1' group by guid,reginlistlength, softname, guid)l where l.guid in (select guid from hm2.helper where dt = '2019-05-24' group by guid) group by reginlistlength, softname;
 ```
