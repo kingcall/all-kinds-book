@@ -14,7 +14,7 @@
 
 会启动一个hive服务端默认端口为：10000，可以通过beeline，jdbc，odbc的方式链接到hive。hiveserver2启动的时候会先检查有没有配置hive.metastore.uris，如果没有会先启动一个metastore服务，然后在启动hiveserver2。如果有配置hive.metastore.uris。会连接到远程的metastore服务。这种方式是最常用的。部署在图如下：
 
-
+![20200717122732-5f119934301e5](C:\Users\keguang\Desktop\20200717122732-5f119934301e5.png)
 
 # Python访问Hive
 
