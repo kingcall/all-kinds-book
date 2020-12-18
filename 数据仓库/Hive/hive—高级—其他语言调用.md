@@ -14,89 +14,198 @@
 
 会启动一个hive服务端默认端口为：10000，可以通过beeline，jdbc，odbc的方式链接到hive。hiveserver2启动的时候会先检查有没有配置hive.metastore.uris，如果没有会先启动一个metastore服务，然后在启动hiveserver2。如果有配置hive.metastore.uris。会连接到远程的metastore服务。这种方式是最常用的。部署在图如下：
 
+![20200717122732-5f119934301e5](C:\Users\keguang\Desktop\20200717122732-5f119934301e5.png)
 
-
-# Python连接Hive
+# Python访问Hive
 
 `Python3`访问hive需要安装的依赖有：
 
 - pip3 install thrift
-- pip install PyHive
-- pip install sasl
-- pip install thrift_sasl
+- pip3 install PyHive
+- pip3 install sasl
+- pip3 install thrift_sasl
 
-```
+这里有一个`Python`访问`Hive`的工具类：
+
+```sql
+# -*- coding:utf-8 -*-
+
 from pyhive import hive
-conn = hive.Connection(host='localhost', port=10000, database='default')
-cursor = conn.cursor()
-cursor.execute('show tables')
 
-for result in cursor.fetchall():
-    print(result)
+
+class HiveClient(object):
+	"""docstring for HiveClient"""
+	def __init__(self, host='hadoop-master',port=10000,username='hadoop',password='hadoop',database='hadoop',auth='LDAP'):
+		""" 
+		create connection to hive server2 
+		"""  
+		self.conn = hive.Connection(host=host,  
+			port=port,  
+			username=username,  
+			password=password,  
+			database=database,
+			auth=auth) 
+
+	def query(self, sql):
+		""" 
+		query 
+		""" 
+		with self.conn.cursor() as cursor: 
+			cursor.execute(sql)
+			return cursor.fetchall()
+
+	def insert(self, sql):
+		"""
+		insert action
+		"""
+		with self.conn.cursor() as cursor:
+			cursor.execute(sql)
+			# self.conn.commit()
+			# self.conn.rollback()
+
+	def close(self):
+		""" 
+		close connection 
+		"""  
+		self.conn.close()
 ```
 
-## java 
+使用的时候，只需要导入，然后创建一个对象实例即可，传入`sql`调用`query`方法完成查询。
+
+```python
+# 拿一个连接
+hclient = hive.HiveClient()
+
+# 执行查询操作
+...
+
+# 关闭连接
+hclient.close()
 ```
-    // 此Class 位于 hive-jdbc的jar包下
-    private static String driverName = "org.apache.hive.jdbc.HiveDriver";
-    private static String Url = "jdbc:hive2://localhost:10000/";
-    private static Connection conn;
 
-    public static Connection getConnnection() {
-        try {
-            Class.forName(driverName);
-            conn = DriverManager.getConnection(Url, "root", "www1234");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
+**注意**：在`insert`插入方法中，我将`self.conn.commit()`和`self.conn.rollback()`即回滚注释了，这是传统关系型数据库才有的事务操作，`Hive`中是不支持的。
+
+
+
+# Java连接Hive
+
+`Java`作为大数据的基础语言，连接hive自然是支持的很好的，这里介绍通过jdbc和mybatis两种方法连接hive。
+
+## 1. Jdbc连接
+
+java通过jdbc连接hiveserver，跟传统的jdbc连接mysql方法一样。
+
+需要hive-jdbc依赖：
+
+```xml
+<dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-jdbc</artifactId>
+    <version>1.2.1</version>
+</dependency>
+```
+
+代码跟连接`mysql`套路一样，都是使用的`DriverManager.getConnection(url, username, password)`：
+
+```java
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@ToString
+public class HiveConfigModel {
+
+    private String url = "jdbc:hive2://localhost:10000";
+    private String username = "hadoop";
+    private String password = "hadoop";
+    
+}
+
+@Test
+public void test(){
+    // 初始化配置
+    HiveConfigModel hiveConfigModel = ConfigureContext.getInstance("hive-config.properties")
+            .addClass(HiveConfigModel.class)
+            .getModelProperties(HiveConfigModel.class);
+
+    try {
+        Connection conn = DriverManager.getConnection(hiveConfigModel.getUrl(),
+                hiveConfigModel.getUsername(), hiveConfigModel.getPassword());
+
+
+        String sql = "show tables";
+        PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        ResultSet rs = preparedStatement.executeQuery();
+        List<String> tables = new ArrayList<>();
+        while (rs.next()){
+            tables.add(rs.getString(1));
         }
-        return conn;
-    }
 
-    public static PreparedStatement prepare(Connection conn, String sql) {
-        PreparedStatement ps = null;
-        try {
-            ps = conn.prepareStatement(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ps;
-    }
-
-    public static void getAll(String tablename) {
-        String sql = String.format("select behavior,count(1) as cnt from %s group by behavior order by cnt desc", tablename);
-        System.out.println(sql);
-        try {
-            PreparedStatement ps = prepare(getConnnection(), sql);
-            ResultSet rs = ps.executeQuery();
-            int columns = rs.getMetaData().getColumnCount();
-            while (rs.next()) {
-                for (int i = 1; i <= columns; i++) {
-                    System.out.print(rs.getString(i));
-                    System.out.print("\t\t");
-                }
-                System.out.println();
-            }
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-    }
-
-    public static void main(String[] args) {
-        String tablename = "ods.user_behavior";
-        getAll(tablename);
+        System.out.println(tables);
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
 }
 ```
 
-
-
-## streaming
+在`hive-jdbc-1.2.1.jar`的`META-INF`下有个`services`目录，里面有个`java.sql.Driver`文件，内容是：
 
 ```
-  hive> FROM invites a INSERT OVERWRITE TABLE events SELECT TRANSFORM(a.foo, a.bar) AS (oof, rab) USING '/bin/cat' WHERE a.ds > '2008-08-09';
+org.apache.hive.jdbc.HiveDriver
+```
+
+`java.sql.DriverManager`使用spi实现了服务接口与服务实现分离以达到解耦，在这里`jdbc`的实现`org.apache.hive.jdbc.HiveDriver`根据`java.sql.Driver`提供的统一规范实现逻辑。客户端使用jdbc时不需要去改变代码，直接引入不同的spi接口服务即可。
+
+```java
+DriverManager.getConnection(url, username, password)
+```
+
+这样即可拿到连接，前提是具体实现需要遵循相应的spi规范。
+
+## 2. 整合mybatis
+
+通常都会使用`mybatis`来做`dao`层访问数据库，访问`hive`也是类似的。
+
+配置文件`sqlConfig.xml`：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <environments default="production">
+        <environment id="production">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="org.apache.hive.jdbc.HiveDriver"/>
+                <property name="url" value="jdbc:hive2://master:10000/default"/>
+                <property name="username" value="hadoop"/>
+                <property name="password" value="hadoop"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="mapper/hive/test/test.xml"/>
+    </mappers>
+</configuration>
+```
+
+mapper代码省略，实现代码：
+
+```java
+public classTestMapperImpl implements TestMapper {
+
+    private static SqlSessionFactory sqlSessionFactory = HiveSqlSessionFactory.getInstance().getSqlSessionFactory();
+
+    @Override
+    public int getTestCount(String dateTime) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        TestMapper testMapper = sqlSession.getMapper(TestMapper.class);
+
+        int count = testMapper.getTestCount(dateTime);
+
+        sqlSession.close();
+
+        return count;
+    }
+}
 ```
