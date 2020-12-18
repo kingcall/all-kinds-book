@@ -16,7 +16,7 @@
 
 
 
-# Python访问Hive
+# Python连接Hive
 
 `Python3`访问hive需要安装的依赖有：
 
