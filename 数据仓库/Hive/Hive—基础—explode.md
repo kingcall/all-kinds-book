@@ -15,7 +15,7 @@ OK
 key	value
 a	1
 b	2
-c	3
+c	3 
 ```
 
 explode函数接收一个数组或者map类型的数据，通常需要用split函数生成数组。
@@ -37,6 +37,8 @@ select json.appName, json.pepper, count(1) from (select explode(split(regexp_rep
 ```
 
 这里解析json数组，我们本质上还是使用regexp_replace替换掉花括号和中括号，然后再使用split函数拆分为数据，给explode去分裂成多行。
+
+
 
 ## 解析json
 
