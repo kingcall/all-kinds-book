@@ -104,7 +104,7 @@ ok~，到此相信我们对枚举的实现原理也比较清晰，下面我们�
  * or as the type of the keys in a map, specialized and efficient
  * {@linkplain java.util.EnumSet set} and {@linkplain
  * java.util.EnumMap map} implementations are available.
- * 如果想哟偶使用枚举类型的set 或者map 可以使用EnumSet和EnumMap 
+ * 如果你想使用枚举类型的set 或者map 可以使用EnumSet和EnumMap 
  * @param <E> The enum type subclass
  * @author  Josh Bloch
  * @author  Neal Gafter
@@ -122,7 +122,7 @@ public abstract class Enum<E extends Enum<E>> implements Comparable<E>, Serializ
 
 
 
-### Enum抽象类常见方法
+### Enum的常见方法
 
 Enum是所有 Java 语言枚举类型的公共基本类（注意Enum是抽象类），以下是它的常见方法：
 
@@ -354,6 +354,99 @@ class datastructure.DateEnum.MONDAY
 
 
 从输出结果上来看，效果是一样的，也就是说编译器帮我们生成的抽象类的valueOf是简化了Enum 的valueOf的使用方式
+
+
+
+#### getDeclaringClass
+
+首先我们先看一下这个方法的源码
+
+```java
+/**
+ * Returns the Class object corresponding to this enum constant's enum type.  
+ * 返回这个枚举常量的对应的Class 对象(关于什么是class 对象后面我们会讲的)
+ * Two enum constants e1 and  e2 are of the same enum type if and only if
+ *   e1.getDeclaringClass() == e2.getDeclaringClass().
+ * 判断两个枚举常量e1 和 e2 是不是相同的  e1.getDeclaringClass() == e2.getDeclaringClass().
+ * (The value returned by this method may differ from the one returned
+ * by the {@link Object#getClass} method for enum constants with
+ * constant-specific class bodies.)
+ * 这个方法的返回值可能和枚举对象调用getClass方法的返回值不一样
+ * @return the Class object corresponding to this enum constant's
+ *     enum type
+ */
+@SuppressWarnings("unchecked")
+public final Class<E> getDeclaringClass() {
+  	// 获取当前对象的类对象
+    Class<?> clazz = getClass();
+  	// 获取当前对象的类对象的父类对象
+    Class<?> zuper = clazz.getSuperclass();
+    return (zuper == Enum.class) ? (Class<E>)clazz : (Class<E>)zuper;
+}
+```
+
+下面我们看一下一个demo,帮助我们理解一下
+
+```java
+@Test
+public void useEnumClass() {
+    Class klass = DateEnum.MONDAY.getDeclaringClass();
+    System.out.println(klass);
+    Class blass = DateEnum.MONDAY.getClass();
+    System.out.println(blass);
+    System.out.println(blass);
+    System.out.println(klass==blass);
+}
+```
+
+输出结果
+
+```java
+class datastructure.java.DateEnum
+class datastructure.java.DateEnum
+class java.lang.Enum
+true
+```
+
+我们可以看到getDeclaringClass 方法和.getClass方法的输出是一样的
+
+
+
+上述我们提到当枚举实例向上转型为Enum类型后，values()方法将会失效，也就无法一次性获取所有枚举实例变量
+
+但是由于Class对象的存在，即使不使用values()方法，还是有可能一次获取到所有枚举实例变量的，在**Class**对象中存在如下方法：
+
+| 返回类型  | 方法名称             | 方法说明                                                     |
+| --------- | -------------------- | ------------------------------------------------------------ |
+| `T[]`     | `getEnumConstants()` | 返回该枚举类型的所有元素，如果Class对象不是枚举类型，则返回null。 |
+| `boolean` | `isEnum()`           | 当且仅当该类声明为源代码中的枚举时返回 true                  |
+
+因此通过getEnumConstants()方法，同样可以轻而易举地获取所有枚举实例变量下面通过代码来演示这个功能：
+
+```java
+@Test
+public void useClassGetEnumConstants() {
+    Enum e = DateEnum.MONDAY;
+    Class<?> klass = e.getDeclaringClass();
+    if(klass.isEnum()) {
+        DateEnum[] constants = (DateEnum[]) klass.getEnumConstants();
+        System.out.println("constants1:"+Arrays.toString(constants));
+    }
+    DateEnum[] constants= DateEnum.MONDAY.values();
+    System.out.println("constants2:"+Arrays.toString(constants));
+}
+```
+
+输出结果
+
+```
+constants1:[MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+constants2:[MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+```
+
+
+
+正如上述代码所展示，通过Enum的class对象的getEnumConstants方法，我们仍能一次性获取所有的枚举实例常量,就和枚举对象的values 方法一样
 
 ## 总结
 

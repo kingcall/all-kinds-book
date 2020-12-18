@@ -1,52 +1,21 @@
-## 枚举与Class对象
+[TOC]
 
-上述我们提到当枚举实例向上转型为Enum类型后，values()方法将会失效，也就无法一次性获取所有枚举实例变量，但是由于Class对象的存在，即使不使用values()方法，还是有可能一次获取到所有枚举实例变量的，在Class对象中存在如下方法：
+## 枚举进阶
 
-| 返回类型  | 方法名称             | 方法说明                                                     |
-| --------- | -------------------- | ------------------------------------------------------------ |
-| `T[]`     | `getEnumConstants()` | 返回该枚举类型的所有元素，如果Class对象不是枚举类型，则返回null。 |
-| `boolean` | `isEnum()`           | 当且仅当该类声明为源代码中的枚举时返回 true                  |
+上一节我们讲了[枚举初识](https://blog.csdn.net/king14bhhb/article/details/111224216) 里面主要讲了枚举的实现原理，我们从编译器的角度看了枚举的底层实现以及枚举常用的方法
 
-因此通过getEnumConstants()方法，同样可以轻而易举地获取所有枚举实例变量下面通过代码来演示这个功能：
+今天我们看一下枚举添加自定义方法和构造函数，枚举的抽象和接口，枚举与switch 和基于枚举的单例，之后我们会讲解两个和枚举相关的数据结构EnumMap 和EnumSet 
 
-```java
-//正常使用
-Day[] ds=Day.values();
-//向上转型Enum
-Enum e = Day.MONDAY;
-//无法调用,没有此方法
-//e.values();
-//获取class对象引用
-Class<?> clasz = e.getDeclaringClass();
-if(clasz.isEnum()) {
-    Day[] dsz = (Day[]) clasz.getEnumConstants();
-    System.out.println("dsz:"+Arrays.toString(dsz));
-}
-
-/**
-   输出结果:
-   dsz:[MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
- */1234567891011121314151617
-```
-
-正如上述代码所展示，通过Enum的class对象的getEnumConstants方法，我们仍能一次性获取所有的枚举实例常量。
-
-## 枚举的进阶用法
-
-在前面的分析中，我们都是基于简单枚举类型的定义，也就是在定义枚举时只定义了枚举实例类型，并没定义方法或者成员变量，实际上使用关键字enum定义的枚举类，除了不能使用继承(因为编译器会自动为我们继承Enum抽象类而Java只支持单继承，因此枚举类是无法手动实现继承的)，可以把enum类当成常规类，也就是说我们可以向enum类中添加方法和变量，甚至是mian方法，下面就来感受一把。
+在前面的分析中，我们都是基于简单枚举类型的定义，也就是在定义枚举时只定义了枚举实例类型，并没定义方法或者成员变量，实际上使用关键字enum定义的枚举类，**除了不能使用继承(**因为编译器会自动为我们继承Enum抽象类而Java只支持单继承，因此枚举类是无法手动实现继承的)，可以把enum类当成常规类，也就是说我们可以向enum类中添加方法和变量，甚至是mian方法，下面就来感受一把。
 
 ### 向enum类添加方法与自定义构造函数
 
-重新定义一个日期枚举类，带有desc成员变量描述该日期的对于中文描述，同时定义一个getDesc方法，返回中文描述内容，自定义私有构造函数，在声明枚举实例时传入对应的中文描述，代码如下：
+在开始之前大家先注意一个事情，那就是枚举的常量的类型就是定义的枚举的类型，例如我在`DateEnum` 中定义的所有的枚举常量，那都是`DateEnum`的实例
 
-```
-package com.zejian.enumdemo;
+重新定义一个日期枚举类，带有desc成员变量描述该日期的对于中文描述，同时定义一个getDesc方法，返回中文描述内容，**自定义私有构造函数**，在声明枚举实例时传入对应的中文描述，代码如下：
 
-/**
- * Created by zejian on 2017/5/8.
- * Blog : http://blog.csdn.net/javazejian [原文地址,请尊重原创]
- */
-public enum Day2 {
+```java
+public enum DateEnum {
     MONDAY("星期一"),
     TUESDAY("星期二"),
     WEDNESDAY("星期三"),
@@ -56,15 +25,13 @@ public enum Day2 {
     SUNDAY("星期日");//记住要用分号结束
 
     private String desc;//中文描述
-
     /**
      * 私有构造,防止被外部调用
      * @param desc
      */
-    private Day2(String desc){
+    private DateEnum(String desc){
         this.desc=desc;
     }
-
     /**
      * 定义方法,返回描述,跟常规类的定义没区别
      * @return
@@ -72,211 +39,191 @@ public enum Day2 {
     public String getDesc(){
         return desc;
     }
-
-    public static void main(String[] args){
-        for (Day2 day:Day2.values()) {
-            System.out.println("name:"+day.name()+
-                    ",desc:"+day.getDesc());
-        }
-    }
-
-    /**
-     输出结果:
-     name:MONDAY,desc:星期一
-     name:TUESDAY,desc:星期二
-     name:WEDNESDAY,desc:星期三
-     name:THURSDAY,desc:星期四
-     name:FRIDAY,desc:星期五
-     name:SATURDAY,desc:星期六
-     name:SUNDAY,desc:星期日
-     */
-}
-```
-
-从上述代码可知，在enum类中确实可以像定义常规类一样声明变量或者成员方法。但是我们必须注意到，如果打算在enum类中定义方法，务必在声明完枚举实例后使用分号分开，倘若在枚举实例前定义任何方法，编译器都将会报错，无法编译通过，同时即使自定义了构造函数且enum的定义结束，我们也永远无法手动调用构造函数创建枚举实例，毕竟这事只能由编译器执行。
-
-### 关于覆盖enum类方法
-
-既然enum类跟常规类的定义没什么区别（实际上enum还是有些约束的），那么覆盖父类的方法也不会是什么难说，可惜的是父类Enum中的定义的方法只有toString方法没有使用final修饰，因此只能覆盖toString方法，如下通过覆盖toString省去了getDesc方法：
-
-```
-package com.zejian.enumdemo;
-
-/**
- * Created by zejian on 2017/5/8.
- * Blog : http://blog.csdn.net/javazejian [原文地址,请尊重原创]
- */
-public enum Day2 {
-    MONDAY("星期一"),
-    TUESDAY("星期二"),
-    WEDNESDAY("星期三"),
-    THURSDAY("星期四"),
-    FRIDAY("星期五"),
-    SATURDAY("星期六"),
-    SUNDAY("星期日");//记住要用分号结束
-
-    private String desc;//中文描述
-
-    /**
-     * 私有构造,防止被外部调用
-     * @param desc
-     */
-    private Day2(String desc){
-        this.desc=desc;
-    }
-
-    /**
-     * 覆盖
-     * @return
-     */
     @Override
     public String toString() {
-        return desc;
+        return name()+":"+desc;
     }
-
-
-    public static void main(String[] args){
-        for (Day2 day:Day2.values()) {
-            System.out.println("name:"+day.name()+
-                    ",desc:"+day.toString());
-        }
-    }
-
-    /**
-     输出结果:
-     name:MONDAY,desc:星期一
-     name:TUESDAY,desc:星期二
-     name:WEDNESDAY,desc:星期三
-     name:THURSDAY,desc:星期四
-     name:FRIDAY,desc:星期五
-     name:SATURDAY,desc:星期六
-     name:SUNDAY,desc:星期日
-     */
 }
 ```
+
+```java
+@Test
+public void useEnumToString() {
+    DateEnum[] constants= DateEnum.MONDAY.values();
+    for (DateEnum constant : constants) {
+        System.out.println(constant);
+    }
+}
+// 输出结果
+MONDAY:星期一
+TUESDAY:星期二
+WEDNESDAY:星期三
+THURSDAY:星期四
+FRIDAY:星期五
+SATURDAY:星期六
+SUNDAY:星期日
+```
+
+可以看到我们定义的变量和方法起作用了
+
+从上述代码可知，在enum类中确实可以像定义常规类一样声明变量或者成员方法。
+
+**但是我们必须注意到，如果打算在enum类中定义方法，务必在声明完枚举实例后使用分号分开，倘若在枚举实例前定义任何方法，编译器都将会报错，无法编译通过，同时即使自定义了构造函数且enum的定义结束，我们也永远无法手动调用构造函数创建枚举实例，毕竟这事只能由编译器执行。**
+
+还有一点需要注意的是：**构造方法只能是私有的，那是因为枚举的常量都是在定义的时候创建的，如果构造方法公开，枚举就没有意义了**
+
+### 覆盖enum类方法
+
+既然enum类跟常规类的定义没什么区别（实际上enum还是有些约束的），那么覆盖父类的方法也不会是什么难说，可惜的是父类Enum中的定义的方法只有toString方法没有使用final修饰，因此只能覆盖toString方法，但是关于覆盖toString 方法我们也提到了两次了，第一次是在讲name 方法的时候，你可以查看上一篇[枚举初识](https://blog.csdn.net/king14bhhb/article/details/111224216)，前面将定义属性和方法的时候也重写了toString ,所以这里就不演示了
+
+
 
 ### enum类中定义抽象方法
 
 与常规抽象类一样，enum类允许我们为其定义抽象方法，然后使每个枚举实例都实现该方法，以便产生不同的行为方式，注意abstract关键字对于枚举类来说并不是必须的如下：
 
 ```java
-package com.zejian.enumdemo;
-
-/**
- * Created by zejian on 2017/5/9.
- * Blog : http://blog.csdn.net/javazejian [原文地址,请尊重原创]
- */
-public enum EnumDemo3 {
+public enum EnumAbstract {
 
     FIRST{
+        // 第二步:实现抽象方法
         @Override
         public String getInfo() {
             return "FIRST TIME";
         }
     },
     SECOND{
+       // 第二步:实现抽象方法
         @Override
         public String getInfo() {
             return "SECOND TIME";
         }
     }
-
     ;
-
     /**
-     * 定义抽象方法
+     * 第一步：定义抽象方法
      * @return
      */
     public abstract String getInfo();
 
-    //测试
-    public static void main(String[] args){
-        System.out.println("F:"+EnumDemo3.FIRST.getInfo());
-        System.out.println("S:"+EnumDemo3.SECOND.getInfo());
-        /**
-         输出结果:
-         F:FIRST TIME
-         S:SECOND TIME
-         */
+}
+```
+
+```java
+@Test
+public void useEnumAbstract() {
+    EnumAbstract[] constants= EnumAbstract.values();
+    for (EnumAbstract constant : constants) {
+        System.out.println(constant.getInfo());
     }
-}12345678910111213141516171819202122232425262728293031323334353637383940
+}
+// 输出结果
+FIRST TIME
+SECOND TIME
 ```
 
-通过这种方式就可以轻而易举地定义每个枚举实例的不同行为方式。我们可能注意到，enum类的实例似乎表现出了多态的特性，可惜的是枚举类型的实例终究不能作为类型传递使用，就像下面的使用方式，编译器是不可能答应的：
 
-```
-//无法通过编译,毕竟EnumDemo3.FIRST是个实例对象
- public void text(EnumDemo3.FIRST instance){ }12
+
+通过这种方式就可以轻而易举地**定义每个枚举实例的不同行为方式**。你甚至可以将其当做变量传出去
+
+```java
+@Test
+public void useEnumAbstrac2t() {
+    EnumAbstract[] constants= EnumAbstract.values();
+    for (EnumAbstract constant : constants) {
+        test(constant);
+    }
+}
+
+public void test(EnumAbstract instance){
+    System.out.println(instance.getInfo());
+}
 ```
 
-在枚举实例常量中定义抽象方法
+
 
 ### enum类与接口
 
 由于Java单继承的原因，enum类并不能再继承其它类，但并不妨碍它实现接口，因此enum类同样是可以实现多接口的，如下：
 
 ```java
-package com.zejian.enumdemo;
-
-/**
- * Created by zejian on 2017/5/8.
- * Blog : http://blog.csdn.net/javazejian [原文地址,请尊重原创]
- */
-
-interface food{
-    void eat();
+interface Food{
+    String eat();
 }
 
-interface sport{
-    void run();
+interface Sport{
+    String run();
 }
 
-public enum EnumDemo2 implements food ,sport{
-    FOOD,
-    SPORT,
-    ; //分号分隔
+public enum EnumImplements implements Food,Sport{
+    WHITEMAN("牛肉","篮球"),
+    BLACKMAN("鱼肉","羽毛球");
+
+    private String food;
+    private String sport;
 
     @Override
-    public void eat() {
-        System.out.println("eat.....");
+    public String eat() {
+        return name()+" eat "+food;
     }
 
     @Override
-    public void run() {
-        System.out.println("run.....");
+    public String run() {
+        return name()+" run "+sport;
+    }
+
+    private EnumImplements(String food,String sport){
+        this.food = food;
+        this.sport = sport;
     }
 }
 ```
 
-有时候，我们可能需要对一组数据进行分类，比如进行食物菜单分类而且希望这些菜单都属于food类型，appetizer(开胃菜)、mainCourse(主菜)、dessert(点心)、Coffee等，每种分类下有多种具体的菜式或食品，此时可以利用接口来组织，如下(代码引用自Thinking in Java)：
+```java
+@Test
+public void useEnumImplemets() {
+    EnumImplements[] constants= EnumImplements.values();
+    for (EnumImplements constant : constants) {
+        String tmp = constant.eat() +"\t"+ constant.run();
+        System.out.println(tmp);
+    }
+}
+// 输出结果
+WHITEMAN eat 牛肉	WHITEMAN run 篮球
+BLACKMAN eat 鱼肉	BLACKMAN run 羽毛球
+```
+
+
+
+有时候，我们可能需要对一组数据进行分类，比如**按照食物菜单分类而且希望这些菜单都属于food类型**，appetizer(开胃菜)、mainCourse(主菜)、dessert(点心)、Coffee等，每种分类下有多种具体的菜式或食品，此时可以利用接口来组织，如下(代码引用自Thinking in Java)：
 
 ```java
-public interface Food {
-  enum Appetizer implements Food {
-    SALAD, SOUP, SPRING_ROLLS;
-  }
-  enum MainCourse implements Food {
-    LASAGNE, BURRITO, PAD_THAI,
-    LENTILS, HUMMOUS, VINDALOO;
-  }
-  enum Dessert implements Food {
-    TIRAMISU, GELATO, BLACK_FOREST_CAKE,
-    FRUIT, CREME_CARAMEL;
-  }
-  enum Coffee implements Food {
-    BLACK_COFFEE, DECAF_COFFEE, ESPRESSO,
-    LATTE, CAPPUCCINO, TEA, HERB_TEA;
-  }
+interface AllFood {
+    enum Appetizer implements AllFood {
+        SALAD, SOUP, SPRING_ROLLS;
+    }
+    enum MainCourse implements AllFood {
+        LASAGNE, BURRITO, PAD_THAI,
+        LENTILS, HUMMOUS, VINDALOO;
+    }
+    enum Dessert implements AllFood {
+        TIRAMISU, GELATO, BLACK_FOREST_CAKE,
+        FRUIT, CREME_CARAMEL;
+    }
+    enum Coffee implements AllFood {
+        BLACK_COFFEE, DECAF_COFFEE, ESPRESSO,
+        LATTE, CAPPUCCINO, TEA, HERB_TEA;
+    }
 }
 
 public class TypeOfFood {
-  public static void main(String[] args) {
-    Food food = Appetizer.SALAD;
-    food = MainCourse.LASAGNE;
-    food = Dessert.GELATO;
-    food = Coffee.CAPPUCCINO;
-  }
-} 1234567891011121314151617181920212223242526
+    public static void main(String[] args) {
+        AllFood food1 = AllFood.Appetizer.SALAD;
+        AllFood food2= AllFood.MainCourse.LASAGNE;
+        AllFood food3= AllFood.Dessert.GELATO;
+        AllFood food4= AllFood.Coffee.CAPPUCCINO;
+    }
+} 
 ```
 
 通过这种方式可以很方便组织上述的情景，同时确保每种具体类型的食物也属于Food，现在我们利用一个枚举嵌套枚举的方式，把前面定义的菜谱存放到一个Meal菜单中，通过这种方式就可以统一管理菜单的数据了。
@@ -309,10 +256,10 @@ public enum Meal{
       LATTE, CAPPUCCINO, TEA, HERB_TEA;
     }
   }
-} 12345678910111213141516171819202122232425262728
+} 
 ```
 
-## 枚举与switch
+### 枚举与switch
 
 关于枚举与switch是个比较简单的话题，使用switch进行条件判断时，条件参数一般只能是整型，字符型。
 
@@ -353,7 +300,7 @@ public class EnumColor {
 
 需要注意的是使用在于switch条件进行结合使用时，**无需使用Color引用(Color.XXX)**
 
-## 枚举与单例模式
+### 枚举与单例模式
 
 单例模式可以说是最常使用的设计模式了，它的作用是确保某个类只有一个实例，自行实例化并向整个系统提供这个实例。在实际应用中，线程池、缓存、日志对象、对话框对象常被设计成单例，总之，选择单例模式就是为了避免不一致状态，下面我们将会简单说明单例模式的几种主要编写方式，从而对比出使用枚举实现单例模式的优点,更多关于单例模式的文章请看[胡说八道设计模式—单例模式](https://blog.csdn.net/king14bhhb/article/details/110576261)
 
@@ -601,3 +548,9 @@ Exception in thread "main" java.lang.IllegalArgumentException: Cannot reflective
 
 
 
+## 总结
+
+1. **构造方法只能是私有的，那是因为枚举的常量都是在定义的时候创建的，如果构造方法公开，枚举就没有意义了**
+2. **接口的方法必须实现自枚举类的定义中，抽象方法是现在了常量的定义中**
+3. switch 友好的支持了枚举类型
+4. 枚举可以让我们实现更加高效、简单、安全的单例

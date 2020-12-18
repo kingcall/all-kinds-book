@@ -1,6 +1,51 @@
 [TOC]
 
-##  一. 集合框架
+## 一. 系列文章
+
+### Java 集合和数据类型系列
+---
+[深度剖析ArrayList](https://blog.csdn.net/king14bhhb/article/details/110671464)
+
+[深度剖析LinkedList](https://blog.csdn.net/king14bhhb/article/details/110761550)
+
+[深度剖析Vector](https://blog.csdn.net/king14bhhb/article/details/110881567)
+
+[深度剖析Stack](https://blog.csdn.net/king14bhhb/article/details/111105644)
+
+---
+
+[深度剖析HashMap](https://blog.csdn.net/king14bhhb/article/details/110294590)
+
+[深度剖析LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651)
+
+[深度剖析HashTable](https://blog.csdn.net/king14bhhb/article/details/110356606)
+
+[深度剖析TreeMap](https://blog.csdn.net/king14bhhb/article/details/110949085)
+
+---
+
+
+[深度剖析HashSet](https://blog.csdn.net/king14bhhb/article/details/110679661) 
+
+[深度剖析LinkedHashSet](https://blog.csdn.net/king14bhhb/article/details/110703105)
+
+[深度剖析TreeSet](https://blog.csdn.net/king14bhhb/article/details/110972115)
+
+---
+
+[枚举初识](https://blog.csdn.net/king14bhhb/article/details/111224216)
+
+[枚举进阶](https://blog.csdn.net/king14bhhb/article/details/111249702)
+
+---
+
+[集合工具类Collections深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
+
+[集合工具类Arrays深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
+
+---
+
+##  二. 集合框架
 
 Java 集合框架一些列的接口和类来实现很多常见的数据结构和算法，例如 `LinkedList` 就是集合框架提供的实现了双向链表的数据结构，关于这一篇文章建议大家收藏，我会不断地完善和扩充它的内容，例如最下面的系列文章我以后也会对它进行不断的更新
 
@@ -8,7 +53,7 @@ Java 集合框架一些列的接口和类来实现很多常见的数据结构和
 
 集合框架提供了很多接口，这些接口都包含了特定的方法来实现对集合上的特定操作
 
-![image-20201213141107767](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/14:11:08-image-20201213141107767.png)
+![image-20201213141107767](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-7d1fe649fe23ae1ab864a2e019364b0a.png)
 
 我们将要学习这些接口以及子接口和它们的各种实现类，在开始之前我们先简单学习一下这些广泛运用的接口，可以看到整个集合框架，总共有三个顶级接口Collection 和 Map 以及Iterator,首先上面这图你需要记住，因为这张图你记住了，那你至少对整个Java 集合框架是有了一个框架上的认识，接下来就是慢慢的将它填充，使其更加具体和细化
 
@@ -44,7 +89,7 @@ Java 集合框架一些列的接口和类来实现很多常见的数据结构和
 
 
 
-![image-20201213192330901](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/19:23:31-image-20201213192330901.png)
+![image-20201213192330901](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-af7cbcf58b5c5197dd22ced023a68a44.png)
 
 
 
@@ -52,7 +97,7 @@ Java 集合框架一些列的接口和类来实现很多常见的数据结构和
 
 在java 中，Iterator 接口是用来访问集合中的元素的，并且它有一个子接口`ListIterator`
 
-![image-20201213194048093](/Users/liuwenqiang/Library/Application%20Support/typora-user-images/image-20201213194048093.png)
+![image-20201217094842941](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:48:43-image-20201217094842941.png)
 
 
 
@@ -66,7 +111,7 @@ Java 集合框架一些列的接口和类来实现很多常见的数据结构和
 
 
 
-![image-20201213140854528](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/14:08:55-image-20201213140854528.png)
+![image-20201213140854528](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-42f0ce9d810524544f90c5fbfa822cf1.png)
 
 #### Collection的子接口
 
@@ -76,7 +121,7 @@ Java 集合框架一些列的接口和类来实现很多常见的数据结构和
 
  `List` interface 是一个有序的集合，允许像数组一样添加或者删除元素
 
-![image-20201213195250946](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/19:52:51-image-20201213195250946.png)
+![image-20201213195250946](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-0eeaa256bc4fd5625bff53adf841c039.png)
 
 
 
@@ -104,11 +149,11 @@ contains() - returns true if a list contains specified element
 
 Set 的实现类
 
-![image-20201213201606159](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/20:16:06-image-20201213201606159.png)
+![image-20201213201606159](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-ca54f4b48b72ca7e631275349d50de6c.png)
 
 Set的子接口
 
-![image-20201213195608648](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/19:56:09-image-20201213195608648.png)
+![image-20201213195608648](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-da2173ff50f5adec1d971c18f8f02d4d.png)
 
 
 
@@ -135,15 +180,15 @@ hashCode() - returns a hash code value (address of the element in the set)
 
  `Queue` 接口主要用在当我们想要 以**First In, First Out(FIFO)** 的方式存储和访问集合中的元素的时候,在队列中元素从队尾添加，从队头删除
 
-![image-20201213201000889](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/20:10:01-image-20201213201000889.png)
+![image-20201213201000889](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-c9e5c4f3c22c0c40ed09efbb7ed827be.png)
 
 Queue的主要实现类
 
-![image-20201213200818475](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/20:08:19-image-20201213200818475.png)
+![image-20201213200818475](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-f4e1aed1e11ee562655a0ec0d74cb742.png)
 
 Queue的子接口
 
-![image-20201213201511102](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/20:15:11-image-20201213201511102.png)
+![image-20201213201511102](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-ded46d45c785cf2c5c22c5ab2b8bfe8f.png)
 
 Queue的主要方法
 
@@ -170,11 +215,11 @@ The `Collection` interface includes various methods that can be used to perform 
 - `removeAll()` - removes all the elements of the specified collection from the collection
 - `clear()` - removes all the elements of the collection
 
-## 二. List 体系
+## 三. List 体系
 
 
 
-![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/11/30/08:55:30-1677914-20190630110527653-156301420.png)
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-c3e4aa4b4af2e7a84e60a76f03b4d47f.png)
 
 首先上面的框架图可以表明顺序的关联关系，但并不全面，如ArrayList在继承了AbstractList抽象类的同时还实现了List接口。
 
@@ -186,9 +231,9 @@ The `Collection` interface includes various methods that can be used to perform 
 
 4. ArrayList、Vector、LinkedList、Stack都是具体的实现类。
 
-   
+    
 
-![image-20201213140626929](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/14:06:27-image-20201213140626929.png)
+![image-20201213140626929](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:31-2bcfb1a2640b44da8e133f990d8bd33e.png)
 
 
 
@@ -262,98 +307,74 @@ ArrayList 也是有顺序的
 
 
 
-##三.  Map 体系
+##四.  Map 体系
+
+**capacity** 集合可以容纳的元素个数（**capacity** 是8 意味着可以容纳8个元素）
+
+**loadFactor** 加载因子主要指的是当集合容纳集合的百分之多少的元素就需要扩容(**loadFactor** 0.75 就是说当容纳集合大小的75%之后，就需要扩容了)
+
+Map 接口的主要实现类
+
+![image-20201213193723345](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:31-9fd04abc0c54763ee1aa41880e8abc2e.png)
+
+Map 接口的子接口
+
+![image-20201213193803054](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:31-5cdc62e7de5b08ac960c5e71adeca150.png)
+
+###   HashMap 、TreeMap 、LinkedHashMap对比
+
+一般情况下，使用最多的是 HashMap。在 Map 中进行常规的插入、删除和定位元素时就使用HashMap，需要按自然顺序或自定义顺序遍历键的情况下使用TreeMap
+
+| 类型          | 内部结构             | 有序性               | 是否线程安全 | 顺序遍历效率      | 插入效率          | 使用场景                      |
+| ------------- | -------------------- | -------------------- | ------------ | ----------------- | ----------------- | ----------------------------- |
+| HashMap       | 数组+单链表+红黑树   | 无序                 | 否           | 最低              | 高                | 常规情况                      |
+| LinkedHashMap | 数组+双向链表+红黑树 | 插入顺序或者访问顺序 | 否           | 最高              | 次于HashMap       | 需要自定义顺序                |
+| TreeMap       | 红黑树               | 按照key的自定义顺序  | 否           | 次于LinkedHashMap | 次于LinkedHashMap | 需要实现插入或者访问顺序(LRU) |
 
 
 
-![image-20201213193723345](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/19:37:23-image-20201213193723345.png)
 
 
+## 五. Set 体系
 
+Set 接口的实现类
 
-
-![image-20201213193803054](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/19:38:03-image-20201213193803054.png)
-
-###   HashMap 、TreeMap 、LinkedHashMap
-
-
-
-一般情况下，使用最多的是 HashMap。
-HashMap：在 Map 中插入、删除和定位元素时；
-TreeMap：在需要按自然顺序或自定义顺序遍历键的情况下；
-LinkedHashMap：在需要输出的顺序和输入的顺序相同的情况下。
-
-- **capacity** - The capacity of this hash set is 8. Meaning, it can store 8 elements.
-- **loadFactor** - The load factor of this hash set is 0.6. This means, whenever our hash table is filled by 60%, the elements are moved to a new hash table of double the size of the original hash table.
-
-从衍生时间上进行对比，线程安全、有序性、底层实现，性能上进行对比
-
-
-
-## 四. Set 体系
-
-![image-20201213201606159](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/13/20:18:16-20:16:06-image-20201213201606159.png)
+![image-20201213201606159](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:31-c9fe0e89cc6d7aa24688b54e601b039e.png)
 
 ### 1. LinkedHashSet和HashSet对比
 
-Both `LinkedHashSet` and `HashSet` implements the `Set` interface. However, there exist some differences between them.
 
-- `LinkedHashSet` maintains a linked list internally. Due to this, it maintains the insertion order of its elements.
-- The `LinkedHashSet` class requires more storage than `HashSet`. This is because `LinkedHashSet` maintains linked lists internally.
-- The performance of `LinkedHashSet` is slower than `HashSet`. It is because of linked lists present in `LinkedHashSet`.
 
-------
+| 类型          | 底层依赖                              | 底层实现             | 是否有序 | 顺序遍历性能 | 插入性能 | 随机访问性能 |
+| ------------- | ------------------------------------- | -------------------- | -------- | ------------ | -------- | ------------ |
+| HashSet       | HashSet->HashMap                      | 数组+链表+红黑树     | 否       | 低           | 高       | 几乎一致     |
+| LinkedHashSet | LinkedHashSet->LinkedHashMap->HashMap | 数组+双向链表+红黑树 | 插入顺序 | 高           | 低       | 几乎一致     |
 
-------
+
 
 ### 2. LinkedHashSet和TreeSet对比
 
-Here are the major differences between `LinkedHashSet` and `TreeSet`:
 
-- The `TreeSet` class implements the `SortedSet` interface. That's why elements in a tree set are sorted. However, the `LinkedHashSet` class only maintains the insertion order of its elements.
-- A `TreeSet` is usually slower than a `LinkedHashSet`. It is because whenever an element is added to a `TreeSet`, it has to perform the sorting operation.
-- `LinkedHashSet` allows the insertion of null values. However, we cannot insert a null value to `TreeSet`.
 
-## 五. 总结
-
-### Java 集合的深度剖析系列文章
-
-[深度剖析ArrayList](https://blog.csdn.net/king14bhhb/article/details/110671464)
-
-[深度剖析LinkedList](https://blog.csdn.net/king14bhhb/article/details/110761550)
-
-[深度剖析Vector](https://blog.csdn.net/king14bhhb/article/details/110881567)
-
-[深度剖析Stack](https://blog.csdn.net/king14bhhb/article/details/111105644)
+| 类型          | 底层依赖                              | 底层实现             | 是否有序   | 顺序遍历性能 | 插入性能 | 随机访问性能 | 元素是否允许为空 |
+| ------------- | ------------------------------------- | -------------------- | ---------- | ------------ | -------- | ------------ | ---------------- |
+| TreeSet       | HashSet->红黑树                       | 红黑树               | 自定义顺序 | 低           | 低       | 低           | 是               |
+| LinkedHashSet | LinkedHashSet->LinkedHashMap->HashMap | 数组+双向链表+红黑树 | 插入顺序   | 高           | 高       | 高           | 否               |
 
 
 
-[深度剖析HashMap](https://blog.csdn.net/king14bhhb/article/details/110294590)
-
-[深度剖析LinkedHashMap](https://blog.csdn.net/king14bhhb/article/details/110294651)
-
-[深度剖析HashTable](https://blog.csdn.net/king14bhhb/article/details/110356606)
-
-[深度剖析TreeMap](https://blog.csdn.net/king14bhhb/article/details/110949085)
+## 六. 总结
 
 
 
-[深度剖析HashSet](https://blog.csdn.net/king14bhhb/article/details/110679661) 
+我们知道一般情况下我们划分内存的标准是连续或者不连续，在这种划分方式下诞生出了两种数据结构，一种是数组以使用连续内存为代表的一种是链表可以使用非连续内存的代表，接下来我们从这二者的角度去看一下集合的对比
 
-[深度剖析LinkedHashSet](https://blog.csdn.net/king14bhhb/article/details/110703105)
-
-[深度剖析TreeSet](https://blog.csdn.net/king14bhhb/article/details/110972115)
-
-
-
-[集合工具类Collections深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
-
-[集合工具类Arrays深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
-
-### Java 集合的实战系列文章
-
-
-
+| 类型       | 连续内存依赖数组     | 非连续内存依赖链表 |
+| ---------- | -------------------- | ------------------ |
+| ArrayList  | 是                   |                    |
+| LinkedList |                      | 是                 |
+| Vector     | 是                   |                    |
+| Stack      | 是(借助Vector实现的) |                    |
 
 
 
