@@ -70,3 +70,11 @@ for result in cursor.fetchall():
         getAll(tablename);
     }
 ```
+
+
+
+## streaming
+
+```
+  hive> FROM invites a INSERT OVERWRITE TABLE events SELECT TRANSFORM(a.foo, a.bar) AS (oof, rab) USING '/bin/cat' WHERE a.ds > '2008-08-09';
+```
