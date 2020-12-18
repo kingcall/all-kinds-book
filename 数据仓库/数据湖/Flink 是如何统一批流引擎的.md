@@ -2,7 +2,7 @@
 
 # 前言
 
-[![unify-blocks](http://www.liaojiayi.com/assets/unify-blocks.png)](http://www.liaojiayi.com/assets/unify-blocks.png)
+![unify-blocks](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:46:20-unify-blocks.png)
 
 通常我们在 Flink 中说批流一体指的是这四个方向，其中 Runtime 便是 Flink 运行时的实现。
 
@@ -10,13 +10,13 @@
 
 Flink 对于流作业和批作业有一个统一的执行模型。
 
-[![unify-exec](http://www.liaojiayi.com/assets/unify-exec.png)](http://www.liaojiayi.com/assets/unify-exec.png)
+![unify-exec](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:46:27-unify-exec.png)
 
 Flink 中每个 Task 的输出会以 IntermediateResult 做封装，内部并没有对流和批两种作业做一个明确的划分，只是通过不同类型的 IntermediateResult 来表达 PIPELINED 和 BLOCKING 这两大类数据交换模型。
 
 在了解数据交换模型之前，我们来看下为什么 Flink 对作业类型不作区分，这样的好处是什么？
 
-[![unify-example](http://www.liaojiayi.com/assets/unify-example2.png)](http://www.liaojiayi.com/assets/unify-example2.png)
+![unify-example](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:46:40-unify-example2.png)
 
 如上图所示，假如我们有一个工作需要将批式作业执行结果作为流式作业的启动输入，那怎么办？这个作业是算批作业还是流作业？
 
@@ -29,7 +29,7 @@ Flink 中每个 Task 的输出会以 IntermediateResult 做封装，内部并没
 
 我们以 PIPELINED 数据交换模型为例，看看是如何设计的：
 
-[![unify-pipelined](http://www.liaojiayi.com/assets/unify-pipelined.png)](http://www.liaojiayi.com/assets/unify-pipelined.png)
+![unify-pipelined](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:46:47-unify-pipelined.png)
 
 PIPELINED 模式下，RecordWriter 将数据放入到 Buffer 中，根据 Key 的路由规则发送给对应的 Partition，Partition 将自己的数据封装到 Reader 中放入队列，让 Netty Server 从队列中读取数据，发送给下游。
 
@@ -51,7 +51,7 @@ LAZY 模式就是先调度上游，等待上游产生数据或结束后再调度
 
 可以看到，不管是 EAGER 还是 LAZY 都没有办法执行我们刚才提出的批流混合的任务，于是社区提出了 Region Scheduling 来统一批流作业的调度，我们先看一下如何定义 Region：
 
-[![unify-region](http://www.liaojiayi.com/assets/unify-region.png)](http://www.liaojiayi.com/assets/unify-region.png)
+![unify-region](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:46:56-unify-region.png)
 
 以 Join 算子为例，我们都知道如果 Join 算子的两个输入都是海量数据的话，那么我们是需要等两个输入的数据都完全准备好才能进行 Join 操作的，所以 Join 两条输入的边对应的数据交换模式对应的应该是 BLOCKING 模式，我们可以根据 BLOCKING 的边将作业划分为多个子 Region，如上图虚线所示。
 

@@ -901,8 +901,6 @@ on t1.card_id=t2.card_id
 where t1.md5!=t2.md5（新产生的数据不等于原来的数据，说明数据变化了） or t2.card_id is null（判断空值）；
 ```
 
-[![复制代码](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/12/10:19:16-copycode.gif)](javascript:void(0);)
-
  
 
 #### 聚合事实表：

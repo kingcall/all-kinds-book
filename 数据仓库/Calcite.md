@@ -8,7 +8,7 @@
 
 如果你经常做数据处理一类的工作，必定不会对SQL感到陌生。Calcite作为业内通用的SQL处理器，被广泛的运用在了Hive、Flink、Beam等顶级开源项目中。
 过去不少博客中提到的SQL解析部分(如spark-catalyst)往往都是说到这样一个流程:
-[![SQL解析流程](http://www.liaojiayi.com/assets/calcite-1.png)](http://www.liaojiayi.com/assets/calcite-1.png)
+![SQL解析流程](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:47:15-calcite-1.png)
 这个流程在Calcite中也是适用的，继续往下看。
 
 ------
@@ -75,9 +75,9 @@ public RelRoot convertQuery(SqlNode query, final boolean needsValidation, final 
 ```
 
 可以看出在convertQueryRecursive采取了遍历的方式来解析query，下面的一系列visit方法将SqlNode直接解析成了RexNode，方法截图如下:
-[![visit方法描述](http://www.liaojiayi.com/assets/calcite-2.png)](http://www.liaojiayi.com/assets/calcite-2.png)
+![visit方法描述](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:47:31-calcite-2.png)
 以visit(SqlLiteral)为例，根据不同的类型生成了不同的RexNode:
-[![sqlliteral](http://www.liaojiayi.com/assets/calcite-5.png)](http://www.liaojiayi.com/assets/calcite-5.png)
+![sqlliteral](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:47:41-calcite-5.png)
 RexNode再根据不同的SqlNode.getKind()类型组合成不同的RelNode，例如Select -> Project。
 
 ------
@@ -105,7 +105,7 @@ RexNode再根据不同的SqlNode.getKind()类型组合成不同的RelNode，例�
 #### 执行
 
 执行根据不同的Node定义了代码的实现方法，从最底层的RelNode依次执行，采用source接收数据，sink发送数据。在Flink中，也有translate函数来做一个类似的实现。
-[![Node](http://www.liaojiayi.com/assets/calcite-4.png)](http://www.liaojiayi.com/assets/calcite-4.png)
+![Node](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/19:47:51-calcite-4.png)
 
 #### Calcite源码相关名词释义
 
