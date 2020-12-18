@@ -1,6 +1,4 @@
-### String in Java Tutorial
 
-This post talks about one of the very important class; String in Java. In Java **String class** represents character strings which means; Strings in Java are [objects](https://www.netjstech.com/2015/04/object-in-java.html) and all created strings are *instances of the String [class](https://www.netjstech.com/2015/04/class-in-java.html) in Java*. In String class strings are internally stored as character array.
 
 **Table of contents**
 
@@ -16,28 +14,11 @@ This post talks about one of the very important class; String in Java. In Java *
 
 
 
-### How to create String in Java
 
-You can create a String object using-
-
-- new operator
-- Using String literal
-
-**1. Using new operator**
-
-Since strings are objects so strings can of course be [created using new operator](https://www.netjstech.com/2017/02/object-creation-using-new-operator-java.html). String class has more than 10 [constructors](https://www.netjstech.com/2015/04/constructor-in-java.html) to create Strings in Java which ranges from taking nothing as parameter to taking **char array**, **StringBuffer**, **StringBuilder**, another String as argument.
-
-**As Example**- String str = new String(“abc”);
-
-**2. Using String literal**
-
-Preferred way to create Strings is to assign **String literal** directly to a String reference as you will do for any primitive type. For every String literal Java automatically constructs a String object.
-
-**As example**- String str = “abc”;
 
 ### String pool in Java
 
-But having String literals brings another dimension to storing String in Java. If String objects are created using new operator, objects will go in the heap with their own space. String literals are treated differently they are *stored in a String pool and that is a common pool*; which means if there are two strings literals having the same content then those string will **share the space** in the pool.
+
 
 When String object is created by assigning a string literal, pool will be checked to verify if there is any existing object with the same content if there is then that existing reference is used, no new object is created in that case. If no object is found with the same content then this new literal will be added in the pool.
 
