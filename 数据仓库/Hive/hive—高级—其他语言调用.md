@@ -1,3 +1,7 @@
+[TOC]
+
+## Hive 其他语言调用
+
 先解释一下几个名词：
 
 - metadata ：hive元数据，即hive定义的表名，字段名，类型，分区，用户这些数据。一般存储关系型书库mysql中，在测试阶段也可以用hive内置Derby数据库。
@@ -16,7 +20,7 @@
 
 ![20200717122732-5f119934301e5](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/23:18:52-20200717122732-5f119934301e5.png)
 
-# Python访问Hive
+### Python访问Hive
 
 `Python3`访问hive需要安装的依赖有：
 
@@ -87,11 +91,11 @@ hclient.close()
 
 
 
-# Java连接Hive
+### Java连接Hive
 
 `Java`作为大数据的基础语言，连接hive自然是支持的很好的，这里介绍通过jdbc和mybatis两种方法连接hive。
 
-## 1. Jdbc连接
+#### 1. Jdbc连接
 
 java通过jdbc连接hiveserver，跟传统的jdbc连接mysql方法一样。
 
@@ -161,7 +165,7 @@ DriverManager.getConnection(url, username, password)
 
 这样即可拿到连接，前提是具体实现需要遵循相应的spi规范。
 
-## 2. 整合mybatis
+#### 2. 整合mybatis
 
 通常都会使用`mybatis`来做`dao`层访问数据库，访问`hive`也是类似的。
 
@@ -209,3 +213,8 @@ public classTestMapperImpl implements TestMapper {
     }
 }
 ```
+
+
+
+## stream
+
