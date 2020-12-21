@@ -22,9 +22,9 @@ Apache Hive数据仓库软件提供了通过SQL 对存储在分布式中的大�
 
 Hive提供了标准的SQL功能，其中包括了[SQL:2003](https://en.wikipedia.org/wiki/SQL:2003), [SQL:2011](https://en.wikipedia.org/wiki/SQL:2011), 和 [SQL:2016](https://en.wikipedia.org/wiki/SQL:2016)的特性 ，被称为HQL，对于熟悉SQL的用户可以直接利用Hive来查询数据
 
-Hive-SQL 在提供了标准的SQL功能之外，也支持了扩展，**通过实现用户定义的User Defined Functions（UDF）、User Defined Aggregation Functions（UDAF）、User Defined Table Generating Functions（UDTFF**
+Hive-SQL 在提供了标准的SQL功能之外，也支持了扩展，**通过实现用户定义的User Defined Functions（UDF）、User Defined Aggregation Functions（UDAF）、User Defined Table Generating Functions（UDTF）**
 
-当然除了Hive 查询和处理数据之外,还有Hadoop 平台原生的工具MR
+当然除了Hive 查询和处理数据之外,还有Hadoop 平台原生的工具MR也就是说 Hive 是基于Hadoop 构建的一套数据仓库分析系统，它提供了丰富的SQL查询方式来分析存储在Hadoop 分布式文件系统中的数据，可以将结构  化的数据文件映射为一张数据库表，并提供完整的SQL查询功能，**可以将SQL语句转换为MapReduce任务进行运行**，通过自己的SQL 去查询分析需  要的内容，这套SQL 简称Hive SQL，**使不熟悉mapreduce 的用户很方便的利用SQL 语言查询，汇总，分析数据。而mapreduce开发人员可以把**  **己写的mapper 和reducer 作为插件来支持Hive 做更复杂的数据分析。**
 
 #### Hive 的设计定位
 
