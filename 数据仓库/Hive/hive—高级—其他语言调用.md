@@ -1,4 +1,4 @@
-[TOC]
+![访问Hive](http://qiniu.ikeguang.com/image/2020/12/21/22:36:37-%E8%AE%BF%E9%97%AEHive.png)
 
 ## Hive 其他语言调用
 
@@ -213,6 +213,351 @@ public classTestMapperImpl implements TestMapper {
     }
 }
 ```
+
+#### 3. 整合SpringBoot
+
+公司内部各个部门人员是层次不齐的，不可能都会使用大数据分析后台，更不会写`sql`，这时候可以开发一套自助取数系统，通过页面操作即可获取相应的数据，这时候通常需要使用`SpringBoot`连接`mysql`和`Hive`生成报表。`SpringBoot`整合`Hive`这里整合了`Druid`连接池。
+
+---
+
+##### 需要完成的任务
+
+- 每个人都可以在`web`页面写`sql`，完成`Hive`查询任务；
+- 查询数据量不能太大，不要超过60天数据量（那将是灾难）；
+- 提交查询任务后，获取`yarn`的资源情况，如果紧张，则拒绝；
+- 后台将异常，以及拒绝服务的原因通过抛出异常，反馈信息给前台页面；
+- 如果前面有人查过了会将结果存入`mysql`，第二个人查询，无需再查询`Hive`，只需要从`mysql`里面取；
+
+---
+
+**1) 需要的依赖**
+
+为了节省篇幅，这里给出`hiveserver2`方式连接`hive`主要的`maven`依赖，父工程`springboot`依赖省略。
+```xml
+<!-- 版本信息 -->
+<properties>
+    <hadoop.version>2.6.5</hadoop.version>
+    <mybatis.version>3.2.7</mybatis.version>
+</properties>
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis</artifactId>
+    <version>${mybatis.version}</version>
+</dependency>
+
+<!-- hadoop依赖 -->
+<dependency>
+    <groupId>org.apache.hadoop</groupId>
+    <artifactId>hadoop-common</artifactId>
+    <version>${hadoop.version}</version>
+</dependency>
+
+<!-- hive-jdbc -->
+<!-- https://mvnrepository.com/artifact/org.apache.hive/hive-jdbc -->
+<dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-jdbc</artifactId>
+    <version>1.2.1</version>
+</dependency>
+
+<!-- 解析html -->
+<dependency>
+    <groupId>org.jsoup</groupId>
+    <artifactId>jsoup</artifactId>
+    <version>1.8.3</version>
+</dependency>
+	
+```
+
+**2）`application-test.yml`文件：**
+
+```yaml
+# Spring配置
+spring:
+  # 数据源配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      # 主库数据源
+      master:
+        url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=GMT%2B8
+        username: root
+        password: root
+      # 从库数据源
+      slave:
+        # 从数据源开关/默认关闭
+        enabled: true
+        url: jdbc:mysql://localhost:3306/test2?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=GMT%2B8
+        username: root
+        password: root
+      # 从库数据源2
+      # ...省略...
+      # hive数据源
+      slave3:
+      # 从数据源开关/默认关闭
+        enabled: true
+        driverClassName: org.apache.hive.jdbc.HiveDriver
+        url: jdbc:hive2://master:10000/default
+        username: hive
+        password: hive
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+```
+
+这里数据源配置了`mysql`和`Hive`，默认情况下是使用主库`master`数据源，是访问`mysql`的，使用的时候只需要在`mapper`层进行切换即可。
+
+代码实现跟其它程序一样，都是`mapper`、`service`、`controller`层，套路一模一样。一共设置了实时和离线两个`yarn`资源队列，由于其它部门人使用可能存在队列压力过大的情况，需要对数据量按照每次查询的数据范围不超过`60`天来限制，和此时集群使用资源不能大于55%，这里重点说明一下`controller`层对数据量的预防。
+
+**实体类`UserModel`：**
+```java
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@ToString
+public class UserModel extends BaseEntity{
+
+    private String userId;
+    private Integer count;
+}
+```
+**3)  集群资源使用率不大于`55%`**
+
+因为很多业务查询逻辑`controller`都要用到数据量防御过大的问题，这里使用了被`Spring`切面关联的注解来标识`controller`。
+
+**定义切面`YarnResourceAspect`，并且关联注解`@YarnResource`**
+```java
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface YarnResource {
+
+}
+
+@Aspect
+@Component
+public class YarnResourceAspect {
+
+    private static final Logger log = LoggerFactory.getLogger(YarnResourceAspect.class);
+
+    /**
+     * 配置切入点
+     */
+    @Pointcut("@annotation(com.ruoyi.common.annotation.YarnResource)")
+    public void yarnResourcdPointCut(){
+    }
+
+    /**
+     * 检查yarn的资源是否可用
+     */
+    @Before("yarnResourcdPointCut()")
+    public void before(){
+        log.info("************************************检查yarn的资源是否可用*******************************");
+        // yarn资源紧张
+        if(!YarnClient.yarnResourceOk()){
+            throw new InvalidStatusException();
+        }
+    }
+
+}
+```
+4) **获取`yarn`的资源使用数据：**
+
+因为提交任务的时间是不定的，我们需要根据用户提交时候的`yarn`资源状态来判断当前是否能执行`Hive`查询，以免影响线上任务。
+
+```java
+@Slf4j
+public class YarnClient {
+
+    /**
+     * yarn资源不能超过多少
+     */
+    private static final int YARN_RESOURCE = 55;
+
+    /**
+     *
+     * @return true : 表示资源正常， false: 资源紧张
+     */
+    public static boolean yarnResourceOk() {
+        try {
+            URL url = new URL("http://master:8088/cluster/scheduler");
+            HttpURLConnection conn = null;
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setUseCaches(false);
+            // 请求超时5秒
+            conn.setConnectTimeout(5000);
+            // 设置HTTP头:
+            conn.setRequestProperty("Accept", "*/*");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36");
+            // 连接并发送HTTP请求:
+            conn.connect();
+
+            // 判断HTTP响应是否200:
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("bad response");
+            }
+            // 获取所有响应Header:
+            Map<String, List<String>> map = conn.getHeaderFields();
+            for (String key : map.keySet()) {
+                System.out.println(key + ": " + map.get(key));
+            }
+            // 获取响应内容:
+            InputStream input = conn.getInputStream();
+            byte[] datas = null;
+
+            try {
+                // 从输入流中读取数据
+                datas = readInputStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            String result = new String(datas, "UTF-8");// 将二进制流转为String
+
+            Document document = Jsoup.parse(result);
+
+            Elements elements = document.getElementsByClass("qstats");
+
+            String[] ratios = elements.text().split("used");
+
+            return Double.valueOf(ratios[3].replace("%", "")) < YARN_RESOURCE;
+        } catch (IOException e) {
+            log.error("yarn资源获取失败");
+        }
+
+        return false;
+
+    }
+
+    private static byte[] readInputStream(InputStream inStream) throws Exception {
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = 0;
+        while ((len = inStream.read(buffer)) != -1) {
+            outStream.write(buffer, 0, len);
+        }
+        byte[] data = outStream.toByteArray();
+        outStream.close();
+        inStream.close();
+        return data;
+    }
+}
+```
+5) **在`controller`上通过注解`@YarnResource`标识：**
+
+```java
+@Controller
+@RequestMapping("/hero/hive")
+public class HiveController {
+
+    /**
+     * html 文件地址前缀
+     */
+    private String prefix = "hero";
+
+    @Autowired
+    IUserService iUserService;
+
+    @RequestMapping("")
+    @RequiresPermissions("hero:hive:view")
+    public String heroHive(){
+        return prefix + "/hive";
+    }
+
+    @YarnResource
+    @RequestMapping("/user")
+    @RequiresPermissions("hero:hive:user")
+    @ResponseBody
+    public TableDataInfo user(UserModel userModel){
+        DateCheckUtils.checkInputDate(userModel);
+
+        PageInfo pageInfo = iUserService.queryUser(userModel);
+        TableDataInfo tableDataInfo = new TableDataInfo();
+
+        tableDataInfo.setTotal(pageInfo.getTotal());
+        tableDataInfo.setRows(pageInfo.getList());
+
+        return tableDataInfo;
+    }
+}
+```
+**6) 查询数据跨度不超过`60`天检查**
+
+这样每次请求进入`controller`的时候就会自动检查查询的日期是否超过`60`天了，防止载入数据过多，引发其它任务资源不够。
+```java
+public class DateCheckUtils {
+
+    /**
+     * 对前台传入过来的日期进行判断，防止查询大量数据，造成集群负载过大
+     * @param o
+     */
+    public static void checkInputDate(BaseEntity o){
+        if("".equals(o.getParams().get("beginTime")) && "".equals(o.getParams().get("endTime"))){
+            throw new InvalidTaskException();
+        }
+
+        String beginTime = "2019-01-01";
+        String endTime = DateUtils.getDate();
+
+        if(!"".equals(o.getParams().get("beginTime"))){
+            beginTime = String.valueOf(o.getParams().get("beginTime"));
+        }
+
+        if(!"".equals(o.getParams().get("endTime"))){
+            endTime = String.valueOf(o.getParams().get("endTime"));
+        }
+
+        // 查询数据时间跨度大于两个月
+        if(DateUtils.getDayBetween(beginTime, endTime) > 60){
+            throw new InvalidTaskException();
+        }
+    }
+}
+```
+这里访问`hive`肯定需要切换数据源的，因为其它页面还有对`mysql`的数据访问，需要注意一下。
+
+**7) 每次查询结果都会入`mysql`**
+
+前面有人查询过了，会将数据保持到`mysql`，再返回到页面，后面另外部门第二个人查询时候，先从`mysql`取数据，如果没有，就从`Hive`里面查询。下面这部分代码也是`controller`里面的，这里单独拎出来了。
+
+```java
+// 首先从mysql查，没有再从hive查，mysql相当于一个缓存介质
+PageInfo pageInfo = iToplocationService.queryToplocation(toplocationCountModel);
+if(pageInfo.getList().size() > 0){
+    log.info("数据exists， 直接从mysql获取...");
+    tableDataInfo.setTotal(pageInfo.getTotal());
+    tableDataInfo.setRows(pageInfo.getList());
+}else if(iToplocationService.queryExistsToplocation(toplocationCountModel) == null){
+    log.info("从hive中查询数据...");
+    PageInfo pageInfo2 = iToplocationService.query(toplocationCountModel);
+
+    // 保存到mysql
+    log.info("批量保存到mysql...");
+    List<ToplocationCountModel> toplocationCountModels = pageInfo2.getList();
+    int i = 0;
+    while (i < toplocationCountModels.size()){
+        if(toplocationCountModels.size() - i > 10000){
+            iToplocationService.insertToplocation(toplocationCountModels.subList(i, i + 10000));
+        }else{
+            iToplocationService.insertToplocation(toplocationCountModels.subList(i, toplocationCountModels.size()));
+        }
+
+        i = i + 10000;
+    }
+```
+
+目前功能看起来很简单，没有用到什么高大上的东西，后面慢慢完善。
 
 
 
