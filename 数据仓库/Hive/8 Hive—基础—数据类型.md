@@ -1,1 +1,25 @@
-![image-20201221141737299](C:\Users\Wenqliu\AppData\Roaming\Typora\typora-user-images\image-20201221141737299.png)
+## 数据类型
+
+- Types are associated with the columns in the tables. The following Primitive types are supported:
+- Integers
+  - TINYINT—1 byte integer
+  - SMALLINT—2 byte integer
+  - INT—4 byte integer
+  - BIGINT—8 byte integer
+- Boolean type
+  - BOOLEAN—TRUE/FALSE
+- Floating point numbers
+  - FLOAT—single precision
+  - DOUBLE—Double precision
+- Fixed point numbers
+  - DECIMAL—a fixed point value of user defined scale and precision
+- String types
+  - STRING—sequence of characters in a specified character set
+  - VARCHAR—sequence of characters in a specified character set with a maximum length
+  - CHAR—sequence of characters in a specified character set with a defined length
+- Date and time types
+  - TIMESTAMP — A date and time without a timezone ("LocalDateTime" semantics)
+  - TIMESTAMP WITH LOCAL TIME ZONE — A point in time measured down to nanoseconds ("Instant" semantics)
+  - DATE—a date
+- Binary types
+  - BINARY—a sequence of bytes
