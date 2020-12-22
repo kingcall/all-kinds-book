@@ -9,15 +9,15 @@
 4、以下配置项必须被设定：
 
 Client端：
-```
-hive.support.concurrency–true
-hive.enforce.bucketing–true
-hive.exec.dynamic.partition.mode–nonstrict
-hive.txn.manager–org.apache.hadoop.hive.ql.lockmgr.DbTxnManager
+```sql
+set hive.support.concurrency=true
+set hive.enforce.bucketing=true
+set hive.exec.dynamic.partition.mode=nonstrict
+set hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager
 ```
 服务端：
-```
-hive.compactor.initiator.on–true
-hive.compactor.worker.threads–1
-hive.txn.manager–org.apache.hadoop.hive.ql.lockmgr.DbTxnManager（经过测试，服务端也需要设定该配置项）
+```sql
+set hive.compactor.initiator.on=true
+set hive.compactor.worker.threads=1
+set hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager（经过测试，服务端也需要设定该配置项）
 ```
