@@ -626,7 +626,7 @@ public static void listByStrengThenFor(LinkedList<Integer> list)
 
 ### 实现原理
 
-ArrayList 是适应双链表实现的，而LinkedList则是使用一个可以动态扩容的数组实现的，所以在LinkedList里面则没有什么 initial capacity or default capacity 的概念
+LinkedList是适应双链表实现的，而ArrayList 则是使用一个可以动态扩容的数组实现的，所以在LinkedList里面则没有什么 initial capacity or default capacity 的概念
 
 ### 性能
 
@@ -670,7 +670,7 @@ ArrayList 删除会涉及到到元素的迁移，所以平均时间复杂度也�
 
 **下面这段代码可以重构，相似度太高了，而且命名也不怎么清楚**
 
-```
+```java
 private void checkElementIndex(int index) {
     if (!isElementIndex(index))
         throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
@@ -700,7 +700,7 @@ private boolean isElementIndex(int index) {
 
 **像下面这个remove 方法我觉得不应该抛出异常，而是应该返回null 值就可以了，客户端可以更具是否为null 进行业务处理，否则的话我认为你的迭代方法也应该抛出异常**
 
-```
+```java
 public E removeFirst() {
     final Node<E> f = first;
     if (f == null)
