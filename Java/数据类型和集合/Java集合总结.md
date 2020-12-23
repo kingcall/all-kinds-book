@@ -2,7 +2,8 @@
 
 ## 一. 系列文章
 
-### Java 集合和数据类型系列
+### Java 集合
+
 ---
 [深度剖析ArrayList](https://blog.csdn.net/king14bhhb/article/details/110671464)
 
@@ -33,17 +34,39 @@
 
 ---
 
+[集合工具类Collections深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
+
+[集合工具类Arrays深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
+
+[Comparable和Comparator](https://blog.csdn.net/king14bhhb/article/details/110941207)
+
+[一文掌握Comparator的数十种用法](https://blog.csdn.net/king14bhhb/article/details/110941401)
+
+---
+
+### Java 数据类型
+
 [枚举初识](https://blog.csdn.net/king14bhhb/article/details/111224216)
 
 [枚举进阶](https://blog.csdn.net/king14bhhb/article/details/111249702)
 
 ---
 
-[集合工具类Collections深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
+[String基础](https://blog.csdn.net/king14bhhb/article/details/111314482)
 
-[集合工具类Arrays深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
+[String进阶之字符串常量池](https://blog.csdn.net/king14bhhb/article/details/111414710)
+
+[String进阶之不可变性](https://blog.csdn.net/king14bhhb/article/details/111415444)
+
+[String进阶之StringBuilder与StringBuffer](https://blog.csdn.net/king14bhhb/article/details/111566093)
 
 ---
+
+[Java数据类型—八大基本数据类型详解](https://blog.csdn.net/king14bhhb/article/details/110631164)
+
+[Java数据类型—包装类](https://blog.csdn.net/king14bhhb/article/details/111286590)
+
+
 
 ##  二. 集合框架
 
