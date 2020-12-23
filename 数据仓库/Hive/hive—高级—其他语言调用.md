@@ -561,4 +561,64 @@ if(pageInfo.getList().size() > 0){
 
 
 
+## stream
 
+stream 提供了的功能就是你可以在sql 中使用一些脚本去处理一些任务，脚本分为mapper 端的脚本和reducer 端的脚本
+
+这里我们演示一个简单的功能就是判断一个时间戳是周几，也就是将时间戳转化为日期
+
+创建新表，准备数据
+
+```sql
+CREATE TABLE ods.u_data (
+  userid INT,
+  movieid INT,
+  rating INT,
+  unixtime STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+STORED AS TEXTFILE;
+```
+
+```shell
+wget http://files.grouplens.org/datasets/movielens/ml-100k.zip
+unzip ml-100k.zip
+```
+
+```
+LOAD DATA LOCAL INPATH '/Users/liuwenqiang/ml-100k/u.data' OVERWRITE INTO TABLE ods.u_data;
+```
+
+创建脚本
+
+```python
+import sys
+import datetime
+
+for line in sys.stdin:
+  line = line.strip()
+  userid, movieid, rating, unixtime = line.split('\t')
+  weekday = datetime.datetime.fromtimestamp(float(unixtime)).isoweekday()
+  print('\t'.join([userid, movieid, rating, str(weekday)]))
+```
+
+创建新表、加载脚本、执行sql 使用脚本
+
+```sql
+CREATE TABLE u_data_new (
+  userid INT,
+  movieid INT,
+  rating INT,
+  weekday INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t';
+
+add file /Users/liuwenqiang/weekday_mapper.py;
+
+INSERT OVERWRITE TABLE u_data_new
+SELECT
+  TRANSFORM (userid, movieid, rating, unixtime)
+  USING 'python weekday_mapper.py'
+  AS (userid, movieid, rating, weekday)
+FROM u_data;
+```

@@ -324,5 +324,5 @@ create table ods.user_info (
 
 `load data inpath '/Users/liuwenqiang/workspace/hive/user.txt' overwrite into table ods.user_info`
 
-
+其实很多时候你不用load 命令也可以，只要你将准备好的数据放到对应的表目录下就可以了，对于本地文件可以使用 `hdfd dfs -put` 对于集群上的文件使用`hdfs dfs -mv`
 
