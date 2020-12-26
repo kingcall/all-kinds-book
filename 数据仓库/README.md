@@ -6,15 +6,17 @@
 
 ​	[什么是数仓]()
 
-​	[数仓架构发展史]()
+​	[数仓架构发展史](https://blog.csdn.net/king14bhhb/article/details/110715863)
 
-​	[数仓建模方法论]()
+​	[数仓建模方法论](https://blog.csdn.net/king14bhhb/article/details/110894422)
 
-​	[分层建设理论]()
+​	[分层建设理论](https://blog.csdn.net/king14bhhb/article/details/110714959)
 
 ​	[数仓治理]()
 
-​	[数据湖初识]()
+​	[数据湖初识](https://blog.csdn.net/king14bhhb/article/details/111392617)
+
+   [指标体系建设](https://blog.csdn.net/king14bhhb/article/details/110941854)
 
 ### 2. 数仓工具
 
@@ -22,23 +24,37 @@
 
 ##### 1.Hive 基础篇
 
-​	[1. 什么是Hive]()
+​	[1. 什么是Hive](https://blog.csdn.net/king14bhhb/article/details/111462896)
 
-​	[2. Hive的安装]()
+​	[2. Hive的编译安装](https://blog.csdn.net/king14bhhb/article/details/111568313)
 
-​	[3. Hive表的基础操作]()
+​	[3. Hive表的基础操作](https://blog.csdn.net/king14bhhb/article/details/111584254)
 
-​	[4. Hive数据的组织管理方式]()
+​	[4. Hive数据的组织管理方式](https://blog.csdn.net/king14bhhb/article/details/111592592)
 
-​	[5. Hive内部表和外部表]()
+​	[5. Hive内部表和外部表](https://blog.csdn.net/king14bhhb/article/details/111595879)
 
-​	[6. Hive动态分区]()
+​	[6. Hive动态分区](https://blog.csdn.net/king14bhhb/article/details/111598399)
+
+​	[7. Hive命令行](https://blog.csdn.net/king14bhhb/article/details/111600665)
+
+​	[8. Hive基本数据类型](https://blog.csdn.net/king14bhhb/article/details/111657942)
+
+​	[9. Hive复合数据类型](https://blog.csdn.net/king14bhhb/article/details/111712993)
+
+​	[10. Hive Streaming](https://blog.csdn.net/king14bhhb/article/details/111729038)
+
+​	[11. Hive关键字](https://blog.csdn.net/king14bhhb/article/details/111735030)
+
+​	[12. Hive函数大全](https://blog.csdn.net/king14bhhb/article/details/111765573)
 
 ##### 2.Hive 语法篇
 
 
 
 ##### 3.Hive 进阶篇
+
+​	[Hive优化指南](https://blog.csdn.net/king14bhhb/article/details/111244999)
 
 ##### 4.Hive 源码篇
 
@@ -75,4 +91,8 @@
 #### 1. K12赛道Top公司的数仓建设
 
 #### 2. 知名游戏公司的数仓建设
+
+
+
+## 总结
 

@@ -1,4 +1,14 @@
-hive中有很多关键字，直接作为`列名或者表名`，会出错的，例如`user`这个关键字很多人会拿来做表的别名，就会出错：
+[TOC]
+
+## Hive中的关键字
+
+关键字是任何一门语言中都要的一些字符，这些字符都有特殊的含义，一般情况下用户不能直接使用的，因为编译器对关键字是有特殊处理的。
+
+Hive有一些保留的关键字，我们在执行一些语句时，不能将这些关键字作为标识符（Identifier），比如建表语句的表名或者字段名
+
+### 最常见的user关键字
+
+hive中有很多关键字，直接作为`列名或者表名或者表别名`，会出错的，例如`user`这个关键字很多人会拿来做表的别名，就会出错：
 
 ```sql
 hive> select * from user_log user;
@@ -10,33 +20,6 @@ NoViableAltException(311@[157:5: ( ( Identifier LPAREN )=> partitionedTableFunct
 	at org.apache.hadoop.hive.ql.parse.HiveParser_FromClauseParser.fromSource(HiveParser_FromClauseParser.java:2839)
 	at org.apache.hadoop.hive.ql.parse.HiveParser_FromClauseParser.joinSource(HiveParser_FromClauseParser.java:1410)
 	at org.apache.hadoop.hive.ql.parse.HiveParser_FromClauseParser.fromClause(HiveParser_FromClauseParser.java:1300)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.fromClause(HiveParser.java:39647)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.selectStatement(HiveParser.java:34897)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.regularBody(HiveParser.java:34803)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.queryStatementExpressionBody(HiveParser.java:33992)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.queryStatementExpression(HiveParser.java:33880)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.execStatement(HiveParser.java:2205)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.statement(HiveParser.java:1313)
-	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:218)
-	at org.apache.hadoop.hive.ql.parse.ParseUtils.parse(ParseUtils.java:75)
-	at org.apache.hadoop.hive.ql.parse.ParseUtils.parse(ParseUtils.java:68)
-	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:525)
-	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1359)
-	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1488)
-	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1278)
-	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1268)
-	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:239)
-	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:187)
-	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:409)
-	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:838)
-	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:774)
-	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:701)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.apache.hadoop.util.RunJar.run(RunJar.java:313)
-	at org.apache.hadoop.util.RunJar.main(RunJar.java:227)
 FAILED: ParseException line 1:23 cannot recognize input near 'user_log' 'user' '<EOF>' in from source 0
 ```
 
@@ -55,22 +38,6 @@ NoViableAltException(311@[123:1: selectItem : ( ( tableAllColumns )=> tableAllCo
 	at org.apache.hadoop.hive.ql.parse.HiveParser.regularBody(HiveParser.java:34803)
 	at org.apache.hadoop.hive.ql.parse.HiveParser.queryStatementExpressionBody(HiveParser.java:33992)
 	at org.apache.hadoop.hive.ql.parse.HiveParser.queryStatementExpression(HiveParser.java:33880)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.execStatement(HiveParser.java:2205)
-	at org.apache.hadoop.hive.ql.parse.HiveParser.statement(HiveParser.java:1313)
-	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:218)
-	at org.apache.hadoop.hive.ql.parse.ParseUtils.parse(ParseUtils.java:75)
-	at org.apache.hadoop.hive.ql.parse.ParseUtils.parse(ParseUtils.java:68)
-	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:525)
-	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1359)
-	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1488)
-	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1278)
-	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1268)
-	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:239)
-	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:187)
-	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:409)
-	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:838)
-	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:774)
-	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:701)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -80,7 +47,7 @@ NoViableAltException(311@[123:1: selectItem : ( ( tableAllColumns )=> tableAllCo
 FAILED: ParseException line 1:14 cannot recognize input near 'userid' 'user' 'from' in selection target
 ```
 
-如果实在想用关键字做别名的话，可以用键盘上面`Esc`下面那个“点”包裹起来，像这样：
+如果实在想用关键字做别名的话，可以使用反引号 ，也就是键盘上面`Esc`下面的那个键“点”包裹起来，像这样：
 
 ```sql
 -- user关键字做表的别名
@@ -88,12 +55,38 @@ select * from user_log `user`;
 
 -- user关键字做列的别名
 select userid `user` from user_log ;
-
 ```
 
+屏蔽关键字识别规则，在Hive 2.1.0 及更早期的版本还可以通过设置`set hive.support.sql11.reserved.keywords=false;`取消保留字校验(最新的Hive版本已经不支持此配置项，无效)。或者在hive-site.xml里设置
 
+```xml
+<property>
+  <name>hive.support.sql11.reserved.keywords</name>
+  <value>false</value>
+</property>
+```
 
-## Ｈive中的关键字
+对于Hive 2.1.0 以后的版本已经不再支持此设置，只能使用反引号处理
+
+### like和as
+
+hive中的like关键字允许复制一个已经存在的表的结构(只复制表的结构，不复制表中的数据)，可以快速建表。
+
+```sql
+create  table  person1  like  person；
+```
+
+hive中的as关可以创建一个以查询语句结果为数据内容的数据表，并且只要查询语句的结果不为空，创建好数据表后，数据表中就有数据。
+
+```sql
+create  table  person2  as  select * from person where sex = "男"；
+```
+
+### hive中的local关键字
+
+hive中的local关键字表示指明将文件从本地(hive运行的那台机器，如果开启的是hive服务，则本地为开启hive服务的那台机器，hive服务客户端(即：编写命令的那台机器)不是本地)中加载到hive中。
+
+## Ｈive中的关键字表
 
 | Version    | Non-reserved Keywords                                        | Reserved Keywords                                            |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |

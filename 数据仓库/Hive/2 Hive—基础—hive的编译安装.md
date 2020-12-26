@@ -74,7 +74,7 @@ git clone https://github.com/apache/hive.git
 
 ### 修改hive-site.xml
 
-```java
+```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
         <property>

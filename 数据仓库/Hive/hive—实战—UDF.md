@@ -1,12 +1,28 @@
+
+
+[TOC]
+
+
+
+## UDF(用户自定义函数)
+
+
+
 hive作为一个sql查询引擎，自带了一些基本的函数，比如`count`(计数)，`sum`(求和)，有时候这些基本函数满足不了我们的需求，这时候就要写`hive hdf(user defined funation)`，又叫用户自定义函数。
 
-# UDF 创建与使用步骤
+关于Hive 的内置函数可以看
+
+### UDF 创建与使用步骤
 
 - 继承`org.apache.hadoop.hive.ql.exec.UDF`类，实现evaluate方法；
 - 打`jar`包上传到集群，通过`create temporary function`创建临时函数，不加`temporary`就创建了一个永久函数；
 - 通过select 语句使用；
 
-## 例一
+
+
+### 例子
+
+#### 例一
 
 下面是一个判断hive表字段是否包含`’100’`这个子串的简单`udf`:
 
@@ -42,7 +58,7 @@ select isContains100('abc100def') from table limit 1;
 1
 ```
 
-## 例二
+#### 例二
 
 通过读取mysql数据库中的规则，为hive中的workflow返回对应的，类型：
 
@@ -167,7 +183,7 @@ b
 
 
 
-## 查看hive function的用法
+### 查看hive function的用法
 
 查month 相关的函数
 
@@ -187,7 +203,7 @@ desc function add_months;
 desc function extended add_months;
 ```
 
-# hive 中的 UDAF
+### hive 中的 UDAF
 
 可以看出，udf就是一个输入一个输出，输入一个性别，返回’男’或者’女’，如果我们想实现`select date,count(1) from table`，统计每天的流量呢？这就是一个分组统计，显然是多个输入，一个输出，这时候udf已经不能满足我们的需要，就需要写udaf，`user defined aggregare function`(用户自定义聚合函数)。
 
@@ -283,11 +299,11 @@ public class MutiStringConcat extends UDAF{
 
 
 
-## 临时与永久函数
+### 临时与永久函数
 
 `Hive`自定义函数分为临时与永久函数，顾名思义，分别是临时使用和永久有效使用的意思。
 
-### 临时函数
+#### 临时函数
 
 临时函数，关闭会话就结束了生命周期，下次要想使用，需要重新注册。
 
@@ -302,7 +318,7 @@ create temporary function 函数名 as '包名.类名';
 
 - drop temporary function 数据库名.函数名;
 
-### 永久函数
+#### 永久函数
 
 永久函数一旦注册，可以在hive cli，远程连接hiveserver2等地方永久使用，步骤为：
 
@@ -328,11 +344,17 @@ drop function 数据库名.函数名字;
 
 ## 场景
 
+
+
 UDF在hive中使用场景广泛，这里列举常用的使用场景。
 
 ### IP 转化为地址
 
+
+
 ### 分词
+
+
 
 ### SQL 分析UDF
 
