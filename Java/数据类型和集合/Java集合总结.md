@@ -2,7 +2,7 @@
 
 ## 一. 系列文章
 
-### Java 集合
+### Java 集合系列文章
 
 ---
 [深度剖析ArrayList](https://blog.csdn.net/king14bhhb/article/details/110671464)
@@ -44,7 +44,7 @@
 
 ---
 
-### Java 数据类型
+### Java 数据类型系列文章
 
 [枚举初识](https://blog.csdn.net/king14bhhb/article/details/111224216)
 
@@ -59,6 +59,8 @@
 [String进阶之不可变性](https://blog.csdn.net/king14bhhb/article/details/111415444)
 
 [String进阶之StringBuilder与StringBuffer](https://blog.csdn.net/king14bhhb/article/details/111566093)
+
+[String扩展](https://blog.csdn.net/king14bhhb/article/details/111721430)
 
 ---
 

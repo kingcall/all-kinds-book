@@ -1,5 +1,7 @@
 [TOC]
 
+
+
 ## String 扩展方法
 
 ### Join方法 让代码更优美
@@ -125,3 +127,16 @@ private final byte coder;
 
 
 
+## 总结
+
+如果你还对String 的其他知识和技巧感兴趣请告诉我。这篇就是我们的String 系列的完结篇了，更多精彩请看
+
+[String基础](https://blog.csdn.net/king14bhhb/article/details/111314482)
+
+[String进阶之字符串常量池](https://blog.csdn.net/king14bhhb/article/details/111414710)
+
+[String进阶之不可变性](https://blog.csdn.net/king14bhhb/article/details/111415444)
+
+[String进阶之StringBuilder与StringBuffer](https://blog.csdn.net/king14bhhb/article/details/111566093)
+
+[String扩展](https://blog.csdn.net/king14bhhb/article/details/111721430)

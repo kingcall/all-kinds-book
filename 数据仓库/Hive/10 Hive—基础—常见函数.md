@@ -1,3 +1,11 @@
+
+
+show functions;
+
+
+
+
+
 | **Return Type**   | **Function Name (Signature)**                    | **Description**                                              |
 | :---------------- | :----------------------------------------------- | :----------------------------------------------------------- |
 | BIGINT            | round(double a)                                  | returns the rounded BIGINT value of the double               |
@@ -36,3 +44,42 @@
 | DOUBLE          | avg(col), avg(DISTINCT col)                           | returns the average of the elements in the group or the average of the distinct values of the column in the group |
 | DOUBLE          | min(col)                                              | returns the minimum value of the column in the group         |
 | DOUBLE          | max(col)                                              | returns the maximum value of the column in the group         |
+
+
+
+
+
+- Positive
+- Negative
+- Addition
+- Subtraction
+- Multiplication
+- Division
+- Average (avg)
+- Sum
+- Count
+- Modulus (pmod)
+- Sign – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6246) and later
+- Exp – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Ln – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Log2 – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Log10 – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Log(*base*) – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Sqrt – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Sin – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Asin – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Cos – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Acos – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Tan – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Atan – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Radians – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6327) and later
+- Degrees – [Hive 0.13.0](https://issues.apache.org/jira/browse/HIVE-6385) and later
+
+These rounding functions can also take decimal types:
+
+- Floor
+- Ceiling
+- Round
+
+
+
