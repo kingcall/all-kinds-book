@@ -14,38 +14,78 @@ Hive-on-MR is deprecated in Hive 2 and may not be available in the future versio
 
 tez 是基于hive 之上，可以将sql翻译解析成DAG计算的引擎。基于DAG 与mr 架构本身的优缺点，tez 本身经过测试一般小任务在hive mr 的2-3倍速度左右，大任务7-10倍左右，根据情况不同可能不一样。
 
+### Tez 安装配置
 
+因为我用的是idea ，所以我先将源代码导入到了idea 中去，代码的git 地址`https://github.com/apache/tez`
 
-#### Tez 安装配置
+然后使用`hadoop version` 看了一下我的版本，调整了一下pom 中的版本配置，本来是3.1.3 的
 
+![image-20201227164730888](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/27/16:47:32-image-20201227164730888.png)
 
+然后直接打包命令`mvn clean package -DskipTests ` 然后就报错了
 
-http://www.apache.org/dyn/closer.lua/tez/0.9.2/
-
-hdfs dfs -mkdir /app
-
-dfs dfs -put Downloads/apache-tez-0.9.2-bin.tar.gz /app
-
-```
-export TEZ_HOME=/usr/local/tez/apache-tez-0.9.2-bin
-export TEZ_CONF=/usr/local/tez/apache-tez-0.9.2-bin/conf
-
-export HADOOP_HOME=/usr/local/Cellar/hadoop/3.2.1/libexec
-export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
-export HADOOP_CLASSPATH=`hadoop classpath`
-export HADOOP_CLASSPATH=${HADOOP_CLASSPATH}:${TEZ_HOME}/*:${TEZ_CONF_DIR}:${TEZ_HOME}/lib/*
+![image-20201227161020312](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/27/16:10:21-image-20201227161020312.png)
 
 ```
+ Failed to execute goal org.apache.hadoop:hadoop-maven-plugins:3.2.1:protoc (compile-protoc) on project tez-api: org.apache.maven.plugin.MojoExecutionException: protoc version is 'libprotoc 3.11.4', expected version is '2.5.0' ->
+```
 
+我查看了一下我的protoc的版本
 
+![image-20201227161354862](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/27/16:13:55-image-20201227161354862.png)
 
-![image-20201223111303552](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/23/11:13:04-image-20201223111303552.png)
+果然我们的版本和期望的版本不一致，既然问题找到了，那就开始解决
 
-执行`hadoop classpath` 发现jar 包已经被引入进来了
+```
+wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz
+tar -xzf protobuf-2.5.0.tar.gz
+cd protobuf-2.5.0/
+./autogen.sh
+./configure --prefix=/usr/local/protobuf2.5
+make
+sudo make install
+```
 
+一顿操作安装好了，接下来我们再看一下版本,好像没生效啊, 执行这个命令找到了原因 `which protoc` /Applications/anaconda3/bin/protoc
 
+![image-20201227163335568](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/27/16:33:36-image-20201227163335568.png)
 
-#### 使用
+也就是到目前为止我的电脑上装了两个版本的protoc，但是我又不打算动电脑自带的那个版本，因为我怕会有其他的影响，所以我只能对Tez 的配置动点脑筋了
+
+然后我搜索了一下protoc 关键字，然后在maven 的pom 文件里发现了这个`<protoc.path>${env.PROTOC_PATH}</protoc.path>` 然后我就将其改成了，我刚才的安装路径，`<protoc.path>/usr/local/protobuf2.5/bin</protoc.path>` 但是后来打包的时候发现不对，然后我发现应该是`<protoc.path>/usr/local/protobuf2.5/bin/protoc.path</protoc.path>` 就可以了，继续打包` mvn clean package -DskipTests -rf :tez-api`
+
+其实你也可以通过执行`brew install protobuf250` 来安装你要的特定版本的protobuf
+
+![image-20201227164952968](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/27/16:49:53-image-20201227164952968.png)
+
+打包好的文件在`tez-dist/target/` 文件夹下,然后将其传到Hdfs 上去
+
+```
+hdfs dfs -mkdir /app/tez
+hdfs dfs -put tez-dist/target/tez-0.10.1-SNAPSHOT.tar.gz /app/tez
+```
+
+然后在hive的配置目录下创建`tez-site.xml` 配置文件
+
+```properties
+<configuration>
+    <property>
+        <name>tez.lib.uris</name>
+        <value>${fs.defaultFS}/app/tez/tez-0.10.1-SNAPSHOT.tar.gz</value>
+    </property>
+</configuration>
+```
+
+配置环境变量
+
+```
+export TEZ_HOME=/usr/local/tez/apache-tez-0.10.1
+export HADOOP_CLASSPATH=${HADOOP_CLASSPATH}:${TEZ_HOME}/*:${TEZ_HOME}/lib/*
+```
+
+执行`hadoop classpath` 发现 tez 的 jar 包已经被引入进来了
+
+接下来就可以使用Tez 引擎了`set hive.execution.engine=tez;`
 
 
 

@@ -60,6 +60,8 @@
 
 ​	[17. Hive的严格模式和本地模式](https://blog.csdn.net/king14bhhb/article/details/111795036)
 
+​	[18. Hive的Hive执行引擎](https://blog.csdn.net/king14bhhb/article/details/111823588)
+
 ##### 2.Hive 语法篇
 
 
