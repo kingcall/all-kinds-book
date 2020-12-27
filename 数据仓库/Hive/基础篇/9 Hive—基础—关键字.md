@@ -10,10 +10,32 @@ Hive有一些保留的关键字，我们在执行一些语句时，不能将这�
 
 hive中有很多关键字，直接作为`列名或者表名或者表别名`，会出错的，例如`user`这个关键字很多人会拿来做表的别名，就会出错：
 
+```
+这里有张表`user_log`：
+
+​```
+1  15110101010    1577003281739  112.168.1.2    https://www.baidu.com
+2  15110101011    1577003281749  112.16.1.23    https://www.baidu.com
+3  15110101012    1577003281759  193.168.1.2    https://www.taobao.com
+4  15110101013    1577003281769  112.18.1.2 https://www.baidu.com
+5  15110101014    1577003281779  112.168.10.2   https://www.baidu.com
+6  15110101015    1577003281789  11.168.1.2 https://www.taobao.com
+7  15110101016    1577003281790  112.168.1.3    https://www.qq.com
+8  15110101017    1577003281791  112.1.1.3  https://www.microsoft.com
+​```
+```
+
 ```sql
 hive> select * from user_log user;
 
 NoViableAltException(311@[157:5: ( ( Identifier LPAREN )=> partitionedTableFunction | tableSource | subQuerySource | virtualTableSource )])
+
+
+
+
+
+
+
 	at org.antlr.runtime.DFA.noViableAlt(DFA.java:158)
 	at org.antlr.runtime.DFA.predict(DFA.java:116)
 	at org.apache.hadoop.hive.ql.parse.HiveParser_FromClauseParser.fromSource0(HiveParser_FromClauseParser.java:2901)

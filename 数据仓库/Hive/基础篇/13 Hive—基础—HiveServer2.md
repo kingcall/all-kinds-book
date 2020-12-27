@@ -1,28 +1,20 @@
 [TOC]
 
-
-
 ## HiveServer 简介
 
+今天我们学习一下Hive 架构中的重要一员HiveServer2或者是HiveServer1，HiveServer2使得其他语言访问Hive 成为了可能，其他语言通过连接HiveServer2服务提供的接口进而访问Hive,HiveServer2还引入了一个客户端，那就是大名鼎鼎的BeeLine,BeeLine 是一个通过JDBC 访问Hive的shell 接口
+
+其实我们在前面讲[Hive的架构设计](https://blog.csdn.net/king14bhhb/article/details/111769279) 的时候提到过，Hive 提供的另外一个shell 客户端，也就是我们常用的hive 命令的客户端它的设计是直接启动了一个`org.apache.hadoop.hive.cli.CliDriver`的进程，这个进程其实主要包含了两块内容一个是提供给我们交互的cli ，另外一个就是我们的Driver 驱动引擎，这样的设计导致如果我们有多个客户端的情况下，我们就需要有多个Driver，但是我们通过HiveServer2连接的时候我们就可以共享`Driver`,一方面可以简化客户端的设计降低资源损耗，另外一方面还能降低对MetaStore 的压力，减少连接的个数。
+
+![image-20201226210552649](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/26/21:57:09-21:05:53-image-20201226210552649.png)
 
 
-![image-20201222214721249](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/22/21:47:21-image-20201222214721249.png)
-
-从图中看出 hiveserver是hive与client端的交换终端，client通过hiveserver构建查询语句，访问hadoop，并把数据通过hiveserver返回到client端
 
 ### 1. HiveServer1
 
-HiveServer是一种可选服务，允许远程客户端可以使用各种编程语言向Hive提交请求并检索结果。HiveServer是建立在Apache ThriftTM（[http://thrift.apache.org/）](https://link.zhihu.com/?target=http%3A//thrift.apache.org/%EF%BC%89) 之上的，因此有时会被称为Thrift Server，这可能会导致混乱，因为新服务HiveServer2也是建立在Thrift之上的．自从引入HiveServer2后，HiveServer也被称为HiveServer1。
+HiveServer是一种可选服务，允许远程客户端可以使用各种编程语言向Hive提交请求并检索结果。**HiveServer是建立在[Apache ThriftTM](http://thrift.apache.org/)之上的，因此有时会被称为Thrift Server**，这可能会导致混乱，因为新服务HiveServer2也是建立在Thrift之上的．自从引入HiveServer2后，HiveServer也被称为HiveServer1。
 
-
-
-HiveServer无法处理来自多个客户端的并发请求.这实际上是HiveServer导出的Thrift接口所施加的限制，也不能通过修改HiveServer源代码来解决。
-
-HiveServer2对HiveServer进行了重写，来解决这些问题，从Hive 0.11.0版本开始。建议使用HiveServer2。
-
-从Hive1.0.0版本（以前称为0.14.1版本）开始，HiveServer开始被删除。请切换到HiveServer2。
-
-
+HiveServer1无法处理来自多个客户端的并发请求，这实际上是HiveServer导出的Thrift接口所施加的限制，也不能通过修改HiveServer源代码来解决。HiveServer2对HiveServer1进行了重写，来解决这些问题，从Hive 0.11.0版本开始,建议使用HiveServer2。
 
 ### **2. HiveServer2**
 
@@ -30,7 +22,7 @@ HiveServer2对HiveServer进行了重写，来解决这些问题，从Hive 0.11.0
 
 HiveServer2(HS2)是一种能使客户端执行Hive查询的服务。 HiveServer2是HiveServer1的改进版，HiveServer1已经被废弃。HiveServer2可以支持多客户端并发和身份认证。旨在为开放API客户端（如JDBC和ODBC）提供更好的支持。
 
-HiveServer2单进程运行，提供组合服务，包括基于Thrift的Hive服务（TCP或HTTP）和用于Web UI的Jetty Web服务器。
+HiveServer2单进程运行，提供组合服务，包括基于Thrift的Hive服务(TCP或HTTP)和用于Web UI的Jetty Web服务器。
 
 #### 2.2 架构
 
@@ -59,9 +51,7 @@ TThreadPoolServer为每个TCP连接分配一个工作线程。即使连接处于
 - Metastore metastore可以配置为嵌入式（与HiveServer2相同的过程）或远程服务器（也是基于Thrift的服务）。 HS2与查询编译所需的元数据相关。
 - Hadoop cluster HiveServer2准备了各种执行引擎（MapReduce/Tez/Spark）的物理执行计划，并将作业提交到Hadoop集群执行。
 
-### HiveServer 的使用方式
-
-
+### 3. HiveServer 的使用方式
 
 #### 1. JDBC Client
 
@@ -78,9 +68,11 @@ TThreadPoolServer为每个TCP连接分配一个工作线程。即使连接处于
 
   备注：连接Hive JDBC URL：jdbc:hive://192.168.6.116:10000/default   （Hive默认端口：10000 默认数据库名：default）
 
+#### 3. Thrift客户端访问
 
+因为HiveServer2是基于Thrift实现的，所以我们也可以使用 Thrift客户端来访问Hive服务
 
-## Setting Up HiveServer2
+## 安装 HiveServer2
 
 ### 最小配置
 
@@ -221,6 +213,7 @@ id: anonymous: no such user
 ## 总结
 
 1. HiveServer2是一种可选服务，允许远程客户端可以**使用各种编程语言**向Hive提交请求并检索结果,HiveServer2对HiveServer1进行了重写解决了HiveServer1**不支持多客户端连接的问题**
-2. HiveServer2支持以JDBC 的方式访问，也支持直接使用Thrift客户端访问
+2. **HiveServer2支持以JDBC 的方式访问，也支持直接使用Thrift客户端访问**
 3. HiveServer2如果没有专门配置用户名和密码，可以使用关系型数据库，也就是存放元数据的数据库的 用户名和密码，也支持匿名用户访问
 4. HiveServer2 提供了客户端beeline 和 Web UI for HiveServer2
+

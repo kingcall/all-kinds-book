@@ -2,6 +2,8 @@
 
 ## 数据仓库教程
 
+这里我们做了一份关于整个数仓体系的教程，主要内容大家可以看目录，后续满面会完善，欢迎大家关注，一起讨论交流
+
 ### 1. 数仓建模
 
 ​	[什么是数仓]()
@@ -48,6 +50,14 @@
 
 ​	[12. Hive函数大全](https://blog.csdn.net/king14bhhb/article/details/111765573)
 
+​	[13. Hive的架构设计](https://blog.csdn.net/king14bhhb/article/details/111769279)
+
+​	[14.Hive架构之HiveServer2](https://blog.csdn.net/king14bhhb/article/details/111770337)
+
+​	[15. Hive的其他语言调用](https://blog.csdn.net/king14bhhb/article/details/111770561)
+
+
+
 ##### 2.Hive 语法篇
 
 
@@ -91,8 +101,6 @@
 #### 1. K12赛道Top公司的数仓建设
 
 #### 2. 知名游戏公司的数仓建设
-
-
 
 ## 总结
 

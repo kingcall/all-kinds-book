@@ -1,10 +1,14 @@
-![访问Hive](http://qiniu.ikeguang.com/image/2020/12/21/22:36:37-%E8%AE%BF%E9%97%AEHive.png)
+
 
 [TOC]
 
-## Hive 其他语言调用
+## Hive的其他语言调用
 
-先解释一下几个名词：
+![访问Hive](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/26/22:25:30-22:36:37-%E8%AE%BF%E9%97%AEHive.png)
+
+
+
+前面我们学习[Hive的架构设计](https://juejin.cn/post/6910551759899656199)和[Hive的服务HiveServer2](https://juejin.cn/post/6910568483126411278),我们知道了HiveServer2服务的加入使得其他语言访问Hive成为了可能，接下来我们学习一下其他语言访问Hive ,开始之前我们复习一下下面的几个概念
 
 - metadata ：hive元数据，即hive定义的表名，字段名，类型，分区，用户这些数据。一般存储关系型书库mysql中，在测试阶段也可以用hive内置Derby数据库。
 
@@ -14,13 +18,13 @@
 
 - beeline：hive客户端链接到hive的一个工具。可以理解成mysql的客户端。如：navite cat 等。
 
-其它语言访问`hive`主要是通过hiveserver2服务，HiveServer2(HS2)是一种能使客户端执行Hive查询的服务。HiveServer2可以支持对 HiveServer2 的嵌入式和远程访问，支持多客户端并发和身份认证。旨在为开放API客户端（如JDBC和ODBC）提供更好的支持。
+其它语言访问`hive`主要是通过HiveServer2服务，HiveServer2(HS2)是一种能使客户端执行Hive查询的服务。HiveServer2可以支持对 HiveServer2 的嵌入式和远程访问，支持多客户端并发和身份认证。旨在为开放API客户端（如JDBC和ODBC）提供更好的支持。
 
 
 
 会启动一个hive服务端默认端口为：10000，可以通过beeline，jdbc，odbc的方式链接到hive。hiveserver2启动的时候会先检查有没有配置hive.metastore.uris，如果没有会先启动一个metastore服务，然后在启动hiveserver2。如果有配置hive.metastore.uris。会连接到远程的metastore服务。这种方式是最常用的。部署在图如下：
 
-![20200717122732-5f119934301e5](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/18/23:18:52-20200717122732-5f119934301e5.png)
+![image-20201226223416563](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/26/22:34:17-image-20201226223416563.png)
 
 ### Python访问Hive
 
@@ -560,3 +564,10 @@ if(pageInfo.getList().size() > 0){
 ```
 
 目前功能看起来很简单，没有用到什么高大上的东西，后面慢慢完善。
+
+
+
+## 总结
+
+1. spring boot 的成功整合可以方便地让我们将Hive整合到我们的数据平台中去，而且也可以方面的开发出出其他基于Hive 的数据产品
+2. 虽然今天我们迈出的实一小步，但是后面我们要基于这个做很多好玩的事情

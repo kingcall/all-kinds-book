@@ -4,25 +4,26 @@
 
 
 
-## UDF(用户自定义函数)
+## 用户自定义函数
 
 
 
 hive作为一个sql查询引擎，自带了一些基本的函数，比如`count`(计数)，`sum`(求和)，有时候这些基本函数满足不了我们的需求，这时候就要写`hive hdf(user defined funation)`，又叫用户自定义函数。
 
-关于Hive 的内置函数可以看
+关于Hive 的内置函数可以看[Hive函数大全](https://blog.csdn.net/king14bhhb/article/details/111765573)
 
 ### UDF 创建与使用步骤
 
-- 继承`org.apache.hadoop.hive.ql.exec.UDF`类，实现evaluate方法；
-- 打`jar`包上传到集群，通过`create temporary function`创建临时函数，不加`temporary`就创建了一个永久函数；
-- 通过select 语句使用；
+- 添加相关依赖，创建项目，这里我用的管理工具是maven,所以我创建的也是一个maven 项目(这个时候你需要选择合适的依赖版本，主要是Hadoop 和 Hive,可以使用`hadoop version`和`hive --version` 来分别查看版本)
 
-
+- 继承`org.apache.hadoop.hive.ql.exec.UDF`类，实现evaluate方法，然后打包
+- 使用 `add`方法添加jar 包到分布式缓存，**如果jar包是上传到$HIVE_HOME/lib/目录以下，就不需要执行add命令了**
+- 通过`create temporary function`创建临时函数，不加`temporary`就创建了一个永久函数；
+- 在SQL 中使用你创建的UDF
 
 ### 例子
 
-#### 例一
+#### 例一 判断字符串是否包含100
 
 下面是一个判断hive表字段是否包含`’100’`这个子串的简单`udf`:
 
@@ -55,7 +56,6 @@ create temporary function isContains100 as 'com.js.dataclean.hive.udf.hm2.IsCont
 
 ```sql
 select isContains100('abc100def') from table limit 1;
-1
 ```
 
 #### 例二
@@ -181,8 +181,6 @@ b
 
 这样就把很多取值归为几个大类了。
 
-
-
 ### 查看hive function的用法
 
 查month 相关的函数
@@ -288,7 +286,7 @@ public class MutiStringConcat extends UDAF{
 
 *关于UDAF开发注意点：*
 
-- 需要`import org.apache.hadoop.hive.ql.exec.UDAF`以及`org.apache.hadoop.hive.ql.exec.UDAFEvaluator`,这两个包都是必须的
+- 需要`import org.apache.hadoop.hive.ql.exec.UDAF`以及`org.apache.hadoop.hive.ql.exec.UDAFEvaluator`,这两个类都是必须的
 - 函数类需要继承UDAF类，内部类Evaluator实现UDAFEvaluator接口
 - Evaluator需要实现 init、iterate、terminatePartial、merge、terminate这几个函数
   - init函数类似于构造函数，用于UDAF的初始化
@@ -296,8 +294,6 @@ public class MutiStringConcat extends UDAF{
   - terminatePartial无参数，其为iterate函数轮转结束后，返回乱转数据，iterate和terminatePartial类似于hadoop的Combiner
   - merge接收terminatePartial的返回结果，进行数据merge操作，其返回类型为boolean
   - terminate返回最终的聚集函数结果
-
-
 
 ### 临时与永久函数
 
@@ -342,23 +338,9 @@ drop function 数据库名.函数名字;
 
 
 
-## 场景
+## 总结
 
-
-
-UDF在hive中使用场景广泛，这里列举常用的使用场景。
-
-### IP 转化为地址
-
-
-
-### 分词
-
-
-
-### SQL 分析UDF
-
-
+这一节我们主要介绍了如何创建UDF ,主要集中在创建的流程，以及如何使用，例子都是很简单的，就是为了讲清楚一些细节的东西，下一节我们学习几个有用的UDF,可以很好的解决一些工作中遇到的人问题
 
 
 
