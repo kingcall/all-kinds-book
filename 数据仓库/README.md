@@ -52,7 +52,7 @@
 
 ​	[13. Hive的架构设计](https://blog.csdn.net/king14bhhb/article/details/111769279)
 
-​	[14.Hive架构之HiveServer2](https://blog.csdn.net/king14bhhb/article/details/111770337)
+​	[14. Hive架构之HiveServer2](https://blog.csdn.net/king14bhhb/article/details/111770337)
 
 ​	[15. Hive的其他语言调用](https://blog.csdn.net/king14bhhb/article/details/111770561)
 
@@ -60,7 +60,15 @@
 
 ​	[17. Hive的严格模式和本地模式](https://blog.csdn.net/king14bhhb/article/details/111795036)
 
-​	[18. Hive的Hive执行引擎](https://blog.csdn.net/king14bhhb/article/details/111823588)
+​	[18. Hive的执行引擎](https://blog.csdn.net/king14bhhb/article/details/111823588)
+
+​	[19. Hive视图和物化视图](https://blog.csdn.net/king14bhhb/article/details/111827225)
+
+​	[20. Hive UDF](https://blog.csdn.net/king14bhhb/article/details/111827549)
+
+​	[21. Hive UDF实战]()
+
+​	[22. Hive 事务]()
 
 ##### 2.Hive 语法篇
 

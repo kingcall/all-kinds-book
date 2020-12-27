@@ -269,6 +269,14 @@ stored as textfile;
 alter table t8 set serdepropertyes('field.delim'='\t');
 ```
 
+### 5.7  修改表的文件存储格式组织方式
+
+下面这两个命令都修改了表的物理存储属性。
+
+1. ALTER TABLE table_name SET FILEFORMAT file_format 修改表的存储格式
+2. ALTER TABLE table_name CLUSTERED BY (col_name, col_name, ...) [SORTEDBY(col_name, ...)] INTO num_buckets BUCKETS 修改表的分桶情况
+   
+
 ## 6 其他操作
 
 ### 6.1. 查看表
