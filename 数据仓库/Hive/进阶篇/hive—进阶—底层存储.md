@@ -1,7 +1,28 @@
 [toc]
 
 ## 常见的数据格式
+Hive supports several file formats:
+
+- Text File
+
+- SequenceFile
+
+- [RCFile](https://cwiki.apache.org/confluence/display/Hive/RCFile)
+
+- [Avro Files](https://cwiki.apache.org/confluence/display/Hive/AvroSerDe)
+
+- [ORC Files](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+ORC)
+
+- [Parquet](https://cwiki.apache.org/confluence/display/Hive/Parquet)
+
+- Custom INPUTFORMAT and OUTPUTFORMAT
+
+  
+
+  The [hive.default.fileformat](https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties#ConfigurationProperties-hive.default.fileformat) configuration parameter determines the format to use if it is not specified in a [CREATE TABLE](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-CreateTable) or [ALTER TABLE](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-AlterEitherTableorPartition) statement.  Text file is the parameter's default value.
+
 ### 背景
+
 - 当今的数据处理大致可分为两大类，联机事务处理 OLTP(on-line transaction processing)联机分析处理 OLAP(On-Line Analytical Processing)
 > OLTP 是传统关系型数据库的主要应用用来执行一些基本的、日常的事务处理比如数据库记录的增、删、改、查等等而OLAP则是分布式数据库的主要应用它对实时性要求不高，但处理的数据量大通常应用于复杂的动态报表系统上
 

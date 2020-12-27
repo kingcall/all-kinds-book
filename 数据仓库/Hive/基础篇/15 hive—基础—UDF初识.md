@@ -2,8 +2,6 @@
 
 [TOC]
 
-
-
 ## 用户自定义函数
 
 
@@ -23,21 +21,67 @@ hive作为一个sql查询引擎，自带了一些基本的函数，比如`count`
 
 ### 例子
 
+下面我把pom 文件的主要内容帖在这里，因为我这个是所有的udf 函数都在一个项目里所以有其他的一些依赖，大家只选择自己需要的即可
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>org.apache.hadoop</groupId>
+    <artifactId>hadoop-common</artifactId>
+    <version>${hadoop.version}</version>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hadoop</groupId>
+    <artifactId>hadoop-hdfs</artifactId>
+    <version>${hadoop.version}</version>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-exec</artifactId>
+    <version>${hive.version}</version>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.12</version>
+    <scope>test</scope>
+  </dependency>
+
+  <dependency>
+    <groupId>org.ansj</groupId>
+    <artifactId>ansj_seg</artifactId>
+    <version>5.1.6</version>
+    <scope>compile</scope>
+  </dependency>
+
+  <dependency>
+    <groupId>com.janeluo</groupId>
+    <artifactId>ikanalyzer</artifactId>
+    <version>2012_u6</version>
+  </dependency>
+</dependencies>
+```
+
+
+
 #### 例一 判断字符串是否包含100
 
 下面是一个判断hive表字段是否包含`’100’`这个子串的简单`udf`:
 
 ```java
-package com.js.dataclean.hive.udf.hm2
+package com.kingcall.bigdata.HiveUDF.demo;
 
 import org.apache.hadoop.hive.ql.exec.UDF;
 
 public class IsContains100 extends UDF{
 
-	public String evaluate(String s){
+    public String evaluate(String s){
 
         if(s == null || s.length() == 0){
-        	return "0";
+            return "0";
         }
 
         return s.contains("100") ? "1" : "0";
@@ -48,8 +92,8 @@ public class IsContains100 extends UDF{
 使用maven将其打包，进入`hive cli`，输入命令：
 
 ```shell
-add jar /home/hadoop/codejar/flash_format.jar;
-create temporary function isContains100 as 'com.js.dataclean.hive.udf.hm2.IsContains100';
+add jar /Users/liuwenqiang/workspace/code/idea/HiveUDF/target/HiveUDF-0.0.4.jar;
+create temporary function isContains100 as 'com.longzhu.bigdata.HiveUDF.demo.IsContains100';
 ```
 
 创建完临时函数，即可使用这个函数了：
@@ -71,7 +115,7 @@ b	22
 b	33
 ```
 
-**需求**：我们希望，将hive的workflow字段取值为，1，2的变为类型(type)`a`，取值为11,22,33的全部变为`b`，就是归类的意思。
+**需求**：我们希望，将hive的workflow字段取值为 1，2的变为类型(type)`a`，取值为11,22,33的全部变为`b`，就是归类的意思。
 
 这个udf可以这么实现：
 
@@ -86,12 +130,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @ Author: keguang
- * @ Date: 2018/12/13 16:24
- * @ version: v1.0.0
- * @ description:
- */
 public class GetWorkflow extends UDF{
 
     private static final String host = "0.0.0.0";
@@ -214,12 +252,6 @@ import com.js.dataclean.utils.StringUtil;
 import org.apache.hadoop.hive.ql.exec.UDAF;
 import org.apache.hadoop.hive.ql.exec.UDAFEvaluator;
 
-/**
- * 实现字符串连接聚合的UDAF
- * @version v1.0.0
- * @Author:keguang
- * @Date:2018/10/22 14:36
- */
 public class MutiStringConcat extends UDAF{
     public static class SumState{
         private String sumStr;
@@ -320,7 +352,7 @@ create temporary function 函数名 as '包名.类名';
 
 - 先上传jar包到HDFS
 
-- 永久注册：
+- 永久注册
 
 ```sql
 CREATE FUNCTION 函数名 AS '包名.类名' USING JAR 'hdfs:///path/xxxx.jar';

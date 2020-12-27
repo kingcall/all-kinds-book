@@ -25,7 +25,7 @@
 
 Hive对外提供了三种访问方式，包括Web UI，CLI（Client Line Interface）和Thrift协议（支持JDBC/ODBC）,我们可以将这个Hive看成一个CS 的模型，提供用户调用入口的客户端，提供服务的后端(主要包括三个服务组件构成)，也就是下图那个大的虚线框
 
-![image-20201226205347230](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/26/20:53:48-image-20201226205347230.png)
+![image-20201227123311620](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/27/12:33:12-image-20201227123311620.png)
 
 HiveSQL 通过命令行或者客户端提交，经过 Compiler 编译器，运用 MetaStore 中的元数 据进行类型检测和语法分析，生成一个逻辑方案(Logical Plan)，然后通过的优化处理，产生 一个 MapReduce 任务。
 
@@ -81,6 +81,10 @@ Hive依赖与Hadoop，包括分布式文件系统HDFS，分布式资源管理系
 ## 总结
 
 1. 今天我们主要讲解了Hive 的架构设计，以及简单介绍了它的一些服务，后面我们会针对每一个服务做单独的讲解，例如MetaStore,HiveServer2 等
+
 2. Hive整体上来说是一个CS 的架构
+
 3. Hive 将SQL 解析成大数据的任务发生在Driver 中，然后将生产的任务交给大数据执行引擎进行执行
+
+   
 

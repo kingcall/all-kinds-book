@@ -56,7 +56,9 @@
 
 ​	[15. Hive的其他语言调用](https://blog.csdn.net/king14bhhb/article/details/111770561)
 
+​	[16. Hive架构服务](https://blog.csdn.net/king14bhhb/article/details/111777544)
 
+​	[17. Hive的严格模式和本地模式](https://blog.csdn.net/king14bhhb/article/details/111795036)
 
 ##### 2.Hive 语法篇
 

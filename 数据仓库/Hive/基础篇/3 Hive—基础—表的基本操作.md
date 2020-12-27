@@ -291,7 +291,7 @@ show tables；
  SHOW TABLES '.*s';
 ```
 
-### 6.2 load 数据
+### 6.2 导入数据
 
 这个一般用于我们加载一下其他地方的数据到hive 表中，例如外部的文本数据、或者是埋点数据
 
@@ -325,4 +325,20 @@ create table ods.user_info (
 `load data inpath '/Users/liuwenqiang/workspace/hive/user.txt' overwrite into table ods.user_info`
 
 其实很多时候你不用load 命令也可以，只要你将准备好的数据放到对应的表目录下就可以了，对于本地文件可以使用 `hdfd dfs -put` 对于集群上的文件使用`hdfs dfs -mv`
+
+### 6.3 导出数据
+
+上面我们介绍使用load 命令可以导入本地数据或者HDFS上的数据到数仓，下面我们看一下如何将查询的结果导出，其实除了下面导出的方式我们还可以直接在HDFS 上的表数据直接进行导出，使用`hdfs dfs -get /user/hive/warehouse/ods.db/person/person.txt`
+
+#### 导出到HDFS
+
+```
+INSERT OVERWRITE DIRECTORY '/tmp/hdfs_out' SELECT a.* FROM invites a WHERE a.ds='2008-08-15';
+```
+
+#### 导出到本地
+
+```
+ INSERT OVERWRITE LOCAL DIRECTORY '/tmp/local_out' SELECT a.* FROM pokes a;
+```
 

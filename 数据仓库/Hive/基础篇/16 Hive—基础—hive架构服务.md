@@ -2,7 +2,9 @@
 
 ## Hive 服务详解
 
-### 元数据服务(Metastore)
+前面我们学习[数仓工具—Hive的架构设计](https://blog.csdn.net/king14bhhb/article/details/111769279) 的时候学到了很多概念，像元数据服务什么的，其实架构设计里的每一项都对应的是一种服务或者是一个进程，这节我们就学习一下它
+
+### 元数据服务(MetaStore)
 
 #### Metastore 初识
 
@@ -73,27 +75,29 @@ java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.meta
 
 ### Hive Web Interface(HWI)
 
-hive 的web 接口，为什么说是接口而不是界面呢，那是因为它和hive 命令行一样，可以做很多操作，而不单单是显示界面,Hive Web Interface 缩写为HWI,HWI 是开始学习hive 的一个比较友好的工具
+HWI 是 Hive 的Web 接口，为什么说是接口而不是界面呢，那是因为它和hive 命令行一样，可以做很多操作，而不单单是显示界面,Hive Web Interface 缩写为HWI,Hive Web界面是Hive 命令行的替代产品，使用web界面是开始使用Hive的一个很好的方法。但是我们知道它并没有替代掉Hive 的命令行，我们也知道不止它没有成功，甚至后来的Beeline 也没有做到，反而是Hive Web Interface 自从 Hive [2.2.0](https://issues.apache.org/jira/browse/HIVE-15622) 的时候被移除了
+
+所以我们知道有这么个东西就行了，后面我也不打算对它多做介绍了
 
 
 
-### 新特性
+### Hiveserver2
 
-#### Schema Browsing
+HiveServer是一种可选服务，允许远程客户端可以使用各种编程语言向Hive提交请求并检索结果。HiveServer是建立在Apache ThriftTM（[http://thrift.apache.org/）](https://link.zhihu.com/?target=http%3A//thrift.apache.org/%EF%BC%89) 之上的，因此有时会被称为Thrift Server，这可能会导致混乱，因为新服务HiveServer2也是建立在Thrift之上的．自从引入HiveServer2后，HiveServer也被称为HiveServer1。
+
+HiveServer无法处理来自多个客户端的并发请求.这实际上是HiveServer导出的Thrift接口所施加的限制，也不能通过修改HiveServer源代码来解决。
+
+HiveServer2对HiveServer进行了重写，来解决这些问题，从Hive 0.11.0版本开始。建议使用HiveServer2。
 
 
 
-除了在命令行里使用 'show tables' 或者 'show extended tables' 来获取表结构或者其他信息，Hive 表的元数据在HWI 里以分层的方式进行组织，从数据库开始，你可以依次获取你所需要的信息
+![image-20201222214721249](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/23/13:29:58-21:47:21-image-20201222214721249.png)
 
-#### Detached Query Execution
+整个Hiveserver2 在hive 的架构中承担的角色就是，其实以JDBC 或者ODBC 的方式供其他语言调用Hive,更多关于Hiveserver2的请看[Hive架构之HiveServer2](https://blog.csdn.net/king14bhhb/article/details/111770337)
 
-A power user issuing multiple Hive queries simultaneously would have multiple CLI windows open. The Hive Web Interface manages the session on the web server, not from inside the CLI window. This allows a user to start multiple queries and return to the web interface later to check the status.
 
-#### No Local Installation
 
-Any user with a web browser can work with Hive. This has the usual web interface benefits. In particular, a user wishing to interact with Hadoop or Hive requires access to many ports. A remote or VPN user would only require access to the Hive Web Interface running by default on 0.0.0.0 tcp/9999.
-
-### beeline
+#### beeline
 
  beeline 是 hive 提供的一个**新的命令行工具**，**基于SQLLine CLI的JDBC客户端**，beeline 要与HiveServer2配合使用，支持嵌入模式和远程模式两种，也即既可以像hive client一样访问本机的hive服务，也可以通过指定ip和端口远程访问某个hive服务。hive 官网是推荐使用beeline，它还提供了更为友好的显示方式（类似MySQL client）
 
@@ -112,22 +116,6 @@ beeline -u jdbc:hive2://hd1:10000
 # 2、如果是本机的hiveserver2，则可省略主机、端口
 ```
 
-### Hiveserver2
-
-HiveServer是一种可选服务，允许远程客户端可以使用各种编程语言向Hive提交请求并检索结果。HiveServer是建立在Apache ThriftTM（[http://thrift.apache.org/）](https://link.zhihu.com/?target=http%3A//thrift.apache.org/%EF%BC%89) 之上的，因此有时会被称为Thrift Server，这可能会导致混乱，因为新服务HiveServer2也是建立在Thrift之上的．自从引入HiveServer2后，HiveServer也被称为HiveServer1。
-
-HiveServer无法处理来自多个客户端的并发请求.这实际上是HiveServer导出的Thrift接口所施加的限制，也不能通过修改HiveServer源代码来解决。
-
-HiveServer2对HiveServer进行了重写，来解决这些问题，从Hive 0.11.0版本开始。建议使用HiveServer2。
-
-
-
-![image-20201222214721249](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/23/13:29:58-21:47:21-image-20201222214721249.png)
-
-整个Hiveserver2 在hive 的架构中承担的角色就是，其实以JDBC 的方式供其他语言调用Hive
-
-
-
 ### HCatalog
 
  HCatalog是Hadoop的元数据和数据表的管理系统，它是基于Hive的元数据层，通过类SQL的语言展现Hadoop数据的关联关系，支持Hive、Pig、MapReduce等共享数据和元数据，使用户在编写应用程序时无需关心数据是怎么存储、存在哪里，避免用户因schema和存储格式的改变而受到影响。HCatalog的这种灵活性，使得在不影响到使用者的应用程序读取数据的情况下，数据产生者可以在数据中增加新列。在不影响生产者或使用者的情况下，管理员可以迁移数据或是改变数据的存储格式
@@ -136,9 +124,9 @@ HiveServer2对HiveServer进行了重写，来解决这些问题，从Hive 0.11.0
 
  从上图可看出，HCatalog低层支持多种文件格式的数据存储方法，上层支持Pig、MapReduce、Hive、Streaming等多种应用。
 
-​    这样的好处在于，可以支持不同的工具集和系统能在一起使用，例如数据分析团队，一开始可能只使用一种工具（如Hive，Pig，Map Reduce），而随着数据分析工作的深入，需要多种工具相结合，如刚开始使用Hive进行分析查询的用户，后面还需要使用Pig为ETL过程处理或建立数据模型；刚开始使用Pig的用户发现，他们更想使用Hive进行分析查询。在这些情况下，通过HCatalog提供了元数据之间的共享，使用户更方便的在不同工具间切换操作，比如在 Map Reduce或Pig中载入数据并进行规范化，然后通过Hive进行分析，当这些工具都共享一个metastore时，各个工具的用户就能够即时访问其他工具创建的数据，而无需载入和传输的步骤，非常高效、方便。
+这样的好处在于，可以支持不同的工具集和系统能在一起使用，例如数据分析团队，一开始可能只使用一种工具（如Hive，Pig，Map Reduce），而随着数据分析工作的深入，需要多种工具相结合，如刚开始使用Hive进行分析查询的用户，后面还需要使用Pig为ETL过程处理或建立数据模型；刚开始使用Pig的用户发现，他们更想使用Hive进行分析查询。在这些情况下，通过HCatalog提供了元数据之间的共享，使用户更方便的在不同工具间切换操作，比如在 Map Reduce或Pig中载入数据并进行规范化，然后通过Hive进行分析，当这些工具都共享一个metastore时，各个工具的用户就能够即时访问其他工具创建的数据，而无需载入和传输的步骤，非常高效、方便。
 
-  Apache Hive 对 **[HCatalog 有详细的介绍说明](https://cwiki.apache.org/confluence/display/Hive/HCatalog+UsingHCat)**。从 hive 0.11.0 版本之后，hive 安装包便提供了 hcatalog，也即安装hive后，里面就已经有了hcatalog了（**[官网说明](https://cwiki.apache.org/confluence/display/Hive/HCatalog+InstallHCat#HCatalogInstallHCat-HCatalogInstalledwithHive)**）。接下来将介绍如何配置使用 HCatalog
+ Apache Hive 对 **[HCatalog 有详细的介绍说明](https://cwiki.apache.org/confluence/display/Hive/HCatalog+UsingHCat)**。从 hive 0.11.0 版本之后，hive 安装包便提供了 hcatalog，也即安装hive后，里面就已经有了hcatalog了（**[官网说明](https://cwiki.apache.org/confluence/display/Hive/HCatalog+InstallHCat#HCatalogInstallHCat-HCatalogInstalledwithHive)**）接下来将介绍如何配置使用 HCatalog
 
 
 
@@ -154,10 +142,12 @@ WebHCat是为HCatalog提供REST API的服务，自hive 0.11.0 版本之后，hiv
 webhcat_server.sh start &
 ```
 
-（1）在浏览器输入 http://172.17.0.1:50111/templeton/v1/status 可查看 hcatalog 的状态，
-
-
+在浏览器输入 http://172.17.0.1:50111/templeton/v1/status 可查看 hcatalog 的状态，
 
 ## 总结
 
-Hive有三种使用方式——CLI命令行，HWI（hie web interface）浏览器 以及 Thrift客户端连接方式。
+1. Hive有三种使用方式——CLI命令行，HWI（hie web interface）浏览器 以及 Thrift客户端连接方式。
+
+2. Hive 作为大数据中的一员，有很多优秀的插拔式设计可以学习，可扩展的HCatalog，可切换的执行引擎，多语言访问的HiveServer2
+
+   

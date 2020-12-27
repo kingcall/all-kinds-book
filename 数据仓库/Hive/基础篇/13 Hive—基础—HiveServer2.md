@@ -6,7 +6,9 @@
 
 其实我们在前面讲[Hive的架构设计](https://blog.csdn.net/king14bhhb/article/details/111769279) 的时候提到过，Hive 提供的另外一个shell 客户端，也就是我们常用的hive 命令的客户端它的设计是直接启动了一个`org.apache.hadoop.hive.cli.CliDriver`的进程，这个进程其实主要包含了两块内容一个是提供给我们交互的cli ，另外一个就是我们的Driver 驱动引擎，这样的设计导致如果我们有多个客户端的情况下，我们就需要有多个Driver，但是我们通过HiveServer2连接的时候我们就可以共享`Driver`,一方面可以简化客户端的设计降低资源损耗，另外一方面还能降低对MetaStore 的压力，减少连接的个数。
 
-![image-20201226210552649](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/26/21:57:09-21:05:53-image-20201226210552649.png)
+
+
+![image-20201227123352163](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/27/12:33:52-image-20201227123352163.png)
 
 
 
@@ -70,7 +72,70 @@ TThreadPoolServer为每个TCP连接分配一个工作线程。即使连接处于
 
 #### 3. Thrift客户端访问
 
-因为HiveServer2是基于Thrift实现的，所以我们也可以使用 Thrift客户端来访问Hive服务
+因为HiveServer2是基于Thrift实现的，所以我们也可以使用 Thrift客户端来访问Hive服务,但是推荐使用JDBC的方式访问，主要是考虑到代码的性能和统一访问方式，关于更多细节请看[Hive的其他语言调用](https://blog.csdn.net/king14bhhb/article/details/111770561)
+
+**Python 操作**
+
+```python
+import sys
+ 
+from hive import ThriftHive
+from hive.ttypes import HiveServerException
+from thrift import Thrift
+from thrift.transport import TSocket
+from thrift.transport import TTransport
+from thrift.protocol import TBinaryProtocol
+ 
+try:
+    transport = TSocket.TSocket('localhost', 10000)
+    transport = TTransport.TBufferedTransport(transport)
+    protocol = TBinaryProtocol.TBinaryProtocol(transport)
+    
+    client = ThriftHive.Client(protocol)
+    transport.open()
+    
+    client.execute("CREATE TABLE r(a STRING, b INT, c DOUBLE)")
+    client.execute("LOAD TABLE LOCAL INPATH '/path' INTO TABLE r")
+    client.execute("SELECT * FROM r")
+    while (1):
+      row = client.fetchOne()
+      if (row == None):
+        break
+      print row
+    client.execute("SELECT * FROM r")
+    print client.fetchAll()
+    
+    transport.close()
+except Thrift.TException, tx:
+    print '%s' % (tx.message)
+```
+
+
+
+**Php操作**
+
+```java
+
+<?php
+// set THRIFT_ROOT to php directory of the hive distribution
+$GLOBALS['THRIFT_ROOT'] = '/lib/php/';
+// load the required files for connecting to Hive
+require_once $GLOBALS['THRIFT_ROOT'] . 'packages/hive_service/ThriftHive.php';
+require_once $GLOBALS['THRIFT_ROOT'] . 'transport/TSocket.php';
+require_once $GLOBALS['THRIFT_ROOT'] . 'protocol/TBinaryProtocol.php';
+// Set up the transport/protocol/client
+$transport = new TSocket('localhost', 10000);
+$protocol = new TBinaryProtocol($transport);
+$client = new ThriftHiveClient($protocol);
+$transport->open();
+ 
+// run queries, metadata calls etc
+$client->execute('SELECT * from src');
+var_dump($client->fetchAll());
+$transport->close();
+```
+
+
 
 ## 安装 HiveServer2
 
