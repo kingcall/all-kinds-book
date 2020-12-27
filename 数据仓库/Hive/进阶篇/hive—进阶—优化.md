@@ -137,25 +137,62 @@ hive.exec.reducers.max（每个任务最大的reduce数，默认为999）
 
 ## JOIN优化
 
-### 将大表放后面(Map join)
-- Hive假定查询中最后的一个表是大表。它会将其它表缓存起来，然后扫描最后那个表。
-因此通常需要将小表放前面，或者标记哪张表是大表：/*streamtable(table_name) */
-- hive.auto.convert.join=true,之后我们不必太关心表的顺序，hive 会自动帮我们优化
-    - 可以 set hive.auto.convert.join = false; 进行效果测试    
-- 一张表多大会被hive认为是小表呢？默认的是25000000字节，用户也可以通过下面参数自己设置
-```
-<property>
-  <name>hive.mapjoin.smalltable.filesize</name>
-  <value>25000000</value>
-  <description>The threshold for the input file size of the small tables; if the file size is smaller than this threshold, it will try to convert the common join into map join</description>
-</property>
-```
+笼统的说，Hive中的Join可分为Common Join（Reduce阶段完成join）和Map Join（Map阶段完成join）。
+
+#### Hive Common Join
+
+如果不指定MapJoin或者不符合MapJoin的条件，那么Hive解析器会将Join操作转换成Common Join,即：在Reduce阶段完成join. 整个过程包含Map、Shuffle、Reduce阶段。
+
+- Map阶段
+  读取源表的数据，Map输出时候以Join on条件中的列为key，如果Join有多个关联键，则以这些关联键的组合作为key; Map输出的value为join之后所关心的(select或者where中需要用到的)列；同时在value中还会包含表的Tag信息，用于标明此value对应哪个表；按照key进行排序
+- Shuffle阶段
+  根据key的值进行hash,并将key/value按照hash值推送至不同的reduce中，这样确保两个表中相同的key位于同一个reduce中
+- Reduce阶段
+  根据key的值完成join操作，期间通过Tag来识别不同表中的数据。
 
 #### map join 理论
-![image-20201206211458408](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/06/21:14:59-image-20201206211458408.png)
+
 - 首先是Task A，它是一个LocalTask（在客户端本地执行的Task），负责扫描小表b的数据，将其转换成一个HashTable的数据结构，并写入本地的文件中，之后将该文件加载到DistributeCache中。
 - 接下来是Task B，该任务是一个没有Reduce的MR，启动MapTasks扫描大表a,在Map阶段，根据a的每一条记录去和DistributeCache中b表对应的HashTable关联，并直接输出结果。
 - 由于MapJoin没有Reduce，**所以由Map直接输出结果文件，有多少个Map Task，就有多少个结果文件**
+
+![image-20201206211458408](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/06/21:14:59-image-20201206211458408.png)
+
+- 以大表 a 和小表 b 为例，所有的 maptask 节点都装载小表 b 的所有数据，然后大表 a 的 一个数据块数据比如说是 a1 去跟 b 全量数据做链接，就省去了 reduce 做汇总的过程。 所以相对来说，在内存允许的条件下使用 map join 比直接使用 MapReduce 效率还高些， 当然这只限于做 join 查询的时候。
+
+##### 写法1
+
+- 在 hive 中，直接提供了能够在 HQL 语句指定该次查询使用 map join，map join 的用法是 在查询/子查询的SELECT关键字后面添加/*+ MAPJOIN(tablelist) */提示优化器转化为map join（早期的 Hive 版本的优化器是不能自动优化 map join 的）。其中 tablelist 可以是一个 表，或以逗号连接的表的列表。tablelist 中的表将会读入内存，通常应该是将小表写在这里。
+
+```
+select /* +mapjoin(a) */ a.id aid, name, age from a join b on a.id = b.id;
+select /* +mapjoin(movies) */ a.title, b.rating from movies a join ratings b on a.movieid =
+b.movieid;
+```
+
+##### 写法2
+
+-  hive0.11 版本以后会自动开启 map join 优化，由两个参数控制
+
+```
+- set hive.auto.convert.join=true; //设置 MapJoin 优化自动开启
+- set hive.mapjoin.smalltable.filesize=25000000 //设置小表不超过多大时开启 mapjoin 优化，即25M
+```
+
+##### 总结
+
+- 普通的join是会走shuffle过程的，而一旦shuffle，就相当于会将相同key的数据拉取到一个shuffle read task中再进行join，此时就是reduce join。但是如果一个RDD是比较小的，则可以采用广播小RDD全量数据+map算子来实现与join同样的效果，也就是mao join ，而此时不会发生shuffle操作，也就不会发生数据倾斜。
+- 对join操作导致的数据倾斜，效果非常好，因为根本就不会发生shuffle，也就根本不会发生数据倾斜。
+
+##### 关闭map join
+
+有时候可能会由于map join异常，需要关闭map join：
+
+```sql
+set hive.auto.convert.join = false;  #取消小表加载至内存中
+```
+
+
 
 ### 使用相同的连接键
 - 当对3个或者更多个表进行join连接时，如果每个on子句都使用相同的连接键的话，那么只会产生一个MapReduce job。
@@ -287,13 +324,13 @@ CREATE TABLE page_view(viewTime INT, userid BIGINT,
 ### 空值产生的数据倾斜
 #### 空值关联
 ##### 方案1 空值不参与关联
-```
+```sql
 select * from log a join user b on a.user_id is not null and a.user_id = b.user_id
 union all
 select * from log c where c.user_id is null;
 ```
 
-```
+```sql
 insert overwrite table jointable select n.* from nullidtable n left join ori o on o.id=n.id;
 Time taken: 52.863 seconds
 测试过滤空id
@@ -345,29 +382,6 @@ select * from user a left outer join log b on b.user_id = cast(a.user_id as stri
 ### 大小表关联查询产生数据倾斜 
 - 就是在Map阶段进行表之间的连接,而不需要进入到Reduce阶段才进行连接,这样就节省了在Shuffle阶段时要进行的大量数据传输,以及传输到某个节点上的数据量过大而导致的倾斜。从而起到了优化作业的作用。
 - 将其中做连接的小表（全量数据）分发到所有MapTask端进行Join，从而避免了reduceTask，前提**要求是内存足以装下该全量数据**
-
-#### mapjoin
-
-![image-20201206211651406](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/06/21:16:52-image-20201206211651406.png)
-- 以大表 a 和小表 b 为例，所有的 maptask 节点都装载小表 b 的所有数据，然后大表 a 的 一个数据块数据比如说是 a1 去跟 b 全量数据做链接，就省去了 reduce 做汇总的过程。 所以相对来说，在内存允许的条件下使用 map join 比直接使用 MapReduce 效率还高些， 当然这只限于做 join 查询的时候。
-
-##### 写法1
-- 在 hive 中，直接提供了能够在 HQL 语句指定该次查询使用 map join，map join 的用法是 在查询/子查询的SELECT关键字后面添加/*+ MAPJOIN(tablelist) */提示优化器转化为map join（早期的 Hive 版本的优化器是不能自动优化 map join 的）。其中 tablelist 可以是一个 表，或以逗号连接的表的列表。tablelist 中的表将会读入内存，通常应该是将小表写在这里。
-
-```
-select /* +mapjoin(a) */ a.id aid, name, age from a join b on a.id = b.id;
-select /* +mapjoin(movies) */ a.title, b.rating from movies a join ratings b on a.movieid =
-b.movieid;
-```
-##### 写法2
--  hive0.11 版本以后会自动开启 map join 优化，由两个参数控制
-```
-- set hive.auto.convert.join=true; //设置 MapJoin 优化自动开启
-- set hive.mapjoin.smalltable.filesize=25000000 //设置小表不超过多大时开启 mapjoin 优化，即25M
-```
-##### 总计
-- 普通的join是会走shuffle过程的，而一旦shuffle，就相当于会将相同key的数据拉取到一个shuffle read task中再进行join，此时就是reduce join。但是如果一个RDD是比较小的，则可以采用广播小RDD全量数据+map算子来实现与join同样的效果，也就是mao join ，而此时不会发生shuffle操作，也就不会发生数据倾斜。
-- 对join操作导致的数据倾斜，效果非常好，因为根本就不会发生shuffle，也就根本不会发生数据倾斜。
 
 ### Count(Distinct) 
 - 数据量小的时候无所谓，数据量大的情况下，由于COUNTDISTINCT操作需要用一个ReduceTask来完成，这一个Reduce需要处理的数据量太大，就会导致整个Job很难完成，一般COUNT DISTINCT使用先GROUP BY再COUNT的方式替换
