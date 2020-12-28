@@ -93,7 +93,7 @@ public class IsContains100 extends UDF{
 
 ```shell
 add jar /Users/liuwenqiang/workspace/code/idea/HiveUDF/target/HiveUDF-0.0.4.jar;
-create temporary function isContains100 as 'com.longzhu.bigdata.HiveUDF.demo.IsContains100';
+create temporary function isContains100 as 'com.kingcall.bigdata.HiveUDF.demo.IsContains100';
 ```
 
 创建完临时函数，即可使用这个函数了：
@@ -370,5 +370,5 @@ drop function 数据库名.函数名字;
 
 ## 总结
 
-这一节我们主要介绍了如何创建UDF ,主要集中在创建的流程，以及如何使用，例子都是很简单的，就是为了讲清楚一些细节的东西，下一节我们学习几个有用的UDF,可以很好的解决一些工作中遇到的一些问题
-
+1. 这一节我们主要介绍了如何创建UDF ,主要集中在创建的流程，以及如何使用，例子都是很简单的，就是为了讲清楚一些细节的东西，下一节我们学习几个有用的UDF,可以很好的解决一些工作中遇到的一些问题
+2. 需要注意的是我们看到当我们去继承`UDF`类的时候提示我们去实现`GenericUDF` ,所以后面我们的实现都是基于`GenericUDF`实现的，如果是针对简单的数据类型（比如String、Integer等）可以使用UDF，如果是针对复杂的数据类型（比如Array、Map、Struct等），可以使用GenericUDF，另外，GenericUDF还可以在函数开始之前和结束之后做一些初始化和关闭的处理操作。

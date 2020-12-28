@@ -2,7 +2,12 @@
 
 ## 数据仓库教程
 
-这里我们做了一份关于整个数仓体系的教程，主要内容大家可以看目录，后续满面会完善，欢迎大家关注，一起讨论交流
+这里我们做了一份关于整个数仓体系的教程，主要内容体系大家可以看目录，后续满面会完善，欢迎大家关注，一起讨论交流，这份教程的特点有四个
+
+1. 知识体系完善，从数仓的概念、建模、数仓工具的使用、数仓的落地实践都有，还会有很多小案例
+2. 使用的技术都是当前企业最常用的技术，版本也是比较新的，不会导致大家看到一个代码，然后一执行发现语法不支持或者废弃掉了
+3. 后续的更新也会很及时，不会说更新了一段时间断更了，在更新完大纲之后，我也会不断完善该系列，不断添加新的知识点
+4. 创作团队都是在企业一线员工，实战多于理论。
 
 ### 1. 数仓建模
 
@@ -66,19 +71,25 @@
 
 ​	[20. Hive UDF](https://blog.csdn.net/king14bhhb/article/details/111827549)
 
-​	[21. Hive UDF实战]()
-
-​	[22. Hive 事务]()
-
 ##### 2.Hive 语法篇
-
-
 
 ##### 3.Hive 进阶篇
 
-​	[Hive优化指南](https://blog.csdn.net/king14bhhb/article/details/111244999)
+​	[1. Hive进阶之索引](https://blog.csdn.net/king14bhhb/article/details/111830230)
+
+​	[2. Hive进阶之事务初识](https://blog.csdn.net/king14bhhb/article/details/111841190)
+
+​	[3. Hive进阶之事务深度剖析](https://blog.csdn.net/king14bhhb/article/details/111866920)
+
+
+
+​	[10. Hive优化指南](https://blog.csdn.net/king14bhhb/article/details/111244999)
 
 ##### 4.Hive 源码篇
+
+##### 5. Hive 实战篇
+
+[1. UDF分词](https://blog.csdn.net/king14bhhb/article/details/111875289)
 
 #### 2. 高性能查询引擎
 
@@ -114,5 +125,11 @@
 
 #### 2. 知名游戏公司的数仓建设
 
+#### 3. 企业级实时数仓建设案例
+
+
+
 ## 总结
+
+
 
