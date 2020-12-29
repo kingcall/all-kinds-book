@@ -95,6 +95,24 @@ insert overwrite table test.test2 partition(dt, hour) select `(dt|hour)?+.+`,dt,
 
 这里，`(dt|hour)?+.+`表示查询出`test`表除了`dt`和`hour`这两个字段的其它所有字段。
 
+## 常见问题
+
+动态分区常见异常无非是，初始化表的时候一次性导入大量分区，异常信息：
+
+```
+Fatal error occurred when node tried to create too many dynamic partitions. The maximum number of dynamic partitions is controlled by hive.exec.max.dynamic.partitions and hive.exec.max.dynamic.partitions.pernode. Maximum was set to 100 partitions per node, number of dynamic partitions on this node: 101
+```
+
+hive为了防止错误导入大量分区，导致hdfs文件增多，namenode内存压力大，对每个task可以产生的分区数是有个参数限制的，临时设置一下每个mapper或reducer可以创建的最大动态分区个数：
+
+```sql
+set hive.exec.max.dynamic.partitions.pernode=1000;
+```
+
+这样就完成了初始化导入，后面日常增量导入一天的数据，通常不会超过100了，如果超过，还是通过设置该参数即可。
+
+
+
 ## 总结
 
 1. 动态分区可以减少我们在将数据插入多个分区的工作量
