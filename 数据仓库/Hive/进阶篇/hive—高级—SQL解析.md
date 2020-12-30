@@ -1,3 +1,5 @@
+[TOC]
+
 ## Antlr
 
 - Hive使用Antlr实现SQL的词法和语法解析。
@@ -36,3 +38,22 @@ try {
 ### 逻辑层优化器
 
 ### OperatorTree生成MapReduce Job的过程
+
+
+
+
+
+## 解析
+
+Hive 中的 hive-exec 模块是包含 SQL 解析模块的. 因此项目的 pom.xml 中加上.
+
+```
+<dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-exec</artifactId>
+    <version>${hive.version}</version>
+    <classifier>core</classifier>
+</dependency>
+```
+
+需要注意的是, `<classifier>core</classifier>` 必不可少, 因为 2.1.1 版本的 hive-exec 默认打包是将所有依赖塞进一个 fat jar 中, 一个 jar 35 MB 大小, 我们仅仅想拆个 SQL, 用不了这么多

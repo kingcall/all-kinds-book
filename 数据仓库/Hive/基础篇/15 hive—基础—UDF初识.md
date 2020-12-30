@@ -6,7 +6,11 @@
 
 
 
-hive作为一个sql查询引擎，自带了一些基本的函数，比如`count`(计数)，`sum`(求和)，有时候这些基本函数满足不了我们的需求，这时候就要写`hive hdf(user defined funation)`，又叫用户自定义函数。
+hive作为一个sql查询引擎，自带了一些基本的函数，比如`count`(计数)，`sum`(求和)，有时候这些基本函数满足不了我们的需求，这时候就要写`hive udf(user defined funation)`，又叫用户自定义函数。所以在Hive中，用户可以自定义的一些函数，用于扩展HiveQL的功能，这类函数叫做UDF（用户自定义函数）
+
+UDF分为两大类：UDAF（用户自定义聚合函数）和UDTF（用户自定义表生成函数）。在介绍UDAF和UDTF实现之前，我们先在本章介绍简单点的UDF实现和UDAF的实现，然后以此为基础在后面介绍更复杂的实现
+
+
 
 关于Hive 的内置函数可以看[Hive函数大全](https://blog.csdn.net/king14bhhb/article/details/111765573)
 

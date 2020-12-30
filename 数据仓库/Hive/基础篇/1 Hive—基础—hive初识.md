@@ -30,6 +30,8 @@ Hive提供了标准的SQL功能，其中包括了[SQL:2003](https://en.wikipedia
 
 Hive-SQL 在提供了标准的SQL功能之外，也支持了扩展，**通过实现用户定义的User Defined Functions（UDF）、User Defined Aggregation Functions（UDAF）、User Defined Table Generating Functions（UDTF）**
 
+**HDFS中最关键的一点就是，数据存储HDFS上是没有schema的概念的(schema:相当于表里面有列、字段、字段名称、字段与字段之间的分隔符等，这些就是schema信息)然而HDFS上的仅仅只是一个纯的文本文件而已，那么，没有schema，就没办法使用sql进行查询了啊，因此，在这种背景下，就有问题产生：如何为HDFS上的文件添加Schema信息，如果加上去，是否就可以通过SQL的方式进行处理了呢？于是强大的Hive出现了**，也就是说Hive 是通过给HDFS 上的文件添加上schema 然后通过SQL处理，而这里的SQL处理不同于传统的关系型数据库，因为SQL 最终是是翻译成MR 进行运行的。
+
 当然除了Hive 查询和处理数据之外,还有Hadoop 平台原生的工具MR也就是说 Hive 是基于Hadoop 构建的一套数据仓库分析系统，它提供了丰富的SQL查询方式来分析存储在Hadoop 分布式文件系统中的数据，可以将结构  化的数据文件映射为一张数据库表，并提供完整的SQL查询功能，**可以将SQL语句转换为MapReduce任务进行运行**，通过自己的SQL 去查询分析需  要的内容，这套SQL 简称Hive SQL，**使不熟悉mapreduce 的用户很方便的利用SQL 语言查询，汇总，分析数据。而mapreduce开发人员可以把**  **己写的mapper 和reducer 作为插件来支持Hive 做更复杂的数据分析。**
 
 

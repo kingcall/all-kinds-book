@@ -126,6 +126,7 @@ public  void testAnsjSeg() {
  * use Ansj(a java open source analyzer)
  */
 
+// 这个信息就是你每次使用desc 进行获取函数信息的时候返回的
 @Description(name = "ansj_seg", value = "_FUNC_(str) - chinese words segment using ansj. Return list of words.",
         extended = "Example: select _FUNC_('我是测试字符串') from src limit 1;\n"
                 + "[\"我\", \"是\", \"测试\", \"字符串\"]")
@@ -298,9 +299,9 @@ public class IknalyzerSeg extends GenericUDF {
 
 
 
-#### **第四步：**测试代码
+#### **第四步：**编写测试用例
 
-GenericUDF 给我妹提供了一些方法，这些方法可以用来构建测试需要的环境和参数，这样我们就可以测试这些代码了
+GenericUDF 给我们提供了一些方法，这些方法可以用来构建测试需要的环境和参数，这样我们就可以测试这些代码了
 
 ```java
 @Test
@@ -343,21 +344,42 @@ public void testIkSegFunc() throws HiveException {
 
 ![image-20201228203906521](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/28/21:15:19-20:39:07-image-20201228203906521.png)
 
-#### **第五步：** 创建UDF 并使用
+但是我们第二个样例是不需要从HDFS 上加载停用词信息，所以可以完美的测试运行
+
+![image-20201229083105601](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/29/08:31:06-image-20201229083105601.png)
+
+**注** 后来为了能在外部更新文件，我将其放在了HDFS 上，和AnsjSeg 中的代码一样
+
+#### **第五步：**创建UDF 并使用
 
 ```
 add jar /Users/liuwenqiang/workspace/code/idea/HiveUDF/target/HiveUDF-0.0.4.jar;
 create temporary function ansjSeg as 'com.kingcall.bigdata.HiveUDF.AnsjSeg';
 select ansjSeg("我是字符串，你是啥");
+-- 开启停用词过滤
+select ansjSeg("我是字符串，你是啥",1);
 create temporary function ikSeg as 'com.kingcall.bigdata.HiveUDF.IknalyzerSeg';
 select ikSeg("我是字符串，你是啥");
+select ikSeg("我是字符串，你是啥",1);
 ```
 
 
 
 ![image-20201228211400316](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/28/21:15:19-21:14:01-image-20201228211400316.png)
 
-上面方法的第二个参数，就是是否开启停用词过滤，你可以自行尝试。
+上面方法的第二个参数，就是是否开启停用词过滤,我们使用ikSeg函数演示一下
+
+![image-20201229120916946](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/29/12:09:17-image-20201229120916946.png)
+
+
+
+下面我们尝试获取一下函数的描述信息
+
+![image-20201229082907974](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/29/08:29:09-image-20201229082907974.png)
+
+如果没有写的话，就是下面的这样的
+
+![image-20201229084254126](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/29/08:42:55-image-20201229084254126.png)
 
 ### 总结
 
