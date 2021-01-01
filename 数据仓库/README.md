@@ -73,6 +73,14 @@
 
 ##### 2.Hive 语法篇
 
+​	[1. Json 解析](https://blog.csdn.net/king14bhhb/article/details/111999201)
+
+​	[2. like rlike regexp](https://blog.csdn.net/king14bhhb/article/details/112058139)
+
+​	[3. explode 和 lateral view](https://blog.csdn.net/king14bhhb/article/details/112058141)
+
+​	[4. with as和from](https://blog.csdn.net/king14bhhb/article/details/112058174)
+
 ##### 3.Hive 进阶篇
 
 ​	[1. Hive进阶之索引](https://blog.csdn.net/king14bhhb/article/details/111830230)
@@ -89,7 +97,13 @@
 
 ##### 5. Hive 实战篇
 
-[1. UDF分词](https://blog.csdn.net/king14bhhb/article/details/111875289)
+​	[1. UDF分词](https://blog.csdn.net/king14bhhb/article/details/111875289)
+
+​	[2. UDF IP 解析](https://blog.csdn.net/king14bhhb/article/details/111939061)
+
+
+
+
 
 #### 2. 高性能查询引擎
 

@@ -16,6 +16,8 @@ hive默认授权 - 设计目的仅仅只是为了防止用户产生误操作，�
 
 ##### 3、基于SQL标准的hiveserver2授权模式的限制
 
+
+
  1、启用当前认证方式之后，dfs, add, delete, compile, and reset等命令被禁用。
 ​ 2、通过set命令设置hive configuration的方式被限制某些用户使用。
 ​ （可通过修改配置文件hive-site.xml中hive.security.authorization.sqlstd.confwhitelist进行配置）

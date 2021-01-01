@@ -216,7 +216,7 @@ Beeline version 3.1.2 by Apache Hive
 你也可以进入beeline 之后再去进行连接
 
 ```
-// 也可以在连接时指定数据库 !connect jdbc:hive2://localhost:10000/ods　　【hive1101 是数据库名】
+// 也可以在连接时指定数据库 !connect jdbc:hive2://localhost:10000/ods　　（ods 是数据库名)
 // 还可以指定用户名和密码  !connect jdbc:hive2://localhost:10000 root  www1234
 ```
 

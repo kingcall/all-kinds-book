@@ -4,6 +4,8 @@
 
 ## Json 格式的数据处理
 
+Json 数据格式是我们比较常用的的一种数据格式，例如埋点数据、业务端的数据、前后端调用都采用的是这种数据格式，所以我们很有必要学习一下这种数据格式的处理方法
+
 ### 准备数据
 
  cat json.data
@@ -45,7 +47,7 @@ get_json_object 不支持一次获取多个值，但是支持复杂json 的处�
 
 `select get_json_object(text,"$.movie") from ods.ods_json_data;`
 
-![image-20201230163733256](/Users/liuwenqiang/Library/Application%20Support/typora-user-images/image-20201230163733256.png)
+![image-20201230163733256](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20201230163733256.png)
 
 这个函数的不足之处是，它只能返回一个值，就是我们不能一次性从json 中提取多个值，如果要提取多个值的话，就要多次调用这个函数,但是我们下面介绍的json_tuple 就可以,但是这不是说这个函数不强或者怎么样，记住这个函数的api 可以帮你节约很多时间
 
@@ -183,4 +185,5 @@ load data local inpath "/Users/liuwenqiang/workspace/hive/json.data" overwrite i
 
 1. get_json_object 和 json_tuple 函数的使用场景和其优缺点
 2. 如果json 格式比较简单，那么可以在建表加载数据的时候就可以将json 处理掉，如果比较复杂也可以再加载的时候解析一部分，然后再通过SQL 进行解析
+3. 也可以尝试写一些UDF 函数来处理JSON 
 
