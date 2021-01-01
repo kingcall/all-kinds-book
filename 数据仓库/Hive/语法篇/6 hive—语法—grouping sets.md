@@ -151,14 +151,14 @@ select grouping__id, nvl(school,'全年级'),nvl(grade,'全学校'),count(1) as 
 我们看到同一个维度的记录并没有全部放在一下，这个时候我们就可以利用这个字段进行排序
 
 ```sql
-select grouping__id, nvl(school,'全年级'),nvl(grade,'全学校'),count(1) as userCm ods.ods_student group by school,grade grouping sets((school,grade),school,grade,()) order by grouping__id ;
+select grouping__id, nvl(school,'全年级'),nvl(grade,'全学校'),count(1) as usercnt from ods.ods_student group by school,grade grouping sets((school,grade),school,grade,()) order by grouping__id ;
 ```
 
 ![image-20210101193221062](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210101193221062.png)
 
 ## 总结
 
-1. grouping sets 可以简化我们SQL 的写法，但是目前的实现并不能提高SQL 的查询性能，可能以后新版本的实现会优化这一点
+1. grouping sets 可以简化我们SQL 的写法，也更容易扩展，当维度多的情况下，优势更加明显，但是目前的实现并不能提高SQL 的查询性能，可能以后新版本的实现会优化这一点
 
 2. grouping sets 在一个group by 的聚合查询中，根据不同的维度进行组合，我们可以选择性的去对维度聚合，也可以聚合所有维度，当维度上卷聚合时，维度值为 null，可用nvl函数去赋值，得到一个有意义的维度名称
 
