@@ -81,6 +81,14 @@
 
 ​	[4. with as和from](https://blog.csdn.net/king14bhhb/article/details/112058174)
 
+​	[5. Order by, Sort by ,Dristribute by,Cluster By](https://blog.csdn.net/king14bhhb/article/details/112093373)
+
+​	[6. grouping sets](https://blog.csdn.net/king14bhhb/article/details/112063657)
+
+​	[7. cube和rollup](https://blog.csdn.net/king14bhhb/article/details/112069418)
+
+
+
 ##### 3.Hive 进阶篇
 
 ​	[1. Hive进阶之索引](https://blog.csdn.net/king14bhhb/article/details/111830230)

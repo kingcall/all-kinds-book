@@ -72,11 +72,76 @@ Hive Metastore是管理和存储元数据的服务，**元数据**通俗的讲�
 
 
 
+前面我们讲到在Driver 中进行SQL 编译解析的时候会和元数据服务进行交互，我们看到下面的日志`Starting Semantic Analysis` 开始进行获取元数据
+
+```
+2021-01-03 10:01:29,234 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:analyzeInternal(12123)) - Starting Semantic Analysis
+2021-01-03 10:01:29,234 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:genResolvedParseTree(12029)) - Completed phase 1 of Semantic Analysis
+2021-01-03 10:01:29,234 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2100)) - Get metadata for source tables
+2021-01-03 10:01:29,253 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2224)) - Get metadata for subqueries
+2021-01-03 10:01:29,253 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2248)) - Get metadata for destination tables
+2021-01-03 10:01:29,269 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] ql.Context (Context.java:getMRScratchDir(548)) - New scratch dir is hdfs://kingcall:9000/tmp/hive/liuwenqiang/5011f419-6798-4b8c-be9f-daf47b84c6f0/hive_2021-01-03_10-01-29_233_2211521176181756873-2
+2021-01-03 10:01:29,269 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:genResolvedParseTree(12034)) - Completed getting MetaData in Semantic Analysis
+2021-01-03 10:01:29,368 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2100)) - Get metadata for source tables
+2021-01-03 10:01:29,368 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2224)) - Get metadata for subqueries
+2021-01-03 10:01:29,368 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2100)) - Get metadata for source tables
+2021-01-03 10:01:29,377 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2224)) - Get metadata for subqueries
+2021-01-03 10:01:29,377 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2248)) - Get metadata for destination tables
+2021-01-03 10:01:29,377 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2100)) - Get metadata for source tables
+2021-01-03 10:01:29,388 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2224)) - Get metadata for subqueries
+2021-01-03 10:01:29,388 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2248)) - Get metadata for destination tables
+2021-01-03 10:01:29,388 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] parse.CalcitePlanner (SemanticAnalyzer.java:getMetaData(2248)) - Get metadata for destination tables
+```
+
+
+
+
+
 #### Hadoop
 
 Hive依赖与Hadoop，包括分布式文件系统HDFS，分布式资源管理系统YARN以及分布式计算引擎MapReduce，Hive中的数据表对应的数据存放在HDFS上，计算资源由YARN分配，而计算任务则来自MapReduce引擎。
 
 其实现在的话也可以不依赖分布式计算引擎MapReduce了，因为现在Hive 实现了引擎可插拔的设计，也就是说我们只需要通过配置就可以实现执行引擎的切换
+
+
+
+下面这段日志中，我们看到当物理执行计划生成之后，执行器会连接到ResourceManager 进行任务提交`Connecting to ResourceManager at kingcall/127.0.0.1:18040`,提交成功之后就会返回任务的相关信息，例如任务的Tracking URL`http://localhost:8088/proxy/application_1609590180941_0012/` ，输入输出的相关信息等等
+
+```
+2021-01-03 10:01:29,476 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] exec.Utilities (Utilities.java:setBaseWork(633)) - Serialized plan (via FILE) - name: null size: 5.39KB
+2021-01-03 10:01:29,492 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] client.RMProxy (RMProxy.java:newProxyInstance(133)) - Connecting to ResourceManager at kingcall/127.0.0.1:18040
+2021-01-03 10:01:29,492 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] Configuration.deprecation (Configuration.java:logDeprecation(1395)) - No unit for dfs.client.datanode-restart.timeout(30) assuming SECONDS
+2021-01-03 10:01:29,506 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] client.RMProxy (RMProxy.java:newProxyInstance(133)) - Connecting to ResourceManager at kingcall/127.0.0.1:18040
+2021-01-03 10:01:29,507 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] Configuration.deprecation (Configuration.java:logDeprecation(1395)) - No unit for dfs.client.datanode-restart.timeout(30) assuming SECONDS
+2021-01-03 10:01:29,507 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] exec.Utilities (Utilities.java:getBaseWork(429)) - PLAN PATH = hdfs://kingcall:9000/tmp/hive/liuwenqiang/5011f419-6798-4b8c-be9f-daf47b84c6f0/hive_2021-01-03_10-01-29_233_2211521176181756873-2/-mr-10005/24c5c52e-7bf1-4225-ba0c-e1464af3637d/map.xml
+2021-01-03 10:01:29,507 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] exec.Utilities (Utilities.java:getBaseWork(429)) - PLAN PATH = hdfs://kingcall:9000/tmp/hive/liuwenqiang/5011f419-6798-4b8c-be9f-daf47b84c6f0/hive_2021-01-03_10-01-29_233_2211521176181756873-2/-mr-10005/24c5c52e-7bf1-4225-ba0c-e1464af3637d/reduce.xml
+2021-01-03 10:01:29,510 WARN  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] mapreduce.JobResourceUploader (JobResourceUploader.java:uploadResourcesInternal(149)) - Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+2021-01-03 10:01:29,512 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] mapreduce.JobResourceUploader (JobResourceUploader.java:disableErasureCodingForPath(906)) - Disabling Erasure Coding for path: /tmp/hadoop-yarn/staging/liuwenqiang/.staging/job_1609590180941_0012
+2021-01-03 10:01:29,518 INFO  [Thread-55] sasl.SaslDataTransferClient (SaslDataTransferClient.java:checkTrustAndSend(239)) - SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+2021-01-03 10:01:29,585 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] exec.Utilities (Utilities.java:getBaseWork(429)) - PLAN PATH = hdfs://kingcall:9000/tmp/hive/liuwenqiang/5011f419-6798-4b8c-be9f-daf47b84c6f0/hive_2021-01-03_10-01-29_233_2211521176181756873-2/-mr-10005/24c5c52e-7bf1-4225-ba0c-e1464af3637d/map.xml
+2021-01-03 10:01:29,585 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] io.CombineHiveInputFormat (CombineHiveInputFormat.java:getNonCombinablePathIndices(477)) - Total number of paths: 2, launching 1 threads to check non-combinable ones.
+2021-01-03 10:01:29,586 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] io.CombineHiveInputFormat (CombineHiveInputFormat.java:getCombineSplits(413)) - CombineHiveInputSplit creating pool for hdfs://kingcall:9000/user/hive/warehouse/ods.db/ods_user_log; using filter path hdfs://kingcall:9000/user/hive/warehouse/ods.db/ods_user_log
+2021-01-03 10:01:29,586 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] io.CombineHiveInputFormat (CombineHiveInputFormat.java:getCombineSplits(413)) - CombineHiveInputSplit creating pool for hdfs://kingcall:9000/user/hive/warehouse/ods.db/ods_user_log_2; using filter path hdfs://kingcall:9000/user/hive/warehouse/ods.db/ods_user_log_2
+2021-01-03 10:01:29,589 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] input.FileInputFormat (FileInputFormat.java:listStatus(292)) - Total input files to process : 2
+2021-01-03 10:01:29,590 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] io.CombineHiveInputFormat (CombineHiveInputFormat.java:getCombineSplits(467)) - number of splits 2
+2021-01-03 10:01:29,591 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] io.CombineHiveInputFormat (CombineHiveInputFormat.java:getSplits(587)) - Number of all splits 2
+2021-01-03 10:01:29,594 INFO  [Thread-57] sasl.SaslDataTransferClient (SaslDataTransferClient.java:checkTrustAndSend(239)) - SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+2021-01-03 10:01:29,600 INFO  [Thread-59] sasl.SaslDataTransferClient (SaslDataTransferClient.java:checkTrustAndSend(239)) - SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+2021-01-03 10:01:29,603 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(202)) - number of splits:2
+2021-01-03 10:01:29,613 INFO  [Thread-61] sasl.SaslDataTransferClient (SaslDataTransferClient.java:checkTrustAndSend(239)) - SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+2021-01-03 10:01:29,619 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(298)) - Submitting tokens for job: job_1609590180941_0012
+2021-01-03 10:01:29,619 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(299)) - Executing with tokens: []
+2021-01-03 10:01:29,623 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] Configuration.deprecation (Configuration.java:logDeprecation(1395)) - No unit for dfs.client.datanode-restart.timeout(30) assuming SECONDS
+2021-01-03 10:01:29,623 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] Configuration.deprecation (Configuration.java:logDeprecation(1395)) - No unit for dfs.client.datanode-restart.timeout(30) assuming SECONDS
+2021-01-03 10:01:29,631 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(329)) - Submitted application application_1609590180941_0012
+2021-01-03 10:01:29,633 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] mapreduce.Job (Job.java:submit(1574)) - The url to track the job: http://localhost:8088/proxy/application_1609590180941_0012/
+Starting Job = job_1609590180941_0012, Tracking URL = http://localhost:8088/proxy/application_1609590180941_0012/
+2021-01-03 10:01:29,634 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] exec.Task (SessionState.java:printInfo(1227)) - Starting Job = job_1609590180941_0012, Tracking URL = http://localhost:8088/proxy/application_1609590180941_0012/
+Kill Command = /usr/local/Cellar/hadoop/3.2.1/libexec/bin/mapred job  -kill job_1609590180941_0012
+2021-01-03 10:01:29,634 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] exec.Task (SessionState.java:printInfo(1227)) - Kill Command = /usr/local/Cellar/hadoop/3.2.1/libexec/bin/mapred job  -kill job_1609590180941_0012
+```
+
+
 
 ## 总结
 

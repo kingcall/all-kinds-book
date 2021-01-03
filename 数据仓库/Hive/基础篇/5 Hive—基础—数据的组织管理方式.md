@@ -103,8 +103,8 @@ CREATE TABLE ods.u_data (
   movieid INT,
   rating INT,
   unixtime STRING)
- partitioned by(year string,month string ,day string) 
- CLUSTERED BY (`movieid` ) INTO 3 BUCKETS      
+partitioned by(year string,month string ,day string) 
+CLUSTERED BY (`movieid` ) INTO 3 BUCKETS      
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '\t'
 STORED AS TEXTFILE;

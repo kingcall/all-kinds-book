@@ -80,4 +80,6 @@ order by
 
 - rollup 可以看做是cube子集合，去掉维度中左边字段是null,但是右边字段不是null 的情况
 
+- 所以我们到底是选择grouping sets还是cube还是rollup的标准，就是我们对分组字段重新组合维度数量上一个判断，如果我们需要全部维度那就是cube，如果不是全部rollup可以满足的话就是rollup，其他就是grouping sets了
+
   

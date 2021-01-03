@@ -1,5 +1,6 @@
 [toc]
-# 窗口函数
+## 窗口函数
+
 - 窗口函数可以让明细和聚合结果共存
 - 在sql中有一类函数叫做聚合函数,例如sum()、avg()、max()等等,这类函数可以将多行数据按照规则聚集为一行,一般来讲聚集后的行数是要少于聚集前的行数的.但是有时我们想要既显示聚集前的数据,又要显示聚集后的数据,这时我们便引入了窗口函数
 - 窗口函数是SQL语句最后执行的函数，因此可以把SQL结果集想象成输入数据）
@@ -14,6 +15,7 @@
 - patition by是按照一个一个reduce去处理数据的，所以要使用全局排序order by
 - distribute by是按照多个reduce去处理数据的，所以对应的排序是局部排序sort by
 ## 准备
+
 - 建表语句
 ```
 create table t_window(name string,orderdate string,cost int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
@@ -190,3 +192,18 @@ CURRENT ROW：当前行
 UNBOUNDED：起点，UNBOUNDED PRECEDING 表示从前面的起点， UNBOUNDED FOLLOWING：表示到后面的终点。
 ```
 
+
+
+
+
+### row_number
+
+- 不管col2字段的值是否相等，行号一直递增，比如：有两条记录的值相等，但一个是第一，一个是第二
+
+### rank
+
+- 上下两条记录的col2相等时，记录的行号是一样的，但下一个col2值的行号递增N（N是重复的次数），比如：有两条并列第一，下一个是第三，没有第二
+
+### dense_rank
+
+- 上下两条记录的col2相等时，下一个col2值的行号递增1，比如：有两条并列第一，下一个是第二
