@@ -221,3 +221,17 @@ org.apache.hadoop.hive.ql.parse.SemanticException: Queries against partitioned t
 	at org.apache.hadoop.util.RunJar.main(RunJar.java:236)
 ```
 
+
+
+下面我们尝试一下排序不加limit 的情况
+
+```sql
+ select * from ods_temperature order by year;
+```
+
+![image-20210102082643300](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210102082643300.png)
+
+```sql
+Error: Error while compiling statement: FAILED: SemanticException 1:39 Order by-s without limit are disabled for safety reasons. If you know what you are doing, please set hive.strict.checks.orderby.no.limit to false and make sure that hive.mapred.mode is not set to 'strict' to proceed. Note that you may get errors or incorrect results if you make a mistake while using some of the unsafe features.. Error encountered near token 'year' (state=42000,code=40000)
+```
+
