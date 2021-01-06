@@ -216,7 +216,7 @@ limit 10;
 
 下面是桶表的执行情况
 
-![image-20210102204950105](/Users/liuwenqiang/Library/Application%20Support/typora-user-images/image-20210102204950105.png)
+![image-20210102204950105](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210102204950105.png)
 
 下面是非桶表的执行情况
 
@@ -233,4 +233,3 @@ limit 10;
 3. Reduce-side(Common) Join 是我们最常见的join 类型，通过shuffle 来完成数据的分发
 
    
-

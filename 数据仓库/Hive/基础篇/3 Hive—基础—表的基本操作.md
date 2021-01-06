@@ -151,6 +151,8 @@ partition (age = 101) location '/user/hive/warehouse/test.db/user2/part-0000101'
 partition (age = 102) location '/user/hive/warehouse/test.db/user2/part-0000102'
 ```
 
+对于内部表，我们可以直接在其目录下创建分区文件夹，然后使用 msck  repair table tableName,适用于一次添加多个分区的情况
+
 **修改分区**也是使用`alter table ... set ...`命令
 
 ```sql
@@ -275,7 +277,7 @@ alter table t8 set serdepropertyes('field.delim'='\t');
 
 1. ALTER TABLE table_name SET FILEFORMAT file_format 修改表的存储格式
 2. ALTER TABLE table_name CLUSTERED BY (col_name, col_name, ...) [SORTEDBY(col_name, ...)] INTO num_buckets BUCKETS 修改表的分桶情况
-   
+  
 
 ## 6 其他操作
 
