@@ -29,13 +29,6 @@ hive中有很多关键字，直接作为`列名或者表名或者表别名`，�
 hive> select * from user_log user;
 
 NoViableAltException(311@[157:5: ( ( Identifier LPAREN )=> partitionedTableFunction | tableSource | subQuerySource | virtualTableSource )])
-
-
-
-
-
-
-
 	at org.antlr.runtime.DFA.noViableAlt(DFA.java:158)
 	at org.antlr.runtime.DFA.predict(DFA.java:116)
 	at org.apache.hadoop.hive.ql.parse.HiveParser_FromClauseParser.fromSource0(HiveParser_FromClauseParser.java:2901)

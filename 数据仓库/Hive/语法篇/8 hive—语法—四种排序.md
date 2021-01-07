@@ -101,7 +101,7 @@ insert overwrite local directory '/Users/liuwenqiang/workspace/hive/sort' row fo
 
 order by 中使用limit 是对排序好的结果文件去limit 然后交给reducer,可以看到sort by 中limit 子句会减少参与排序的数据量，而order by 中的不行，只会限制返回客户端数据量的多少。
 
-从上面的执行效率，我们看到sort by limit 几乎是 order by limit 的两倍了 ，大概才出来应该是多了某个环节
+从上面的执行效率，我们看到sort by limit 几乎是 order by limit 的两倍了 ，大概猜出来应该是多了某个环节
 
 ![image-20210102094129559](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210102094129559.png)
 
@@ -201,3 +201,4 @@ Error: Error while compiling statement: FAILED: ParseException line 2:46 extrane
 5. sort by limit 相当于每个reduce 的数据limit 之后，进行order by 然后再limit 
 
    
+
