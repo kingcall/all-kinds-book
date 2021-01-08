@@ -7,7 +7,9 @@
 
 执行计划这个东西无论是在hive里还是数据库管理系统中都是很重要的，因为它可以帮助我们理解SQL的执行，从而更好的去优化SQL，而不是一味的凭经验去做一些操作，使其看起来像神学。
 
-一般情况下一个SQL执行计划有两个部分：stage dependencies描述了各个stage之间的依赖性，stage plan描述了各个stage的执行计划，每个Stage 的执行计划几乎是由两部分组成的` Map Operator Tree` 和` Reduce Operator Tree`,Map Operator Tree MAP端的执行计划，Reduce Operator Tree Reduce端的执行计划，有时候会因为没有reduce 操作，导致没有执行计划没有` Reduce Operator Tree`
+一般情况下一个SQL执行计划有两个部分：stage dependencies描述了各个stage之间的依赖性，stage plan描述了各个stage的执行计划，每个Stage 的执行计划几乎是由两部分组成的` Map Operator Tree` 和` Reduce Operator Tree`,Map Operator Tree MAP端的执行计划，Reduce Operator Tree Reduce端的执行计划，有时候会因为没有reduce 操作，导致没有执行计划没有` Reduce Operator Tree`,像下面这个就没有` Reduce Operator Tree`
+
+![image-20210108073633446](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210108073633446.png)
 
 一个stage并不一定是一个MR，有可能是Fetch Operator，也有可能是Move Operator，例如我们下面的图中的Stage-0
 
@@ -120,9 +122,41 @@ from(
 
 ### Map Reduce
 
-### 常见的算子(operator)
+### 算子(operator)
 
-前面我们说到HiveSQL 翻译成MR 的过程其实是将SQL解析成操作其实就是将SQL 解析成AST,然后将AST转化成QueryBlock，从而生成Operator Tree，然后将Operator Tree翻译成MR，下面我们介绍一些常见的Operator，我们主要是从下面这个SQL 的执行结果进行分析
+前面我们说到HiveSQL 翻译成MR 的过程其实是将SQL解析成操作其实就是将SQL 解析成AST,然后将AST转化成QueryBlock，从而生成Operator Tree，然后将Operator Tree翻译成MR，Hive最终生成的MapReduce任务，Map阶段和Reduce阶段均由OperatorTree( Map Operator Tree 和Reduce Operator Tree )组成。需要注意的是不是所有的Operator的命名格式都是`XXXOperator`
+
+Operator在Map Reduce阶段之间的数据传递都是一个流式的过程。每一个Operator对一行数据完成操作后之后将数据传递给childOperator计算。child 的关系是通过输出的层级关系展示的，Hive每一行数据经过一个Operator处理之后，会对字段重新编号，colExprMap记录每个表达式经过当前Operator处理前后的名称对应关系，在下一个阶段逻辑优化阶段用来回溯字段名
+
+Operator对象有很多的属性和方法，例如 expressions，outputColumnNames，Statistics，aggregations
+
+由于Hive的MapReduce程序是一个动态的程序，即不确定一个MapReduce Job会进行什么运算，可能是Join，也可能是GroupBy，所以Operator将所有运行时需要的参数保存在OperatorDesc中，OperatorDesc在提交任务前序列化到HDFS上，在MapReduce任务执行前从HDFS读取并反序列化。Map阶段OperatorTree在HDFS上的位置在Job.getConf(“hive.exec.plan”) + “/map.xml”
+
+
+
+
+
+
+
+#### 常见的operator
+
+TableScanOperator 为MapReduce框架的Map接口输入表的数据，控制扫描表的数据行数，标记是从原表中取数据
+
+SelectOperator 从表中获取哪些字段，对应着的是select 操作
+
+FilterOperator 完成过滤操作
+
+JoinOperator  完成Join操作
+
+GroupByOperator 对应group by 操作，同时会出现在`Map Operator Tree`和`Reduce Operator Tree` 中
+
+ReduceOutputOperator 将Map端的字段组合序列化为Reduce Key/value, Partition Key，只可能出现在Map阶段，同时也标志着Hive生成的MapReduce程序中Map阶段的结束。
+
+
+
+####例子
+
+下面我们介绍一些常见的Operator，我们主要是从下面这个SQL 的执行结果进行分析
 
 ```
 explain
@@ -138,7 +172,7 @@ limit 2
 ;
 ```
 
-#### Stage-1 Map Operator Tree
+##### Stage-1 Map Operator Tree
 
 1. TableScan 读取数据，如果是从表中读取数据就会有alias这个属性
 
@@ -166,7 +200,7 @@ sort order 用于Reduce Output Operator中
 如此类推
 ```
 
-####  Stage-1 Reduce Operator Tree
+#####  Stage-1 Reduce Operator Tree
 
 1. Group By Operator 分组聚合完成，Map Operator Tree 的Group By Operator只是在select 中获取Group By结果
 
@@ -187,7 +221,7 @@ final
 
 
 
-#### Stage-2  Map Operator Tree
+##### Stage-2  Map Operator Tree
 
 1. TableScan 不是从表中读取树的所以没有alias属性
 
@@ -197,7 +231,7 @@ final
 
    ![image-20210107225154818](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210107225154818.png)
 
-####  Stage-2  Reduce Operator Tree
+#####  Stage-2  Reduce Operator Tree
 
 1.  Select Operator
 
@@ -211,7 +245,7 @@ final
 
    ![image-20210107225754100](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210107225754100.png)
 
-#### Stage-0
+##### Stage-0
 
 1. Fetch Operator  客户端获取数据 ， 常见属性 limit
 
