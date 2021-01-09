@@ -87,6 +87,20 @@
 
 ​	[7. cube和rollup](https://blog.csdn.net/king14bhhb/article/details/112069418)
 
+​	[8. map join、reduce join、smb join](https://blog.csdn.net/king14bhhb/article/details/112132243)
+
+​	[9. 窗口函数初识 max count sum](https://blog.csdn.net/king14bhhb/article/details/112172378)
+
+​	[10. 窗口函数row_number、rank、dense_rank](https://blog.csdn.net/king14bhhb/article/details/112253118)
+
+​	[11. 窗口函数ntile](https://blog.csdn.net/king14bhhb/article/details/112258298)
+
+​	[12. 窗口函数first_value和last_value](https://blog.csdn.net/king14bhhb/article/details/112260539)
+
+​	[13. 窗口函数lead和lag](https://blog.csdn.net/king14bhhb/article/details/112267910)
+
+​	[14. 窗口函数cume_dist和 percent_rank](https://blog.csdn.net/king14bhhb/article/details/112283469)
+
 
 
 ##### 3.Hive 进阶篇
