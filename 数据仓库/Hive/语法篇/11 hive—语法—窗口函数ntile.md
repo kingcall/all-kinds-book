@@ -125,7 +125,6 @@ from (
 where
       rn=1
 ;
-
 ```
 
 ![image-20210106092347847](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210106092347847.png)
