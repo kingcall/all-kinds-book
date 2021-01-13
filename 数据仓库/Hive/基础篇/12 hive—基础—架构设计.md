@@ -143,6 +143,18 @@ Kill Command = /usr/local/Cellar/hadoop/3.2.1/libexec/bin/mapred job  -kill job_
 
 
 
+### Hive 的组成
+
+前面我们介绍了Hive 的架构，其实我们如果回过头再来理解理解的话，其实这个架构包含三部分
+
+第一部分：SQL 处理器(主要将SQL翻译成对应的大数据任务)
+
+第二部分：MetaStore 我们说过Hive没有数据的存储能力，所以它需要维护数据信息供自身使用
+
+第三部分：Serde 其实就是序列化和反序列化组件，这个其实主要使用用来读写文件的
+
+需要注意的是HiveServer2、MR和Tez引擎并不是Hive的三大核心组件，只是周边组件的扩展
+
 ## 总结
 
 1. 今天我们主要讲解了Hive 的架构设计，以及简单介绍了它的一些服务，后面我们会针对每一个服务做单独的讲解，例如MetaStore,HiveServer2 等

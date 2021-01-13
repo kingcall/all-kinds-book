@@ -40,6 +40,12 @@ CREATE INDEX index_name     --索引名称
   [TBLPROPERTIES (...)]   --索引表表属性
   [PARTITIONED BY(...)]     -- 索引的分区 
   [COMMENT "index comment"];  --索引注释
+ 
+CREATE INDEX table02_index ON TABLE table02 (column3) AS 'COMPACT' WITH DEFERRED REBUILD;
+CREATE INDEX table03_index ON TABLE table03 (column4) AS 'BITMAP' WITH DEFERRED REBUILD;
+CREATE INDEX table05_index ON TABLE table05 (column6) AS 'COMPACT' STORED AS RCFILE;
+CREATE INDEX table06_index ON TABLE table06 (column7) AS 'COMPACT' ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE;
+CREATE INDEX table07_index ON TABLE table07 (column8) AS 'COMPACT' IDXPROPERTIES ("prop1"="value1", "prop2"="value2");
 ```
 1. AS index_type 语句指定了索引处理器，例如CompactIndexHandler是其中的一个实现，当然还有我们上面提到的BITMAP
 2. 如果省略partition by语句的话，那么索引将会包含原始表所有分区。
@@ -62,6 +68,8 @@ CREATE INDEX employees_index
     in table employees_index_table
     partitioned by(country,state)
     comment 'employees indexed by country and state';
+-- 在特定分区上创建索引                  
+ALTER INDEX table10_index ON table10 PARTITION (columnX='valueQ', columnY='valueR') REBUILD;
 ```
 
 ### 3. 查看索引

@@ -258,8 +258,14 @@ select current_date()  + INTERVAL 1 year;
 ### 其他函数
 
 1. CONCAT_WS(SEPARATOR ,collect_set(column))  等价于 GROUP_CONCAT()函数,因为hive版本问题，并没有GROUP_CONCAT函数。只能用concat_ws和collect_set函数代替,但是排序性丧失。
+
 2. parse_url 函数用来解析 url  `SELECT parse_url('http://facebook.com/path/p1.php?query=1', 'HOST');` 
+
 3. parse_url_tuple
+
+4. current_user 获取当前用户
+
+   
 
 ## 总结
 

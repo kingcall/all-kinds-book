@@ -12,6 +12,10 @@
 
 
 
+
+
+![image-20210109153028019](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210109153028019.png)
+
 ### 1. HiveServer1
 
 HiveServer是一种可选服务，允许远程客户端可以使用各种编程语言向Hive提交请求并检索结果。**HiveServer是建立在[Apache ThriftTM](http://thrift.apache.org/)之上的，因此有时会被称为Thrift Server**，这可能会导致混乱，因为新服务HiveServer2也是建立在Thrift之上的．自从引入HiveServer2后，HiveServer也被称为HiveServer1。

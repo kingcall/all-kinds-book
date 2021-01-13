@@ -30,8 +30,6 @@ git clone https://github.com/apache/hive.git
 
 ### 编译
 
-
-
 在开始之前编译之前我们先说点其他的，你如果去网上搜的话，很多人说让你使用`mvn clean package -Phadoop-2 -DskipTests ` 这样的命令打包，这个时候你得看一下是否有这样的profile 
 
 否则当你打包结束之后，会有一个警告说是不存在这hadoop-2 这样的profile 

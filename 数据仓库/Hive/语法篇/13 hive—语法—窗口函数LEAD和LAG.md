@@ -130,6 +130,81 @@ on
 
 ![image-20210106133831037](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210106133831037.png)
 
+
+
+### 使用场景
+
+lead 和 lag 的使用场景其实是比较多的，尤其我们在计算需要自关联的这种场景下，如果合理使用头是可以很好的提高我们程序的性能和简化我们的写法，下面我们再看一个例子
+
+有个日志表中记录了商户费率变化状态的所有信息`用户ID,费率,时间`,现在有个需求,要取出按照时间轴顺序，发生了费率变化的数据行，输出数据格式`商户ID,当前时间,变化时间,原始费率,变化后的费率`
+
+```
+100,0.1,2016-03-02
+100,0.1,2016-02-02
+100,0.2,2016-03-05
+100,0.2,2016-03-06
+100,0.3,2016-03-07
+100,0.1,2016-03-09
+100,0.1,2016-03-10
+100,0.1,2016-03-10
+200,0.1,2016-03-10
+200,0.1,2016-02-02
+200,0.2,2016-03-05
+200,0.2,2016-03-06
+200,0.3,2016-03-07
+200,0.1,2016-03-09
+200,0.1,2016-03-10
+200,0.1,2016-03-10
+```
+
+现在我们开始建表
+
+```
+create table ods_user_rate_log(
+    userid string,
+    rate double,
+    ctime string
+) row format delimited fields terminated by ',';
+LOAD DATA LOCAL INPATH '/Users/liuwenqiang/workspace/hive/ods_user_rate_log.txt' OVERWRITE INTO TABLE ods_user_rate_log;
+```
+
+现在们分析一下，首先我们是单独计每个商户的，所以我们的子窗口定义条件就是用户ID，然后我们跟踪的是费率的随时间的变化所以我们是要按照时间排序，最后我们需要的费率发生了变化的数据,所以我们需要比较一下原始费率和下一次费率
+
+第一步：获取当前费率和下一次的费率
+
+```sql
+select
+    userid ,ctime,rate , lead(rate,1) over (partition by userid order by ctime)  new_rate
+from
+     ods_user_rate_log
+;
+```
+
+![image-20210109101110097](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210109101110097.png)
+
+第二步：找出费率不同的记录然后返回，需要注意的是，我们还需要需要获取到发生变化的时间
+
+```sql
+select 
+    *
+from (
+         select
+             userid,
+             ctime,
+             lead(ctime, 1) over (partition by userid order by ctime) new_date,
+             rate,
+             lead(rate, 1) over (partition by userid order by ctime) new_rate
+         from ods_user_rate_log
+) tmp
+where
+    rate!=new_rate
+;
+```
+
+![image-20210109101548931](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210109101548931.png)
+
+
+
 ## 总结
 
 - lag和lead 主要用来计算当前行的前后N 行的这种场景，一般情况下我们会对数据进行排序，因为只有在有序的情况下，前面多少行和后面多少行才有意义

@@ -132,13 +132,15 @@ Time taken: 43.117 seconds, Fetched: 10 row(s)
 
 hive join操作默认使用的就是reduce join，reduce side join是一种最简单的join方式，其主要思想如下：
 
-在map阶段，map函数同时读取两个文件File1和File2，为了区分两种来源的key/value数据对，对每条数据打一个标签（tag）接下来通过shuffle 操作,就保证了相同key 的数据落在了桶一个reducer 中，然后在这个reducer 中完相应的join 逻辑
+在map阶段，map函数同时读取两个文件File1和File2，为了区分两种来源的key/value数据对，对每条数据打一个标签（tag）接下来通过shuffle 操作,就保证了相同key 的数据落在了桶一个reducer 中，然后在这个reducer 中完相应的join 逻辑, 在map的输出value中为不同表的数据打上tag标记，在reduce阶段根据tag判断数据来源，然后根据SQL的select 顺序依次将需要的数据读取出来进行返回
 
-`select u.name, o.orderid from order o join user u on o.uid = u.uid;` 在map的输出value中为不同表的数据打上tag标记，在reduce阶段根据tag判断数据来源，然后根据SQL的select 顺序依次将需要的数据读取出来进行返回
+```sql
+SELECT a.id,a.dept,b.age
+FROM a join b
+ON (a.id = b.id);
+```
 
-![image-20201206211916602](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/21:19:17-image-20201206211916602.png)
-
-
+![hive join 原理](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/file_1574347200000_20191121224000912759.png)
 
 ### SMB Join（sort merge bucket）
 

@@ -65,8 +65,6 @@ Hive 默认使用的实Text File,也就是说当你建表的时候不指定文�
 
 并且在反序列化过程中，必须逐个字符判断是不是分隔符和行结束符，因此反序列化开销会比SequenceFile高几十倍。
 
-
-
 ### SequenceFile
 
 SequenceFile是Hadoop API提供的一种二进制文件支持，，存储方式为行存储，其具有使用方便、可分割、可压缩的特点。
@@ -77,7 +75,7 @@ SequenceFile支持三种压缩选择：**NONE，RECORD，BLOCK**。Record压缩�
 
 SequenceFile的优势是文件和hadoop api中的MapFile是相互兼容的。
 
-**注**：建表使用这个格式，导入数据时会直接把数据文件拷贝到hdfs上不进行处理。SequenceFile、RCFile、ORC格式的表不能直接从本地文件导入数据，数据要先导入到TextFile格式的表中，然后再从TextFile表中用insert导入到SequenceFile、RCFile表中
+**注**：建表使用这个格式，导入数据时会直接把数据文件拷贝到hdfs上不进行处理。SequenceFile、RCFile、ORC格式的表不能直接从本地文件导入数据，**数据要先导入到TextFile格式的表中，然后再从TextFile表中用insert导入到SequenceFile、RCFile表中**
 
 
 
@@ -295,5 +293,5 @@ insert overwrite table ods.log_parquet select * from ods.log_text;
 
 1. 介绍了行式存储和列式存储的特点，以及适用场景
 2. 介绍了Hive 常见的存储格式，Parquet 和 ORC都是二进制存储的，都是不可直接读取的，Parquet和ORC 都是Apache 顶级项目，Parquet不支持ACID 不支持更新，ORC支持有限的ACID 和 更新
-3. 我们简单对比了一下Text、ORCfile 和Parquet的存储占用和查询性能，因为我们的查询比较简单加上数据本身不是很大，所以查询性能差异不是很大
+3. 我们简单对比了一下Text、ORCfile 和Parquet的存储占用和查询性能，因为我们的查询比较简单加上数据本身不是很大，所以查询性能差异不是很大，但是占用空间存储的差异还是很大的
 

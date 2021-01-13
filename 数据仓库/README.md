@@ -101,7 +101,9 @@
 
 ​	[14. 窗口函数cume_dist和 percent_rank](https://blog.csdn.net/king14bhhb/article/details/112283469)
 
+​	[15. 窗口函数练习和总结](https://blog.csdn.net/king14bhhb/article/details/112390073)
 
+​	[16. Hive语法之抽样](https://blog.csdn.net/king14bhhb/article/details/112528852)
 
 ##### 3.Hive 进阶篇
 
@@ -111,7 +113,15 @@
 
 ​	[3. Hive进阶之事务深度剖析](https://blog.csdn.net/king14bhhb/article/details/111866920)
 
+​	[4. Hive进阶之执行计划](https://blog.csdn.net/king14bhhb/article/details/112391654)
 
+​	[5. Hive进阶之数据存储格式](https://blog.csdn.net/king14bhhb/article/details/112520702)
+
+​	[6. Hive进阶之数据压缩配置与格式](https://blog.csdn.net/king14bhhb/article/details/112520702)
+
+​	[7. Hive进阶之SerDe](https://blog.csdn.net/king14bhhb/article/details/112541876)
+
+​	[8 Hive进阶之权限管理](https://blog.csdn.net/king14bhhb/article/details/112576550)
 
 ​	[10. Hive优化指南](https://blog.csdn.net/king14bhhb/article/details/111244999)
 
@@ -122,8 +132,6 @@
 ​	[1. UDF分词](https://blog.csdn.net/king14bhhb/article/details/111875289)
 
 ​	[2. UDF IP 解析](https://blog.csdn.net/king14bhhb/article/details/111939061)
-
-
 
 
 

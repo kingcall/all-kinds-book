@@ -35,6 +35,8 @@ try {
 
 ### QueryBlock生成Operator Tree
 
+
+
 - QueryBlock生成Operator Tree就是遍历上一个过程中生成的QB和QBParseInfo对象的保存语法的属性
 
 ### 逻辑层优化器
