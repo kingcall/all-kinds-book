@@ -13,7 +13,11 @@ Hive使用SerDe接口完成IO操作也就是数据的读取和写入，hive本�
 
  Hive Serde用来做序列化和反序列化，构建在数据存储和执行引擎之间，对两者实现解耦。 org.apache.hadoop.hive.serde 已经被淘汰了，现在主要使用 org.apache.hadoop.hive.serde2 ，SerDe允许Hive从表中读入数据，然后以任何自定义格式将数据写回HDFS。任何人都可以为自己的数据格式编写自己的SerDe。
 
-所以序列化(serialize)是将导入的数据转成hadoop的Writable格式，反序列化就是将HDFS 上的数据导入到内存中形成row object
+所以序列化(serialize)是将导入的数据转成hadoop的Writable格式，反序列化就是将HDFS 上的数据导入到内存中形成row object，每个SQL都会有这个操作` explain select count(1) from ods_user_log group by `id`;`
+
+![image-20210114090625827](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210114090625827.png)
+
+
 
 ### Hive 的读写流程
 
@@ -58,14 +62,12 @@ INTO num_buckets BUCKETS]
 
 3. MetadataTypedColumnsetSerDe 这个类主要用来读写特定分隔符分割的文件，例如CSV 文件或者tab 、control-A 分割的文件(quote is not supported yet)
 
-4. LazySimpleSerDe
-
-   这个是默认的 SerDe 类型。读取与 MetadataTypedColumnsetSerDe 和 TCTLSeparatedProtocol 相同的数据格式，可以用这个 Hive SerDe 类型。它是以惰性的方式创建对象的，因此具有更好的性能。在 Hive 0.14.0 版本以后，在读写数据时它支持指定字符编码。例如：
+4. LazySimpleSerDe **这个是默认的 SerDe 类型**。读取与 MetadataTypedColumnsetSerDe 和 TCTLSeparatedProtocol 相同的数据格式，可以用这个 Hive SerDe 类型。它是以惰性的方式创建对象的，因此具有更好的性能。在 Hive 0.14.0 版本以后，在读写数据时它支持指定字符编码。例如：
 
    ```
-   ALTER TABLE person SET SERDEPROPERTIES (‘serialization.encoding’=’GBK’)
+ALTER TABLE person SET SERDEPROPERTIES (‘serialization.encoding’=’GBK’)
    ```
-
+   
    如果把配置属性 `hive.lazysimple.extended_boolean_literal` 设置为 `true`（Hive 0.14.0 以后版本），LazySimpleSerDe 可以把 ‘T’, ‘t’, ‘F’, ‘f’, ‘1’, and ‘0’ 视为合法的布尔字面量。而该配置默认是 false 的，因此它只会把 ‘True’ 和 ‘False’ 视为合法的布尔字面量。
 
 5. **Thrift SerDe** 读写 Thrift 序列化对象，可以使用这种 Hive SerDe 类型。需要确定的是，对于 Thrift 对象，类文件必须先被加载。
@@ -447,4 +449,5 @@ Hive 使用 ObjectInspector 对象分析行对象的内部结构以及列的结�
 
 1. Hive 本身不存储数据，它与数据的交互都是通过SerDe来完成的，所以我们可以将SerDe看成是Hive 和HDFS 解耦的一个设计
 2. Hive 本身提供了非常多的SerDe，可以很好的满足我们的日常开发，当不能满足的时候我们也可以自己开发所需的SerDe
+3. LazySimpleSerDe **是默认的 SerDe 类型**,我们可以通过查看执行计划来看我们的SQL 使用了哪种SerDe 
 

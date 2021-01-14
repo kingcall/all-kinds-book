@@ -2,7 +2,9 @@
 
 
 
-## 执行计划explain
+## 执行计划初识
+
+
 
 执行计划这个东西无论是在hive里还是数据库管理系统中都是很重要的，因为它可以帮助我们理解SQL的执行，从而更好的去优化SQL，而不是一味的凭经验去做一些操作，使其看起来像神学。hive 也通过explain 提供了如何让用户去获得一个查询语句的执行计划
 
@@ -149,17 +151,22 @@ Operator对象有很多的属性和方法，例如 expressions，outputColumnNam
 
 #### 常见的operator
 
-TableScanOperator 为MapReduce框架的Map接口输入表的数据，控制扫描表的数据行数，标记是从原表中取数据
 
-SelectOperator 从表中获取哪些字段，对应着的是select 操作
 
-FilterOperator 完成过滤操作
-
-JoinOperator  完成Join操作
-
-GroupByOperator 对应group by 操作，同时会出现在`Map Operator Tree`和`Reduce Operator Tree` 中
-
-ReduceOutputOperator 将Map端的字段组合序列化为Reduce Key/value, Partition Key，只可能出现在Map阶段，同时也标志着Hive生成的MapReduce程序中Map阶段的结束。
+| 算子名称             | 功能描述                                                     | 对应的SQL关键字     |
+| -------------------- | ------------------------------------------------------------ | ------------------- |
+| TableScanOperator    | 从表中读取数据<br />为MapReduce框架的Map接口输入表的数据，控制扫描表的数据行数，标记是从原表中取数据 | from                |
+| SelectOperator       | 从表中获取哪些字段,然后输出                                  | select              |
+| ReduceOutputOperator | 将数据发送给reduce 端，只可能出现在Map阶段，同时也标志着Hive生成的MapReduce程序中Map阶段的结束。 | Join/Group by       |
+| JoinOperator         | 完成两个表的关联操作                                         | join                |
+| FilterOperator       | 完成数据过滤操作                                             | Where/Having        |
+| GroupByOperator      | 对应group by 操作，同时会出现在`Map Operator Tree`和`Reduce Operator Tree` 中<br />这是因为reduce 完成了 group by 的操作 | group by / Distinct |
+| FileOutputOperator   | 将结果数据集写入文件                                         | 每个SQL都会有       |
+| FetchOperator        | 将结果返回，往往是从上面的FileOutputOperator 的输出拉取结果  | 每个SQL都会有       |
+| LimitOperator        | 返回特定条数据的数据，往往和上面的FetchOperator配合          | Limit               |
+| CreateTableOperator  | 创建表的操作                                                 | create table        |
+| MoveOperator         | 移动数据的操作                                               | create table as XXX |
+| UnionOperator        | union 操作                                                   | union               |
 
 
 
