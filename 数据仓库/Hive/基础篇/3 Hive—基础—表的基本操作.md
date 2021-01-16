@@ -211,6 +211,8 @@ hobby string comment '爱好'
 );
 ```
 
+**注意**：如果给hive的增加列后，查询以前分区的数据，显示是为null的，只有后面增加的分区这个字段才会显示数据。如果想让前面的数据，这个字段也能显示出来，需要将以前分区数据备份，然后将以前的分区删掉，然后再将数据导入进来，这样就可以正常显示了。
+
 ### 5.5 删除列
 
 删除列不是指定列删除，需要把原有所有列写一遍，要删除的列排除掉即可：
@@ -277,7 +279,7 @@ alter table t8 set serdepropertyes('field.delim'='\t');
 
 1. ALTER TABLE table_name SET FILEFORMAT file_format 修改表的存储格式
 2. ALTER TABLE table_name CLUSTERED BY (col_name, col_name, ...) [SORTEDBY(col_name, ...)] INTO num_buckets BUCKETS 修改表的分桶情况
-  
+
 
 ## 6 其他操作
 
