@@ -127,6 +127,8 @@
 4. 程序一旦交给虚拟机之后，到底是解释执行还是编译执行，就由虚拟机本身决定了。
 ```
 
+![JVM](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/1891611.png)
+
 ## 方法执行的理论过程
 
 ### 方法执行的内存模型

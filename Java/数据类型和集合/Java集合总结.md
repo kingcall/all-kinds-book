@@ -36,7 +36,7 @@
 
 [集合工具类Collections深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
 
-[集合工具类Arrays深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
+[集合工具类Arrays深度解析](https://blog.csdn.net/king14bhhb/article/details/112715514)
 
 [Comparable和Comparator](https://blog.csdn.net/king14bhhb/article/details/110941207)
 
@@ -60,7 +60,7 @@
 
 [String进阶之StringBuilder与StringBuffer](https://blog.csdn.net/king14bhhb/article/details/111566093)
 
-[String扩展](https://blog.csdn.net/king14bhhb/article/details/111721430)
+[String扩展](https://blog.csdn.net/king14bhhb/article/details/112723276)
 
 ---
 
@@ -68,7 +68,7 @@
 
 [Java数据类型—包装类](https://blog.csdn.net/king14bhhb/article/details/111286590)
 
-
+[Java数据类型—BigDecimal](https://blog.csdn.net/king14bhhb/article/details/111286590)
 
 ##  二. 集合框架
 
