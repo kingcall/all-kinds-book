@@ -1,49 +1,101 @@
-# Java EnumSet
+[TOC]
 
-#### In this tutorial, we will learn about the Java EnumSet class and its various methods with the help of examples.
+## EnumSet
 
-The `EnumSet` class of the Java collections framework provides a set implementation of elements of a single enum.
-
-Before you learn about EnumSet, make sure to know about [Java Enums](https://www.programiz.com/java-programming/enums).
-
-It implements the [Set interface](https://www.programiz.com/java-programming/set).
+前面我们学习了Enum 和 EnumMap 今天我们学习和枚举相关的最后一个数据类型，那就是EnumSet，EnumSet 是Java 集合框架提供的一个存储元素都是枚举类型的集合，所以建议开始学习之前先学习[枚举初识](https://blog.csdn.net/king14bhhb/article/details/111224216)和[枚举进阶](https://blog.csdn.net/king14bhhb/article/details/111249702)
 
 
 
-![Java EnumSet class implements the Java Set interface.](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/03/09:34:24-java-enumset.png)
+### EnumSet的说明书
+
+还是按照国际惯例，先看一下EnumSet 的`说明书`，其实往往很多时候你的困惑都在`说明书`里写着呢，但是在此之前我们还是先看一下它的继承关系，让我们有一个大概的认识
+
+我们看到EnumSet是属于Java 集合框架下Set 家族的一员，继承了`AbstractSet` 抽象类和实现`Cloneable, Serializable,Enum`接口
+
+![image-20210117142616498](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210117142616498.png)
 
 
 
-------
-
-## Creating EnumSet
-
-In order to create an enum set, we must import the `java.util.EnumSet` package first.
-
-Unlike other set implementations, the enum set does not have public constructors. We must use the predefined methods to create an enum set.
-
-### 1. Using allOf(Size)
-
-The `allof()` method creates an enum set that contains all the values of the specified enum type Size. For example,
-
+```java
+/**
+ * A specialized {@link Set} implementation for use with enum types.  All of
+ * the elements in an enum set must come from a single enum type that is
+ * specified, explicitly or implicitly, when the set is created.  Enum sets
+ * are represented internally as bit vectors.  This representation is
+ * extremely compact and efficient. The space and time performance of this
+ * class should be good enough to allow its use as a high-quality, typesafe
+ * alternative to traditional <tt>int</tt>-based "bit flags."  Even bulk
+ * operations (such as <tt>containsAll</tt> and <tt>retainAll</tt>) should
+ * run very quickly if their argument is also an enum set.
+ *
+ * <p>The iterator returned by the <tt>iterator</tt> method traverses the
+ * elements in their <i>natural order</i> (the order in which the enum
+ * constants are declared).  The returned iterator is <i>weakly
+ * consistent</i>: it will never throw {@link ConcurrentModificationException}
+ * and it may or may not show the effects of any modifications to the set that
+ * occur while the iteration is in progress.
+ *
+ * <p>Null elements are not permitted.  Attempts to insert a null element
+ * will throw {@link NullPointerException}.  Attempts to test for the
+ * presence of a null element or to remove one will, however, function
+ * properly.
+ *
+ * <P>Like most collection implementations, <tt>EnumSet</tt> is not
+ * synchronized.  If multiple threads access an enum set concurrently, and at
+ * least one of the threads modifies the set, it should be synchronized
+ * externally.  This is typically accomplished by synchronizing on some
+ * object that naturally encapsulates the enum set.  If no such object exists,
+ * the set should be "wrapped" using the {@link Collections#synchronizedSet}
+ * method.  This is best done at creation time, to prevent accidental
+ * unsynchronized access:
+ *
+ * <pre>
+ * Set&lt;MyEnum&gt; s = Collections.synchronizedSet(EnumSet.noneOf(MyEnum.class));
+ * </pre>
+ *
+ * <p>Implementation note: All basic operations execute in constant time.
+ * They are likely (though not guaranteed) to be much faster than their
+ * {@link HashSet} counterparts.  Even bulk operations execute in
+ * constant time if their argument is also an enum set.
+ *
+ * <p>This class is a member of the
+ * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * Java Collections Framework</a>.
+ *
+ * @author Josh Bloch
+ * @since 1.5
+ * @see EnumMap
+ * @serial exclude
+ */
 ```
-import java.util.EnumSet;
 
-class Main {
-    // an enum named Size
-    enum Size {
-        SMALL, MEDIUM, LARGE, EXTRALARGE
-    }
-    
-    public static void main(String[] args) {
 
-        // Creating an EnumSet using allOf()
-        EnumSet<Size> sizes = EnumSet.allOf(Size.class);
 
-        System.out.println("EnumSet: " + sizes);
-    }
+###  EnumSet 的使用
 
+#### 创建 EnumSet
+
+为了创建一个EnumSet，我们必须先引入`java.util.EnumSet` ，和其他Set 的实现不一样，EnumSet 没有提供构造方法，所以我们必须使用EnumSet提供的静态方法来创建一个EnumSet，而且EnumSet的实现是一个抽象类。
+
+##### 1. 使用 allOf(Size)
+
+使用`allof()`方法创建一个包含指定枚举类型的全部枚举变量的EnumSet,所以和EnumMap 一样的是我们必须先要创建一个枚举类型
+
+```java
+enum Size {
+    SMALL, MEDIUM, LARGE, EXTRALARGE
 }
+```
+
+代码
+
+```java
+@Test
+public void create(){
+    EnumSet sizes=EnumSet.allOf(Size.class);
+    System.out.println("EnumSet: " + sizes);
+}
+
 ```
 
 **Output**
@@ -58,31 +110,19 @@ Notice the statement,
 EnumSet<Size> sizes = EnumSet.allOf(Size.class);
 ```
 
-Here, Size.class denotes the Size enum that we have created.
+ Size.class  代表了我们的参数是我们创建的枚举类型
 
 ------
 
-### 2. Using noneOf(Size)
+##### 2. 使用 noneOf(Size)
 
-The `noneOf()` method creates an empty enum set. For example,
+使用 `noneOf()`方法创建一个空的枚举集合
 
-```
-import java.util.EnumSet;
-
-class Main {
-
-     // an enum type Size
-    enum Size {
-        SMALL, MEDIUM, LARGE, EXTRALARGE
-    }
-
-    public static void main(String[] args) {
-
-        // Creating an EnumSet using noneOf()
-        EnumSet<Size> sizes = EnumSet.noneOf(Size.class);
-
-        System.out.println("Empty EnumSet: " + sizes);
-    }
+```java
+@Test
+public void create(){
+    EnumSet sizes2=EnumSet.noneOf(Size.class);
+    System.out.println("EnumSet: " + sizes2);
 }
 ```
 
@@ -92,13 +132,13 @@ class Main {
 Empty EnumSet : []
 ```
 
-Here, we have created an empty enum named sizes.
+上面我们通过创建了一个空的枚举集合
 
-**Note**: We can only insert elements of enum type Size in the above program. It's because we created our empty enum set using Size enum.
+**注意**: 我们只能插入的Size的枚举变量到该集合，其他类型的变量时不行的，因为我们的Set 的类型就是我们声明的枚举类型——Size
 
 ------
 
-### 3. Using range(e1, e2) Method
+##### 3. 使用 range(e1, e2) Method
 
 The `range()` method creates an enum set containing all the values of an enum between e1 and e2 including both values. For example,
 
@@ -129,7 +169,7 @@ EnumSet: [MEDIUM, LARGE, EXTRALARGE]
 
 ------
 
-### 4. Using of() Method
+##### 4. 使用 of() Method
 
 The `of()` method creates an enum set containing the specified elements. For example,
 

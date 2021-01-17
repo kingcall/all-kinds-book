@@ -23,6 +23,8 @@
 
 [深度剖析TreeMap](https://blog.csdn.net/king14bhhb/article/details/110949085)
 
+[深度剖析EnumMap](https://blog.csdn.net/king14bhhb/article/details/112735673)
+
 ---
 
 
