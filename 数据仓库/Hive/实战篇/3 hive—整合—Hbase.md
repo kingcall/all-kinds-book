@@ -6,7 +6,7 @@ Hive与HBase整合的实现是利用两者本身对外的API接口互相通信�
 
 基本通信原理如下：
 
-
+![hive-hbase](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2021/01/19/22:04:22-hive-hbase.png)
 
 ## 具体步骤
 
