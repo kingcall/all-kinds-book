@@ -34,6 +34,8 @@
 
 [深度剖析TreeSet](https://blog.csdn.net/king14bhhb/article/details/110972115)
 
+[深度剖析EnumSet](https://blog.csdn.net/king14bhhb/article/details/112756759)
+
 ---
 
 [集合工具类Collections深度解析](https://blog.csdn.net/king14bhhb/article/details/110574609)
