@@ -15,13 +15,27 @@
 ### cluster mode
 
 ```
-./bin/spark-submit --class org.apache.spark.examples.SparkPi \    --master yarn \    --deploy-mode cluster \    --driver-memory 4g \    --executor-memory 2g \    --executor-cores 1 \    lib/spark-examples*.jar \    10
+./bin/spark-submit --class org.apache.spark.examples.SparkPi \
+--master yarn \
+--deploy-mode cluster \
+--driver-memory 4g \
+--executor-memory 2g \
+--executor-cores 1 \
+lib/spark-examples*.jar \
+10
 ```
 
 ### client mode
 
 ```
-./bin/spark-submit --class org.apache.spark.examples.SparkPi \    --master yarn \    --deploy-mode client \    --driver-memory 4g \    --executor-memory 2g \    --executor-cores 1 \    lib/spark-examples*.jar \    10
+./bin/spark-submit --class org.apache.spark.examples.SparkPi \
+--master yarn \
+--deploy-mode client \
+--driver-memory 4g \
+--executor-memory 2g \
+--executor-cores 1 \
+lib/spark-examples*.jar \
+10
 ```
 
 ## spark-submit 详细参数说明
@@ -132,3 +146,22 @@ export HADOOP_CONF_DIR=XXX
   1000
 
 ```
+
+一个例子
+
+```shell
+spark-submit \
+--master yarn \
+--queue root.sparkstreaming \
+--deploy-mode cluster \
+--supervise \
+--name spark-job \
+--num-executors 20 \
+--executor-cores 2 \
+--executor-memory 4g \
+--conf spark.dynamicAllocation.maxExecutors=9 \
+--files commons.xml \
+--class com.***.realtime.helper.HelperHandle \
+BSS-ONSS-Spark-Realtime-1.0-SNAPSHOT.jar 500
+```
+
