@@ -36,3 +36,10 @@ MapReduce combiner 也被称为 “微型 reducer ”。combiner 的主要工作
 
 - MapReduce job 不能依赖于 Hadoop combiner 的执行，因为 combiner 的执行没有保证。
 - 在本地文件系统中，键值对是存储在 Hadoop 中的，运行 combiner 会导致昂贵的磁盘IO 开销。
+
+
+
+## 使用MapReduce combiner 优化程序
+
+### 利用Combiner计算每一年的平均气温
+

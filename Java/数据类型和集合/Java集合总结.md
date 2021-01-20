@@ -48,6 +48,10 @@
 
 ---
 
+[深度剖析Java集合之LinkedQueue](https://blog.csdn.net/king14bhhb/article/details/112864755)
+
+
+
 ### Java 数据类型系列文章
 
 [枚举初识](https://blog.csdn.net/king14bhhb/article/details/111224216)
@@ -140,7 +144,7 @@ Java 集合框架一些列的接口和类来实现很多常见的数据结构和
 
 
 
-![image-20201213140854528](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/17/09:03:30-42f0ce9d810524544f90c5fbfa822cf1.png)
+![image-20201213140854528](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/09:03:30-42f0ce9d810524544f90c5fbfa822cf1.png)
 
 #### Collection的子接口
 

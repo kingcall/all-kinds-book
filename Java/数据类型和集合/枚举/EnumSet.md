@@ -61,7 +61,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E> implemen
     final Class<E> elementType;
 
     /**
-     * 所有的元素，缓存起来获得更高的性能
+     * 存储所有的枚举变量
      */
     final Enum<?>[] universe;
 
@@ -144,7 +144,7 @@ EnumSet<Size> sizes = EnumSet.allOf(Size.class);
 
 ------
 
-##### 2. 使用 noneOf(Size)
+##### 2. 使用 noneOf(Class)
 
 使用 `noneOf()`方法创建一个空的枚举集合
 
@@ -190,7 +190,7 @@ EnumSet: [MEDIUM, LARGE, EXTRALARGE]
 
 
 
-##### 4. 使用 of()
+##### 4. 使用 of(e1...)
 
 使用 `of()` 方法创建包含指定枚举变量的EnumSet
 
@@ -210,9 +210,126 @@ EnumSet2: [SMALL, LARGE]
 
 
 
-### EnumSet 添加元素
+#### 创建方法总结(noneOf)
+
+**noneOf 的实现细节**
+
+上面我们只是演示了不同的创建方法的含义，但是并没有说一些细节东西，其实所有的创建方法都是使用调用了noneOf() 方法的，
+
+```java
+// allOf
+public static <E extends Enum<E>> EnumSet<E> allOf(Class<E> elementType) {
+    EnumSet<E> result = noneOf(elementType);
+    result.addAll();
+    return result;
+}
+// range
+public static <E extends Enum<E>> EnumSet<E> range(E from, E to) {
+    if (from.compareTo(to) > 0)
+        throw new IllegalArgumentException(from + " > " + to);
+    EnumSet<E> result = noneOf(from.getDeclaringClass());
+    result.addRange(from, to);
+    return result;
+}
+// of
+public static <E extends Enum<E>> EnumSet<E> of(E e1 ... ) {
+    EnumSet<E> result = noneOf(e1.getDeclaringClass());
+    result.add(e1);
+    result.add(e2);
+    return result;
+}
+```
+
+可以看出所有的方法都调用了noneOf 方法，而且前面我们说EnumSet 是一个抽象类,所以EnumSet没有给我们提供构造方法来创建对象，而是使用静态方法来创建对象，其实到这里我们应该可以猜到EnumSet应该有实现类的，不然它给我们返回什么对象呢？那我们就看一下noneOf里面到底发生了什么
+
+```java
+/**
+ * Creates an empty enum set with the specified element type.
+ * 使用指定的枚举类型创建一个空的EnumSet
+ * @param <E> The class of the elements in the set
+ * @param elementType the class object of the element type for this enum set
+ * @return An empty enum set of the specified type.
+ * @throws NullPointerException if <tt>elementType</tt> is null
+ */
+public static <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
+    Enum<?>[] universe = getUniverse(elementType);
+    if (universe == null)
+        throw new ClassCastException(elementType + " not an enum");
+
+    if (universe.length <= 64)
+        return new RegularEnumSet<>(elementType, universe);
+    else
+        return new JumboEnumSet<>(elementType, universe);
+}
+```
+
+其实EnumSet有两个实现类RegularEnumSet、JumboEnumSet，当枚举类型的枚举变量小于等于64的时候使用RegularEnumSet，否则就使用JumboEnumSet,所以大多时候，我们用的都是RegularEnumSet。
+
+我们注意到上面在noneOf方法中都调用了 getUniverse(elementType),我们看一下这个方法都干了什么,注释信息说这个方法返回了枚举中的全部枚举常量，并且这个返回的结果会被缓存下来，然后被所有调用它的方法共享。
+
+```java
+/**
+ * Returns all of the values comprising E.
+ * The result is uncloned, cached, and shared by all callers.
+ */
+private static <E extends Enum<E>> E[] getUniverse(Class<E> elementType) {
+    return SharedSecrets.getJavaLangAccess()
+                                    .getEnumConstantsShared(elementType);
+}
+```
+
+SharedSecrets 是一个比较底层的类了，我们可以不用太关注,只需知道它可以让我我们直接去访问类对象的一些信息即可，这里就是根据枚举类型的Class 信息获取到了全部的枚举常量。
 
 
+
+接下来我们再说一下，为什么上面的判断标准是64,而不是其他的数字呢
+
+```java
+class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
+    private static final long serialVersionUID = 3411599620347842686L;
+    /**
+     * Bit vector representation of this set.  The 2^k bit indicates the
+     * presence of universe[k] in this set.
+     */
+    private long elements = 0L;
+ }
+class JumboEnumSet<E extends Enum<E>> extends EnumSet<E> {
+    private static final long serialVersionUID = 334349849919042784L;
+
+    /**
+     * Bit vector representation of this set.  The ith bit of the jth
+     * element of this array represents the  presence of universe[64*j +i]
+     * in this set.
+     */
+    private long elements[];
+}
+```
+
+RegularEnumSet使用的是一个long属性来存储，而JumboEnumSet是用一个long的数组来存储，这也是为什么和64做比较的原因，因为long只有64位，最多标识64个枚举值，多的只能用数组来存储，
+
+但是我们注意到这两个类我们是没有办法使用的，因为它不是public 类，也就是说只能在同一包下面访问。
+
+
+
+**其他静态方法是如何通过noneOf返回含有元素的EnumSet**
+
+我们还是回到这些静态方法上，我们这里就以of方法为例进行探索
+
+```java
+// of
+public static <E extends Enum<E>> EnumSet<E> of(E e1 ... ) {
+  	// 我们知道noneOf 返回的是一个空的EnumSet
+    EnumSet<E> result = noneOf(e1.getDeclaringClass());
+   // 然后发现是将特定的元素添加到了集合中去的，其他方法特使同理的
+    result.add(e1);
+    result.add(e2);
+    return result;
+}
+```
+
+
+
+#### EnumSet 添加元素
 
 - `add()` - 添加指定的枚举变量到EnumSet
 - `addAll()` 添加指定集合中的元素到EnumSet
@@ -247,7 +364,31 @@ EnumSet using addAll(): [SMALL, MEDIUM, LARGE, EXTRALARGE]
 
 
 
-### EnumSet 获取元素
+这里我们就以add 方法为例说一下它是如何通过位向量实现添加操作的，其他方法同理
+
+```java
+/**
+ * Adds the specified element to this set if it is not already present.
+ *
+ * @param e element to be added to this set
+ * @return <tt>true</tt> if the set changed as a result of the call
+ *
+ * @throws NullPointerException if <tt>e</tt> is null
+ */
+public boolean add(E e) {
+    typeCheck(e);
+
+    long oldElements = elements;
+    elements |= (1L << ((Enum<?>)e).ordinal());
+    return elements != oldElements;
+}
+```
+
+add操作实际是用位运算，将这个long值对应你传入的枚举值的下标的那个bit位改成1，比如我传入的是Size.MEDIUM, 对应的ordinal是1，则是将elements的bit位中的第2位改成1，
+
+
+
+#### EnumSet 获取元素
 
 为了获取EnumSet中的元素我们可以使用`iterator()` 方法
 
@@ -275,7 +416,7 @@ public void access() {
 EnumSet: SMALL, MEDIUM, LARGE, EXTRALARGE,
 ```
 
-### EnumSet 删除元素
+#### EnumSet 删除元素
 
 - `remove()` - 删除指定元素
 - `removeAll()` - 删除全部元素
@@ -312,7 +453,7 @@ Are all elements removed? true
 
 ------
 
-### EnumSet 的其他方法
+#### EnumSet 的其他方法
 
 | Method       | Description                                                  |
 | :----------- | :----------------------------------------------------------- |
@@ -334,8 +475,9 @@ EnumSet最有价值的是其内部实现原理，采用的是Bit 来实现的，
 
 **备注** 很多人也将其称为位向量，既然是向量那就可以计算。
 
-
-
 ## 总结
 
-EnumSet 是一个用来存储枚举常量的集合，其底层是通过位向量实现的，所以有比较好的一个性能。
+1. EnumSet 是一个用来存储枚举常量的集合，其底层是通过位向量实现的，所以有比较好的一个性能。
+2. 其实EnumSet有两个实现类RegularEnumSet、JumboEnumSet，当枚举类型的枚举常量的数目等于64的时候使用RegularEnumSet，否则就使用JumboEnumSet,但是我们注意到这两个类我们是没有办法使用的，因为它是protected修饰的(省略了)，也就是说只能在同一包下面访问。这两个子类只是对于EnumSet的接口的实现方式不同，不同的地方就是根据调用方的Enum的值得个数来决定的，对于调用方来说是不需要关心这些细节的，所以这两个子类只需要是protected就可以，并且通过静态工厂类返回给调用方，以后如果有更牛逼的算法出现时，只需要再扩展出一个子类就可以了，而调用方是无感知的，比较符合开闭原则。
+3. 所有的创建创建方法其实都是调用了noneOf 创建方法，先创建一个空的EnumSet(RegularEnumSet或者JumboEnumSet)，然后通过添加元素的方式将数据添加进去。
+

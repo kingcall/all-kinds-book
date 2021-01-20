@@ -31,7 +31,22 @@ System.out.println(context.getSymlink());
 之后在 map/reduce 函数中可以通过 context 来访问到缓存的文件，一般是重写 setup 方法来进行初始化：
 
 ```
-@Overrideprotected void setup(Context context) throws IOException, InterruptedException {        super.setup(context);        if (context.getCacheFiles() != null && context.getCacheFiles().length > 0) {        String path = context.getLocalCacheFiles()[0].getName();        File itermOccurrenceMatrix = new File(path);        FileReader fileReader = new FileReader(itermOccurrenceMatrix);        BufferedReader bufferedReader = new BufferedReader(fileReader);        String s;        while ((s = bufferedReader.readLine()) != null) {            //TODO:读取每行内容进行相关的操作        }        bufferedReader.close();        fileReader.close();    }}
+@Override
+protected void setup(Context context) throws IOException, InterruptedException {
+        super.setup(context);
+        if (context.getCacheFiles() != null && context.getCacheFiles().length > 0) {
+        String path = context.getLocalCacheFiles()[0].getName();
+        File itermOccurrenceMatrix = new File(path);
+        FileReader fileReader = new FileReader(itermOccurrenceMatrix);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        String s;
+        while ((s = bufferedReader.readLine()) != null) {
+            //TODO:读取每行内容进行相关的操作
+        }
+        bufferedReader.close();
+        fileReader.close();
+    }
+}
 ```
 
 得到的path为本地文件系统上的路径。
