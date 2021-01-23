@@ -60,7 +60,7 @@ public interface Deque<E> extends Queue<E> {
 
 这个接口的定义其实很能说明问题，能说明什么问题呢，一个是Deque完全支持Queue的功能，其次就是由于Deque是双向队列，所以提供的方法都是成对的(xxxFirst,xxxLast)这些方法都是在队列的对首和对尾操作。
 
-### 使用
+### 双向队列的使用
 
 因为底层是通过LinkedList 来实现的，前面我们又对LinkedList进行了非常详细的学习，所以这里我们就不探究原理什么的了，直接看一下怎么使用
 
@@ -108,7 +108,37 @@ Removed Last Element: 4
 Updated Queue: [1, 2, 3]
 ```
 
+### 栈的使用
+
+需要注意的是因为LinkedList是一个双向队列，队列的两端都可以进行添加删除弹出等操作，所有我们可以将双向队列当成Stack 来使用。这里我们可以选择队列的任意一端当成栈来使用，这里我们就选择头部来使用
+
+```java
+@Test
+public void useAsStack(){
+    Deque<Integer> stack = new LinkedList<>();
+    stack.offerFirst(3);
+    stack.offerFirst(2);
+    stack.offerFirst(1);
+    System.out.println("All elements "+stack);
+    Integer pollFirst = stack.pollFirst();
+    System.out.println("Pop First elemet " + pollFirst);
+    System.out.println("All elements "+stack);
+
+}
+```
+
+输出结果
+
+```
+All elements [1, 2, 3]
+Pop First elemet 1
+All elements [2, 3]
+```
+
+我们看到LinkedList可以满足我们对栈的功能需求
+
 ## 总结
 
 1. 这一节的知识很简单，主要就是想告诉大家Deque的实现方式以及它是怎么实现的，注意和Queue 进行对比。
 2. LinkedList 实现的Deque 是一个无界的队列，本质上还是通过对链表的头部和尾部进行操作实现的。
+3. 因为LinkedList实现的是一个双向队列，所以我们可以将其当成栈来使用

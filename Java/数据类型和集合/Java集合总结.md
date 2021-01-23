@@ -50,7 +50,9 @@
 
 [深度剖析Java集合之LinkedQueue](https://blog.csdn.net/king14bhhb/article/details/112864755)
 
+[深度剖析Java集合之LinkedDeque](https://blog.csdn.net/king14bhhb/article/details/112910731)
 
+[深度剖析Java集合之ArrayDeque](https://blog.csdn.net/king14bhhb/article/details/113034278)
 
 ### Java 数据类型系列文章
 
@@ -397,8 +399,6 @@ Set 接口的实现类
 
 
 ## 六. 总结
-
-
 
 我们知道一般情况下我们划分内存的标准是连续或者不连续，在这种划分方式下诞生出了两种数据结构，一种是数组以使用连续内存为代表的一种是链表可以使用非连续内存的代表，接下来我们从这二者的角度去看一下集合的对比
 
