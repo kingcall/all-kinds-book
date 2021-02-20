@@ -1,8 +1,8 @@
-# MapReduce 工作原理
-
 [TOC]
 
 
+
+# MapReduce 工作原理
 
 本节主要详细介绍 MapReduce 的工作原理。
 

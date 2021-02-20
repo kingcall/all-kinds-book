@@ -42,6 +42,10 @@ toString(Object[] a)
 
 将数组或者是可变参数转化为List
 
+刚接触 Java 技术的开发人员可能不知道，Java 语言最初包括数组，是为了应对上世纪 90 年代初期 C++ 开发人员对于性能方面的批评。从那时到现在，我们已经走过一段很长的路，如今，与 Java Collections 库相比，数组不再有性能优势。
+
+例如，若要将数组的内容转储到一个字符串，需要迭代整个数组，然后将内容连接成一个 `String` ；而 Collections 的实现都有一个可用的 `toString()` 实现，可以直接使用。除少数情况外，好的做法是尽快将遇到的任何数组转换成集合。
+
 ```java
 @Test
 public void asList(){
@@ -54,6 +58,10 @@ public void asList(){
 [a, b, c]
 [a, b, c]
 ```
+
+注意，返回的 `List` 是不可修改的，所以如果尝试向其中添加新元素将抛出一个 `UnsupportedOperationException` 。
+
+而且，由于 `Arrays.asList()` 使用 **可变** 参数表示添加到 `List` 的元素，所以还可以使用它轻松地用以 `new` 新建的对象创建 `List` 。
 
 ### sort()
 

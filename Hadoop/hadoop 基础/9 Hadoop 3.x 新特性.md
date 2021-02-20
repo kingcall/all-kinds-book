@@ -1,16 +1,35 @@
+
+
+[TOC]
+
+
+
 # Hadoop 3.x 新特性
 
 相对于之前主要生产发布版本 Hadoop 2，Apache Hadoop 3 整合许多重要的增强功能。 Hadoop 3 是一个可用版本，提供了稳定性和高质量的 API，可以用于实际的产品开发。最低 Java 版本要求从 Java7 变为 Java8，所有 Hadoop 的 jar 都是基于 Java 8 运行是版本进行编译执行的，仍在使用Java 7或更低Java版本的用户需要升级到Java 8。
 
 下面简要介绍一下Hadoop3的主要变化。
 
+## 通用性
+
+1.精简Hadoop内核，包括剔除过期的API和实现，将默认组件实现替换成最高效的实现（比如将FileOutputCommitter缺省实现换为v2版本，废除hftp转由webhdfs替代，移除Hadoop子实现序列化库org.apache.hadoop.Records。
+
+2.Classpath isolation：以防止不同版本jar包冲突，比如google Guava在混合使用Hadoop、HBase和Spark时，很容易产生冲突。
+
+3.Shell脚本重构： Hadoop 3.0对Hadoop的管理脚本进行了重构，修复了大量bug，增加了新特性，支持动态命令等。
+
 ## HDFS 支持纠删码（erasure coding）
 
-纠删码是一种比副本存储更节省存储空间的数据持久化存储方法。比如 Reed-Solomon(10,4) 标准编码技术只需要1.4倍的空间开销，而标准的HDFS副本技术则需要3倍的空间开销。由于纠删码额外开销主要在于重建和远程读写，它通常用来存储不经常使用的数据（冷数据）。另外，在使用这个新特性时，用户还需要考虑网络和CPU开销。
+纠删码是一种比副本存储更节省存储空间的数据持久化存储方法。比如 Reed-Solomon(10,4) 标准编码技术只需要1.4倍的空间开销，而标准的HDFS副本技术则需要3倍的空间开销。由于纠删码额外开销主要在于重建和远程读写，它通常用来存储不经常使用的数据（冷数据）。另外，在使用这个新特性时，用户还需要考虑网络和CPU开销,因为纠删码额外开销主要是在重建和执行远程读
+
+Erasure coding纠删码技术简称EC，是一种数据保护技术.最早用于通信行业中数据传输中的数据恢复，是一种编码容错技术。它通过在原始数据中加入新的校验数据，使得各个部分的数据产生关联性。在一定范围的数据出错情况下，通过纠删码技术都可以进行恢复。
 
 ## YARN 时间线服务 v.2(YARN Timeline Service v.2)
 
 YARN Timeline Service v.2 用来应对两个主要挑战：（1）提高时间线服务的可扩展性、可靠性，（2）通过引入流(flow)和聚合(aggregation)来增强可用性。为了替代 Timeline Service v.1.x，YARN Timeline Service v.2 alpha 2 被提出来，这样用户和开发者就可以进行测试，并提供反馈和建议，不过 YARN Timeline Service v.2 还只能用在测试容器中。
+
+Yarn Timeline Service V2提供一个通用的应用程序共享信息和共享存储模块。可以将metrics等信息保存。 
+可以实现分布式writer实例和一个可伸缩的存储模块。同时，v2版本在稳定性和性能上面也做出了提升，原先版本不适用于大集群，v2版本使用hbase取代了原先的leveldb作为后台的存储工具。
 
 ## 重写 Shell 脚本
 
@@ -32,11 +51,22 @@ Opportunistic container默认被中央RM分配，但是，目前已经增加分�
 
 MapReduce添加了映射输出收集器的本地化实现的支持。对于密集型的洗牌操作（shuffle-intensive）jobs，可以带来30%的性能提升。
 
+Hadoop3.X中的MapReduce较之前的版本作出以下更改：
+1.Tasknative优化：为MapReduce增加了C/C++的map output collector实现（包括Spill，Sort和IFile等），通过作业级别参数调整就可切换到该实现上。对于shuffle密集型应用，其性能可提高约30%。
+
+2.MapReduce内存参数自动推断。在Hadoop 2.0中，为MapReduce作业设置内存参数非常繁琐，涉及到两个参数：mapreduce.{map,reduce}.memory.mb和mapreduce.{map,reduce}.java.opts
+
+一旦设置不合理，则会使得内存资源浪费严重，比如将前者设置为4096MB，但后者却是“-Xmx2g”，则剩余2g实际上无法让java heap使用到。
+
+
+
 ## 支持多余2个以上的NameNode
 
 针对HDFS NameNode的高可用性，最初实现方式是提供一个活跃的（active）NameNode和一个备用的（Standby）NameNode。通过对3个JournalNode的法定数量的复制编辑，使得这种架构能够对系统中任何一个节点的故障进行容错。
 
 该功能能够通过运行更多备用NameNode来提供更高的容错性，满足一些部署的需求。比如，通过配置3个NameNode和5个JournalNode，集群能够实现两个节点故障的容错。
+
+
 
 ## 修改了多重服务的默认端口
 
@@ -51,6 +81,11 @@ Hadoop支持和Microsoft Azure Data Lake和Aliyun对象存储系统集成，并�
 在单一DataNode管理多个磁盘情况下，在执行普通的写操作时，每个磁盘用量比较平均。但是，当添加或者更换磁盘时，将会导致一个DataNode磁盘用量的严重不均衡。由于目前HDFS均衡器关注点在于DataNode之间（inter-），而不是intra-，所以不能处理这种不均衡情况。
 
 在hadoop3 中，通过DataNode内部均衡功能已经可以处理上述情况，可以通过hdfs diskbalancer ClI来调用。
+
+
+
+Hadoop3.x支持单个Datanode上，不同硬盘间的数据balancer。老版本的hadoop只支持在Datanode之间进行balancer，每个节点内部不同硬盘之间若发生了数据不平衡，则没有一个好的办法进行处理。 
+现在可以通过hdfs diskbalancer命令，进行节点内部硬盘间的数据平衡。该功能默认是关闭的，需要手动设置参数dfs.disk.balancer.enabled为true来开启。
 
 ## 重写了守护进程和任务的堆管理机制
 

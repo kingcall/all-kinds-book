@@ -50,3 +50,4 @@ conf.setInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
 ```
 
 如果一行数据的大小超过这个最大值，那么该记录会被忽略掉。
+

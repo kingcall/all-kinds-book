@@ -15,3 +15,4 @@ MapReduce InputSplit 的长度是以字节来度量的，每个 InputSplit 都�
 我们可以在 MapReduce 程序根据数据的大小来调整分片大小。修改 `mapred.min.split.size` 这个参数即可。
 
 客户端（运行 Job 的节点）调用 `getSplit()` 方法为一个作业计算分片大小，然后发送到 application master，它根据数据分片的存储位置对处理该数据分片的 map 任务进行调度。接下来 map 任务把分片传递给 InputFormat 的 `createRecordReader()` 方法以便获取分片的 RecordReader 对象，而 RecordReader 对象将生成记录，也就是键值对，然后传递给 map 函数。
+

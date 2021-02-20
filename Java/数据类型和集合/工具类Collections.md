@@ -751,7 +751,7 @@ java.util.ConcurrentModificationException
 ```java
 @Test
 public void traverseSafe() {
-  	// 当然这里你乙二胺可以使用Vector
+  	// 当然这里你依然可以使用Vector
     List<Integer> numList = Collections.synchronizedList(new ArrayList<Integer>());
     numList.add(1);
     numList.add(2);

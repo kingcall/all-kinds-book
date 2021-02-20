@@ -197,7 +197,9 @@ $transport->close();
 
 可以看到现在活动状态色sessions 已经有两个了
 
-在这个页面上你还是可以拿到很多监控信息的，所以就看你如何去使用了
+在这个页面上你还是可以拿到很多监控信息的，所以就看你如何去使用了，然后我们通过HiveServer2 服务提交的SQL 执行情况也是可以看到的
+
+![image-20210217092855602](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/image-20210217092855602.png)
 
 
 

@@ -1,4 +1,4 @@
-# Java WeakHashMap
+## WeakHashMap
 
 #### In this tutorial, we will learn about Java WeakHashMap and its operations with the help of examples. We will also learn about the differences between WeakHashMap and HashMap
 

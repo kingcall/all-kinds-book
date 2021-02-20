@@ -136,11 +136,18 @@ SELECT get_json_object('{"info":[{"website":"www.ikeguang.com","name":"我的生
 
 下面我们尝试获取一下偶数个，或者奇数个或者是一定范围内的奇数个或者偶数个,其实就是上面提供的数组切片，你可以参考api 进行使用
 
-```
+```sql
 SELECT get_json_object('{"info":[{"website":"www.ikeguang.com","name":"我的生活记忆"},{"website":"beian.ikeguang.com","name":"备案"},{"website":"www.ikeguang2.com","name":"我的生活记忆"}]}', '$.info[0:2:2].website');
 ```
 
 但是我尝试了一下，发现这个功能有bug，不能做到切片的效果，每次都是全部返回
+
+```
+SELECT get_json_object('{"info":[
+	{"website":"www.ikeguang.com","name":"我的生活记忆"},
+	{"website":"beian.ikeguang.com","name":"备案"},
+	{"website":"www.ikeguang2.com","name":"我的生活记忆"}]}', '$.info[0:2:2].website');
+```
 
 
 

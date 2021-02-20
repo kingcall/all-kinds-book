@@ -2,11 +2,6 @@
 
 HDFS 是 Hadoop 生态里面的数据存储层，它是一个具有容错性的非常可靠的分布式文件系统。HDFS 以主从（ Master / Slave ）架构的方式工作，Namenode 是 Master 节点上的守护进程，而 Datanode 是 Slave 节点上的守护进程。
 
-如果需要使用 HDFS 需要先按照 Hadoop，可按照下面教程安装。
-
-- [Ubuntu 安装 Hadoop 2.0（伪分布式）](http://www.hadoopdoc.com/hadoop/hadoop-install-on-unbuntu)
-- [Ubuntu 安装 Hadoop 2.0（分布式）](http://www.hadoopdoc.com/hadoop/hadoop-distribute-install-on-unbuntu)
-
 本教程将详细介绍 HDFS 数据读写操作工作原理。
 
 ## Hadoop HDFS 数据写操作
@@ -49,7 +44,26 @@ HDFS 是 Hadoop 生态里面的数据存储层，它是一个具有容错性的�
 下面 HDFS 文件写入的 Java 示例代码
 
 ```
-Configuration conf = new Configuration();FileSystem fileSystem = FileSystem.get(conf);// Check if the file already existsPath path = new Path("/path/to/file.ext");if (fileSystem.exists(path)) {    System.out.println("File " + dest + " already exists");    return;}// Create a new file and write data to it.FSDataOutputStream out = fileSystem.create(path);InputStream in = new BufferedInputStream(new FileInputStream(new File(source)));byte[] b = new byte[1024];int numBytes = 0;while ((numBytes = in.read(b)) > 0) {    out.write(b, 0, numBytes);}// Close all the file descriptersin.close();out.close();fileSystem.close();
+Configuration conf = new Configuration();
+FileSystem fileSystem = FileSystem.get(conf);
+// Check if the file already exists
+Path path = new Path("/path/to/file.ext");
+if (fileSystem.exists(path)) {
+    System.out.println("File " + dest + " already exists");
+    return;
+}
+// Create a new file and write data to it.
+FSDataOutputStream out = fileSystem.create(path);
+InputStream in = new BufferedInputStream(new FileInputStream(new File(source)));
+byte[] b = new byte[1024];
+int numBytes = 0;
+while ((numBytes = in.read(b)) > 0) {
+    out.write(b, 0, numBytes);
+}
+// Close all the file descripters
+in.close();
+out.close();
+fileSystem.close();
 ```
 
 ## Hadoop HDFS 数据读操作
