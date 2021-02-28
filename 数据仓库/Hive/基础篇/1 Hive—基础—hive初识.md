@@ -28,11 +28,9 @@ Apache Hive是基于Hadoop的一个数据仓库工具，可以将结构化的数
 
 Hive提供了标准的SQL功能，其中包括了[SQL:2003](https://en.wikipedia.org/wiki/SQL:2003), [SQL:2011](https://en.wikipedia.org/wiki/SQL:2011), 和 [SQL:2016](https://en.wikipedia.org/wiki/SQL:2016)的特性 ，被称为HQL，对于熟悉SQL的用户可以直接利用Hive来查询数据，Hive-SQL 在提供了标准的SQL功能之外，也支持了扩展，**通过实现用户定义的User Defined Functions（UDF）、User Defined Aggregation Functions（UDAF）、User Defined Table Generating Functions（UDTF）**
 
-**HDFS中最关键的一点就是，数据存储HDFS上是没有schema的概念的(schema:相当于表里面有列、字段、字段名称、字段与字段之间的分隔符等，这些就是schema信息)然而HDFS上的仅仅只是一个纯的文本文件而已，那么，没有schema，就没办法使用sql进行查询了啊，因此，在这种背景下，就有问题产生：如何为HDFS上的文件添加Schema信息，如果加上去，是否就可以通过SQL的方式进行处理了呢？于是强大的Hive出现了**，也就是说Hive 是通过给HDFS 上的文件添加上schema 然后通过SQL处理，而这里的SQL处理不同于传统的关系型数据库，因为SQL 最终是是翻译成MR 进行运行的。
+Hive中最关键的一点就是，数据存储HDFS上是没有schema的概念的(schema:相当于表里面有列、字段、字段名称、字段与字段之间的分隔符等，这些就是schema信息)然而HDFS上的仅仅只是一个纯的文本文件而已，那么，没有schema，就没办法使用sql进行查询了啊，因此，在这种背景下，就有问题产生：如何为HDFS上的文件添加Schema信息，如果加上去，是否就可以通过SQL的方式进行处理了呢？于是强大的Hive出现了，也就是说Hive 是通过给HDFS 上的文件添加上schema 然后通过SQL处理，而这里的SQL处理不同于传统的关系型数据库，因为SQL 最终是是翻译成MR 进行运行的。
 
 当然除了Hive 查询和处理数据之外,还有Hadoop 平台原生的工具MR也就是说 Hive 是基于Hadoop 构建的一套数据仓库分析系统，它提供了丰富的SQL查询方式来分析存储在Hadoop 分布式文件系统中的数据，可以将结构  化的数据文件映射为一张数据库表，并提供完整的SQL查询功能，**可以将SQL语句转换为MapReduce任务进行运行**，通过自己的SQL 去查询分析需  要的内容，这套SQL 简称Hive SQL，**使不熟悉mapreduce 的用户很方便的利用SQL 语言查询，汇总，分析数据。而mapreduce开发人员可以把**  **己写的mapper 和reducer 作为插件来支持Hive 做更复杂的数据分析。**
-
-
 
 #### Hive 的设计定位
 
@@ -54,29 +52,24 @@ Hive 在目前的大数据生态中，**主要承担的角色就是数仓工具*
 
 它没有自己的存储，没有自己的处理能力，主要的角色就是承担了一个翻译的角色，因为整个大数据体现很多组件都是有它自己的处理能力、存储能力的，然后将翻译的结果提交给其他大数据处理组件，然后进行数据处理
 
-
-
 ### 对比Hbase
-
-
 
 同时补充一下hive与hbase的联系与区别，因为Hbase 和Hive作为底层都依赖Hadoop 的组件也是我们日常最常用的组件，下面我们看一下它们的异同点
 **共同点：**
-1.hbase与hive都是架构在hadoop之上的。都是用hadoop作为底层存储
+
+1. hbase与hive都是架构在hadoop之上的。都是用hadoop作为底层存储
 
 **区别：**
 
-2.Hive是建立在Hadoop之上为了减少MapReduce jobs编写工作的批处理系统，HBase是为了支持弥补Hadoop对实时操作的缺陷的项目 。
-3.想象你在操作RMDB数据库，如果是全表扫描，就用Hive+Hadoop,如果是索引访问，就用HBase+Hadoop 。
-4.Hive query就是MapReduce jobs可以从5分钟到数小时不止，HBase是非常高效的，肯定比Hive高效的多。
-5.Hive本身不存储和计算数据，它完全依赖于HDFS和MapReduce，Hive中的表纯逻辑。
-6.hive借用hadoop的MapReduce来完成一些hive中的命令的执行
-7.hbase是物理表，不是逻辑表，提供一个超大的内存hash表，搜索引擎通过它来存储索引，方便查询操作。
-8.hbase是列存储。
-9.hdfs作为底层存储，hdfs是存放文件的系统，而Hbase负责组织文件。
-10.hive需要用到hdfs存储文件，需要用到MapReduce计算框架。
-
-
+1. Hive是建立在Hadoop之上为了减少MapReduce jobs编写工作的批处理系统，HBase是为了支持弥补Hadoop对实时操作的缺陷的项目 。
+2. 想象你在操作RMDB数据库，如果是全表扫描，就用Hive+Hadoop,如果是索引访问，就用HBase+Hadoop 。
+3. Hive query就是MapReduce jobs可以从5分钟到数小时不止，HBase是非常高效的，肯定比Hive高效的多。
+4. Hive本身不存储和计算数据，它完全依赖于HDFS和MapReduce，Hive中的表纯逻辑。
+5. hive借用hadoop的MapReduce来完成一些hive中的命令的执行
+6. hbase是物理表，不是逻辑表，提供一个超大的内存hash表，搜索引擎通过它来存储索引，方便查询操作。
+7. hbase是列存储。
+8. hdfs作为底层存储，hdfs是存放文件的系统，而Hbase负责组织文件。
+9. hive需要用到hdfs存储文件，需要用到MapReduce计算框架。
 
 ## 总结
 

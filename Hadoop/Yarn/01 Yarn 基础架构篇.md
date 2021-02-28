@@ -1,0 +1,145 @@
+[TOC]
+
+## 一、yarn的概述
+
+ Apache Yarn（Yet Another Resource Negotiator的缩写）是hadoop集群资源管理器系统，Yarn从hadoop 2引入，最初是为了改善MapReduce的实现，但是它具有通用性，同样执行其他分布式计算模式。
+
+在MapReduce1中，具有如下局限性：
+
+1、扩展性差：jobtracker兼顾资源管理和作业控制跟踪功能跟踪任务，启动失败或迟缓的任务，记录任务的执行状态，维护计数器），压力大，成为系统的瓶颈
+2、可靠性差：采用了master/slave结构，master容易单点故障
+3、资源利用率低：基于槽位的资源分配模型，槽位是一种粗粒度的资源划分单位，通常一个任务不会用完一个槽位的资源，hadoop1分为map slot和reduce slot，而它们之间资源不共享，造成一些资源空闲。
+4、不支持多框架：不支持多种计算框架并行
+
+yarn很好解决了MapReduce1中的局限性：yarn基本思想；一个全局的资源管理器Resourcemanager和与每个应用对用的ApplicationMaster，Resourcemanager和NodeManager组成全新的通用系统，以分布式的方式管理应用程序。
+
+所以针对MapReduce1，yarn就有了如下特点：
+
+1、支持非mapreduce应用的需求
+2、可扩展性
+3、提高资源是用率
+4、用户敏捷性
+5、可以通过搭建为高可用
+
+
+
+### 1.1 application
+
+需要注意的是，在Yarn中我们把job的概念换成了`application`，因为在新的Hadoop2.x中，运行的应用不只是MapReduce了，还有可能是其它应用如一个DAG（有向无环图Directed Acyclic Graph，例如storm应用）。Yarn的另一个目标就是拓展Hadoop，使得它不仅仅可以支持MapReduce计算，还能很方便的管理诸如Hive、Hbase、Pig、Spark/Shark等应用。这种新的架构设计能够使得各种类型的应用运行在Hadoop上面，并通过Yarn从系统层面进行统一的管理，也就是说，有了Yarn，各种应用就可以互不干扰的运行在同一个Hadoop系统中，共享整个集群资源，如下图所示： 
+![这里写图片描述](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/20151029092726524.png)
+
+
+
+## 二、yarn架构组件
+
+  Yarn从整体上还是属于master/slave模型，主要依赖于三个组件来实现功能，第一个就是ResourceManager，是集群资源的仲裁者
+
+它包括两部分：一个是可插拔式的调度Scheduler，一个是ApplicationManager，用于管理集群中的用户作业。
+
+第二个是每个节点上的NodeManager，管理该节点上的用户作业和工作流，也会不断发送自己Container使用情况给ResourceManager。第三个组件是ApplicationMaster，用户作业生命周期的管理者它的主要功能就是向ResourceManager（全局的）申请计算资源（Containers）并且和NodeManager交互来执行和监控具体的task。架构图如下：
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/1271254-20191008160008965-1100694847.png)
+
+ 
+
+ 
+
+
+
+### 2.1、Resourcemanager 
+
+ResourceManager 拥有系统所有资源分配的决定权，负责集群中所有应用程序的资源分配，拥有集群资源主要、全局视图。因此为用户提供公平的，基于容量的，本地化资源调度。根据程序的需求，调度优先级以及可用资源情况，动态分配特定节点运行应用程序。它与每个节点上的NodeManager和每一个应用程序的ApplicationMaster协调工作。
+
+ResourceManager的主要职责在于调度，即在竞争的应用程序之间分配系统中的可用资源，并不关注每个应用程序的状态管理。
+
+ResourceManager主要有两个组件：Scheduler和ApplicationManager：Scheduler是一个资源调度器，它主要负责协调集群中各个应用的资源分配，保障整个集群的运行效率。Scheduler的角色是一个纯调度器，它只负责调度Containers，不会关心应用程序监控及其运行状态等信息。同样，它也不能重启因应用失败或者硬件错误而运行失败的任务。
+
+
+
+#### 2.1.1 Scheduler
+
+Yarn的设计目标就是允许我们的各种应用以共享、安全、多租户的形式使用整个集群。并且，为了保证集群资源调度和数据访问的高效性，Yarn还必须能够感知整个集群拓扑结构。为了实现这些目标，ResourceManager的调度器Scheduler为应用程序的资源请求定义了一些灵活的协议，通过它就可以对运行在集群中的各个应用做更好的调度，因此，这就诞生了**Resource Request**和**Container**。
+
+具体来讲，一个应用先向ApplicationMaster发送一个满足自己需求的资源请求，然后ApplicationMaster把这个资源请求以`resource-request`的形式发送给ResourceManager的Scheduler，Scheduler再在这个原始的`resource-request`中返回分配到的资源描述Container。每个ResourceRequest可看做一个可序列化Java对象，包含的字段信息如下
+
+<resource-name, priority, resource-requirement, number-of-containers>
+
+- resource-name：资源名称，现阶段指的是资源所在的host和rack，后期可能还会支持虚拟机或者更复杂的网络结构
+- priority：资源的优先级
+- resource-requirement：资源的具体需求，现阶段指内存和cpu需求的数量
+- number-of-containers：满足需求的Container的集合
+
+
+
+ Scheduler是一个可插拔的插件，负责各个运行中的应用的资源分配，受到资源容量，队列以及其他因素的影响。是一个纯粹的调度器，不负责应用程序的监控和状态追踪，不保证应用程序的失败或者硬件失败的情况对task重启，而是基于应用程序的资源需求执行其调度功能，使用了叫做资源container的概念，其中包括多种资源，比如，cpu，内存，磁盘，网络等。在Hadoop的MapReduce框架中主要有三种Scheduler：**FIFO Scheduler，Capacity Scheduler和Fair Scheduler**。
+
+FIFO Scheduler：先进先出，不考虑作业优先级和范围，适合低负载集群。
+Capacity Scheduler：将资源分为多个队列，允许共享集群，有保证每个队列最小资源的使用。
+Fair Scheduler：公平的将资源分给应用的方式，使得所有应用在平均情况下随着时间得到相同的资源份额。
+
+
+
+#### 2.1.2 ApplicationManager
+
+  ApplicationManager主要负责接收job的提交请求，为应用分配第一个Container来运行ApplicationMaster，还有就是负责监控ApplicationMaster，在遇到失败时重启ApplicationMaster运行的Container
+
+
+
+### 2.2 NodeManager
+
+  NodeManager是yarn节点的一个“工作进程”代理，管理hadoop集群中独立的计算节点，主要负责与ResourceManager通信，负责启动和管理应用程序的container的生命周期，监控它们的资源使用情况（cpu和内存），跟踪节点的监控状态，管理日志等。并报告给RM。
+
+  NodeManager在启动时，NodeManager向ResourceManager注册，然后发送心跳包来等待ResourceManager的指令，主要目的是管理resourcemanager分配给它的应用程序container。NodeManager只负责管理自身的Container，它并不知道运行在它上面应用的信息。在运行期，通过NodeManager和ResourceManager协同工作，这些信息会不断被更新并保障整个集群发挥出最佳状态
+
+主要职责：
+1、接收ResourceManager的请求，分配Container给应用的某个任务
+2、和ResourceManager交换信息以确保整个集群平稳运行。ResourceManager就是通过收集每个NodeManager的报告信息来追踪整个集群健康状态的，而NodeManager负责监控自身的健康状态。
+3、管理每个Container的生命周期
+4、管理每个节点上的日志
+5、执行Yarn上面应用的一些额外的服务，比如MapReduce的shuffle过程
+
+
+
+#### 2.2.1 Container
+
+   Container是Yarn框架的计算单元，是具体执行应用task（如map task、reduce task）的基本单位。Container和集群节点的关系是：一个节点会运行多个Container，但一个Container不会跨节点。
+
+  一个Container就是一组分配的系统资源，现阶段只包含两种系统资源（之后可能会增加磁盘、网络、GPU等资源），由NodeManager监控，Resourcemanager调度。
+
+  每一个应用程序从ApplicationMaster开始，它本身就是一个container（第0个），一旦启动，ApplicationMaster就会更加任务需求与Resourcemanager协商更多的container，在运行过程中，可以动态释放和申请container。
+
+
+
+### 2.3 ApplicationMaster
+
+ApplicationMaster负责与scheduler协商合适的container，跟踪应用程序的状态，以及监控它们的进度，ApplicationMaster是协调集群中应用程序执行的进程。每个应用程序都有自己的ApplicationMaster，负责与ResourceManager协商资源（container）和NodeManager协同工作来执行和监控任务 。
+
+当一个ApplicationMaster启动后，会周期性的向resourcemanager发送心跳报告来确认其健康和所需的资源情况，在建好的需求模型中，ApplicationMaster在发往resourcemanager中的心跳信息中封装偏好和限制，在随后的心跳中，ApplicationMaster会对收到集群中特定节点上绑定了一定的资源的container的租约，根据Resourcemanager发来的container，ApplicationMaster可以更新它的执行计划以适应资源不足或者过剩，container可以动态的分配和释放资源。
+
+## 三、yarn作业调度流程
+
+Application在Yarn中的执行过程如下图所示：
+
+![img](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/1271254-20191008161506376-61248447.png)
+
+ 
+
+1、客户端程序向ResourceManager提交应用并请求一个ApplicationMaster实例，ResourceManager在应答中给出一个applicationID以及有助于客户端请求资源的资源容量信息。
+
+2、ResourceManager找到可以运行一个Container的NodeManager，并在这个Container中启动ApplicationMaster实例
+
+Application Submission Context发出响应，其中包含有：ApplicationID，用户名，队列以及其他启动ApplicationMaster的信息，
+Container Launch Context（CLC）也会发给ResourceManager，CLC提供了资源的需求，作业文件，安全令牌以及在节点启动ApplicationMaster所需要的其他信息。
+当ResourceManager接收到客户端提交的上下文，就会给ApplicationMaster调度一个可用的container（通常称为container0）。然后ResourceManager就会联系NodeManager启动ApplicationMaster，并建立ApplicationMaster的RPC端口和用于跟踪的URL，用来监控应用程序的状态。
+
+3、ApplicationMaster向ResourceManager进行注册，注册之后客户端就可以查询ResourceManager获得自己ApplicationMaster的详细信息，以后就可以和自己的ApplicationMaster直接交互了。在注册响应中，ResourceManager会发送关于集群最大和最小容量信息，
+
+4、在平常的操作过程中，ApplicationMaster根据resource-request协议向ResourceManager发送resource-request请求，ResourceManager会根据调度策略尽可能最优的为ApplicationMaster分配container资源，作为资源请求的应答发个ApplicationMaster
+
+5、当Container被成功分配之后，ApplicationMaster通过向NodeManager发送container-launch-specification信息来启动Container， container-launch-specification信息包含了能够让Container和ApplicationMaster交流所需要的资料，一旦container启动成功之后，ApplicationMaster就可以检查他们的状态，Resourcemanager不在参与程序的执行，只处理调度和监控其他资源，Resourcemanager可以命令NodeManager杀死container，
+
+6、应用程序的代码在启动的Container中运行，并把运行的进度、状态等信息通过application-specific协议发送给ApplicationMaster，随着作业的执行，ApplicationMaster将心跳和进度信息发给ResourceManager，在这些心跳信息中，ApplicationMaster还可以请求和释放一些container。
+
+7、在应用程序运行期间，提交应用的客户端主动和ApplicationMaster交流获得应用的运行状态、进度更新等信息，交流的协议也是application-specific协议
+
+8、一但应用程序执行完成并且所有相关工作也已经完成，ApplicationMaster向ResourceManager取消注册然后关闭，用到所有的Container也归还给系统，当container被杀死或者回收，Resourcemanager都会通知NodeManager聚合日志并清理container专用的文件。

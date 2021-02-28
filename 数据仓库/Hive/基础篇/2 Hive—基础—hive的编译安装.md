@@ -18,8 +18,6 @@ git clone https://github.com/apache/hive.git
 
 ![image-20201222201703371](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/22/20:49:00-20:17:03-image-20201222201703371.png)
 
-
-
 ### 查看你的hadoop 版本
 
 因为hive 是依赖hadoop ，所以编译之前你需要知道你的hadoop 版本，你可以使用`hadoop version` 进行查看
@@ -154,8 +152,6 @@ Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class 
 到这里其实我们已经完成了整个Hive 的安装和最小配置,接下来我们看一下服务是否启动成功了
 
 ![image-20201222220353850](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2020/12/22/22:03:54-image-20201222220353850.png)
-
-
 
 ### 愉快的使用吧
 

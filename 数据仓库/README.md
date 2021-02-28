@@ -133,7 +133,7 @@
 
 ​	[2. UDF IP 解析](https://blog.csdn.net/king14bhhb/article/details/111939061)
 
-
+   [3. UDF SQL 解析](https://blog.csdn.net/king14bhhb/article/details/111939061)
 
 #### 2. 高性能查询引擎
 
@@ -169,7 +169,9 @@
 
 #### 2. 知名游戏公司的数仓建设
 
-#### 3. 企业级实时数仓建设案例
+#### 3. 如何设计企业级数据平台
+
+#### 4. 企业级实时数仓建设案例
 
 
 

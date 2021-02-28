@@ -19,7 +19,7 @@
 
 #### 基于MPP架构
 
-这些SQL引擎是基于MPP架构构建的，其基本原理是将SQL翻译成可分布式执行的任务，采用Volcano风格的计算引擎并处理这些任务，任务之间的数据流动和交换由专门的Exchange运算符完成。典型的代表有Presto和Impala等。这些SQL引擎具有良好的可扩展性，但容错性较差。
+这些SQL引擎是基于MPP架构构建的，其基本原理是将SQL翻译成可分布式执行的任务，采用Volcano风格的计算引擎并处理这些任务，任务之间的数据流动和交换由专门的Exchange运算符完成。典型的代表有Presto和Impala等。**这些SQL引擎具有良好的可扩展性，但容错性较差**。
 
 ### Hive 的架构
 
@@ -50,9 +50,7 @@ HiveSQL 通过命令行或者客户端提交，经过 Compiler 编译器，运�
 
 #### Driver(驱动引擎)
 
-与关系型数据库的查询引擎类似，Driver实现了SQL解析(语法分析、编译、优化)，生成逻辑计划，物理计划，查询优化与执行等，它的输入是SQL语句，输出为一系列分布式执行程序（可以为MapReduce，Tez或Spark等)，如果你学习过JDBC 的话，你一定对Driver 不会感到陌生
-
-Hive 的核心是驱动引擎， 驱动引擎由四部分组成：
+与关系型数据库的查询引擎类似，Driver实现了SQL解析(语法分析、编译、优化)，生成逻辑计划，物理计划，查询优化与执行等，它的输入是SQL语句，输出为一系列分布式执行程序（可以为MapReduce，Tez或Spark等)，如果你学习过JDBC 的话，你一定对Driver 不会感到陌生，Hive 的核心是驱动引擎， 驱动引擎由四部分组成：
 
 1.  解释器：解释器的作用是将 HiveSQL 语句转换为抽象语法树（AST）
 
@@ -140,8 +138,6 @@ Starting Job = job_1609590180941_0012, Tracking URL = http://localhost:8088/prox
 Kill Command = /usr/local/Cellar/hadoop/3.2.1/libexec/bin/mapred job  -kill job_1609590180941_0012
 2021-01-03 10:01:29,634 INFO  [5011f419-6798-4b8c-be9f-daf47b84c6f0 main] exec.Task (SessionState.java:printInfo(1227)) - Kill Command = /usr/local/Cellar/hadoop/3.2.1/libexec/bin/mapred job  -kill job_1609590180941_0012
 ```
-
-
 
 ### Hive 的组成
 

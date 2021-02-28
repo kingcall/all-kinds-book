@@ -1,5 +1,9 @@
 # Hadoop 工作原理
 
+[TOC]
+
+
+
 在大数据领域，Hadoop 已经成为一种流行的解决方案。Hadoop 的设计考虑到了很多方面，比如故障容错性，海量数据处理，数据本地化，跨异构硬件和软件平台的可移植性等等。本节课程详细介绍了 Hadoop 的3个重要的组件。
 ![Hadoop架构图](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/hadoop-architecture_20191001225319369978-20210111222739825.png)
 
@@ -26,21 +30,21 @@ HDFS 也是一种 Master-slave 架构，NameNode 是运行 master 节点的进�
 块是计算机系统最小的存储单元。它是分配给文件的最小的连续存储单元。在 Hadoop，也有块的概念，只是比计算机系统的块要大得多，默认是128MB或者256MB。
 ![hdfs块概念](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/hdfs-block_20191001230938387642-20210111222755597.png)
 
-在指定 block 大小的时候要非常谨慎。为了解释原因，让我们举个例子，假如一个文件有700MB，如果 block 大小设置为128MB，那么 HDFS 会把这个文件划分成6个 block。5个128MB，一个是60MB。如果 block 的大小4KB，这个时候会出现什么情况呢？在 HDFS 里面，文件大小一般都是TB到PB级别。每个 block 是4KB的话，那么文件会被划分成很多小的 block。这时，NameNode 将会创建大量元数据，这些元数据的量将会塞满NameNode 的内存，导致 NameNode 运行效率低下，甚至奔溃。因此，在选择 HDFS 块大小的时候应该格外小心。
+在指定 block 大小的时候要非常谨慎。为了解释原因，让我们举个例子，假如一个文件有700MB，如果 block 大小设置为128MB，那么 HDFS 会把这个文件划分成6个 block。5个128MB，一个是60MB。如果 block 的大小4KB，这个时候会出现什么情况呢？在 HDFS 里面，文件大小一般都是TB到PB级别。每个 block 是4KB的话，那么文件会被划分成很多小的 block。
+
+这时，NameNode 将会创建大量元数据，这些元数据的量将会塞满NameNode 的内存，导致 NameNode 运行效率低下，甚至奔溃。因此，在选择 HDFS 块大小的时候应该格外小心。
 
 ### 副本管理
 
 为了实现数据容错，HDFS 使用了一种复制技术，它会把块复制到不同的 DataNode 节点。副本因子决定了一个数据块可以被复制多少个，默认是3个，其实这个副本因子我们可以配置成任何值。
 ![hdfs副本管理](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/block-replication_20191001231037441320-20210111222804972.png)
 
-上面这个图展示了 HDFS 的块复制机制。如果我们有一个1G的文件，复制因子是3，那么存储这个文件就需要3G的容量。
-
-为了维护复制因子，NameNode 会从各个 DataNode 收集块报告，当块的副本数大于或者小于复制因子时，NameNode 将会响应的删除和新增块副本。
+上面这个图展示了 HDFS 的块复制机制。如果我们有一个1G的文件，复制因子是3，那么存储这个文件就需要3G的容量。为了维护复制因子，NameNode 会从各个 DataNode 收集块报告，当块的副本数大于或者小于复制因子时，NameNode 将会响应的删除和新增块副本。
 
 ### HDFS机架感知
 
 ![HDFS机架感知](http://www.hadoopdoc.com/media/editor/rack-awareness_20191001231124988263.png)
-一个机架都会有很多个 DataNode 机器，在生产环境下，一般都会有好几个这样的机架。HDFS 根据机架感知算法，以分布式方式放置块的副本。机架感知算法具有低延迟和容错特性。假如把复制因子配置为3，那么按照这个算法，HDFS 会把第一个 block 放在本地机架，把另外两个 block 放在另外一个机架的不同 DataNode 节点。HDFS 不会在同一个机架存放超过2个 block。
+一个机架都会有很多个 DataNode 机器，在生产环境下，一般都会有好几个这样的机架。HDFS 根据机架感知算法，以分布式方式放置块的副本。机架感知算法具有低延迟和容错特性。假如把复制因子配置为3，那么按照这个算法，HDFS 会把第一个 block 放在本地机架，把另外两个 block 放在另外一个机架的不同 DataNode 节点。**HDFS 不会在同一个机架存放超过2个 block**。
 
 ## MapReduce
 
@@ -57,7 +61,7 @@ Map任务分为以下阶段：
 
 #### RecordReader
 
-RecordReader 会把输入分片转换成记录，它将数据解析为记录，但不解析记录本身。接着把数据以键值对的方式提供给 mapper 函数，一般键是记录的位移信息，而值是具体的数据记录。一个键值对就是一条记录。
+RecordReader 会把输入分片转换成记录，它将数据解析为记录，但不解析记录本身。接着把数据以键值对的方式提供给 mapper 函数，一**般键是记录的位移信息，而值是具体的数据记录。一个键值对就是一条记录**。
 
 #### Map
 
@@ -101,7 +105,7 @@ Yarn 一个资源管理系统，其作用就是把资源管理和任务调度/�
 ApplicationMaster 负责从 ResourceManager 申请资源，并与 NodeManager 一起对任务做持续监控工作。
 ![Yarn架构图](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/Yarn-Architecture_20191001231338344714-20210111222715674.png)
 
-ResourceManager 有两个比较重要的组件 —— Scheduler 和 ApplicationMaster。
+ResourceManager 有两个比较重要的组件 —— Scheduler 和 ApplicationManager。
 
 #### Scheduler
 

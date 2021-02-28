@@ -25,8 +25,15 @@ Hadoop MapReduce 推测执行在某些情况下是有好处的，因为具有 10
 
 推测执行是 MapReduce 作业的一种优化技术，默认是启用的。你可以在 mapred-site.xml 配置文件中为 mapper 和 reducer 关闭推测执行技术。配置如下：
 
-```
-<property><name>mapred.map.tasks.speculative.execution</name><value>false</value></property><property><name>mapred.reduce.tasks.speculative.execution</name><value>false</value></property>
+```xml
+<property>
+	<name>mapred.map.tasks.speculative.execution</name>
+	<value>false</value>
+</property>
+<property>
+	<name>mapred.reduce.tasks.speculative.execution</name>
+	<value>false</value>
+</property>
 ```
 
 ## 什么情况下需要关闭推测执行
