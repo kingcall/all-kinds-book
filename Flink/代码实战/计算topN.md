@@ -131,6 +131,12 @@ senv.addSource(
 
 这里考虑到数据可能乱序，使用了可以处理乱序的抽象类`BoundedOutOfOrdernessTimestampExtractor`，并且实现了唯一的一个没有实现的方法`extractTimestamp`，乱序数据，会导致数据延迟，在构造方法中传入了一个`Time.milliseconds(1000)`，表明数据可以延迟一秒钟。比如说，如果窗口长度是10s，0~10s的数据会在11s的时候计算，此时watermark是10，才会触发计算，也就是说引入watermark处理乱序数据，最多可以容忍0~t这个窗口的数据，最晚在t+1时刻到来。
 
+![](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2021/03/09/23:31:20-20200512180209261.png)
+
+具体关于watermark的讲解可以参考这篇文章
+
+https://blog.csdn.net/qq_39657909/article/details/106081543
+
 #### 窗口统计
 
 业务需求上，通常可能是一个小时，或者过去15分钟的数据，5分钟更新一次排名，这里为了演示效果，窗口长度取10s，每次滑动(slide)5s，即5秒钟更新一次过去10s的排名数据。
@@ -276,5 +282,12 @@ private static class TopNHotUsers extends KeyedProcessFunction<Tuple, UserViewCo
 
 #### 结果输出
 
+可以看到，每隔5秒钟更新输出一次数据。
+
+![](https://kingcall.oss-cn-hangzhou.aliyuncs.com/blog/img/2021/03/09/23:27:58-%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20210309232520.png)
 
 
+
+参考
+
+http://wuchong.me/blog/2018/11/07/use-flink-calculate-hot-items/
